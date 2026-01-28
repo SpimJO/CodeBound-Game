@@ -12,7 +12,6 @@ yarn-error.log*
 
 # Build outputs
 dist/
-build/
 
 # Logs
 logs
@@ -30,10 +29,6 @@ coverage/
 # nyc test coverage
 .nyc_output
 
-# Dependency directories
-node_modules/
-jspm_packages/
-
 # Optional npm cache directory
 .npm
 
@@ -45,9 +40,6 @@ jspm_packages/
 
 # Yarn Integrity file
 .yarn-integrity
-
-# dotenv environment variables file
-.env
 
 # IDE
 .vscode/
