@@ -1,207 +1,452 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Link } from '@tanstack/react-router';
-import { ArrowRight, Code, Gamepad2, Globe, Shield, Zap } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+    Home as HomeIcon,
+    Compass,
+    Trophy,
+    Download,
+    Users,
+    Play,
+    ChevronRight,
+    Code,
+    Gamepad2,
+    Terminal,
+    Zap,
+    Star,
+    TrendingUp,
+    Award,
+    MessageCircle,
+    Calendar
+} from 'lucide-react';
 
 const Home = () => {
+    const [activeNav, setActiveNav] = useState('home');
+
+    // Mock leaderboard data
+    const leaderboardData = [
+        { rank: 1, name: "CodeNinja", score: 15420, avatar: "CN", color: "from-yellow-400 to-orange-500" },
+        { rank: 2, name: "DevMaster", score: 14850, avatar: "DM", color: "from-gray-300 to-gray-400" },
+        { rank: 3, name: "BugHunter", score: 13990, avatar: "BH", color: "from-amber-600 to-amber-700" },
+        { rank: 4, name: "LogicKing", score: 12750, avatar: "LK", color: "from-blue-400 to-blue-600" },
+        { rank: 5, name: "SyntaxQueen", score: 11880, avatar: "SQ", color: "from-purple-400 to-purple-600" },
+    ];
+
+    // Mock community posts
+    const communityPosts = [
+        { user: "PlayerOne", time: "2h ago", content: "Just completed level 50! This game is amazing for learning loops 🔥", likes: 42 },
+        { user: "CodeCrafter", time: "5h ago", content: "Anyone want to team up for the weekly challenge?", likes: 18 },
+        { user: "DevStudent", time: "1d ago", content: "Finally understood recursion thanks to the dragon boss fight!", likes: 156 },
+    ];
+
+    const faqs = [
+        {
+            question: "What is CodeBound?",
+            answer: "CodeBound is an immersive 2D puzzle-based educational game that teaches Java programming fundamentals through 100 progressively challenging levels. Learn coding by solving engaging puzzles and defeating bosses!"
+        },
+        {
+            question: "Do I need prior programming experience?",
+            answer: "Not at all! CodeBound is designed for absolute beginners. Our progressive difficulty system adapts to your learning pace, starting from basic concepts and gradually introducing advanced topics."
+        },
+        {
+            question: "What programming languages does it teach?",
+            answer: "Currently, CodeBound focuses on Java fundamentals including variables, loops, conditionals, functions, and object-oriented programming. We're planning to add support for Python and JavaScript soon!"
+        },
+        {
+            question: "Is CodeBound free?",
+            answer: "Yes! CodeBound is completely free for students and individual learners. We also offer enterprise and classroom licenses for educational institutions."
+        },
+        {
+            question: "What platforms is CodeBound available on?",
+            answer: "CodeBound is available on Windows, macOS, and Linux. You can download the desktop version or access the web version directly from your browser."
+        }
+    ];
+
     return (
-        <div className="min-h-screen flex flex-col bg-background font-sans text-foreground overflow-x-hidden">
-            {/* Navigation */}
-            <header className="fixed top-0 w-full z-50 border-b border-white/10 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/20">
-                            C
+        <div className="h-screen flex overflow-hidden bg-black text-white">
+            {/* Left Sidebar */}
+            <motion.aside
+                initial={{ x: -100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="w-64 bg-zinc-950 border-r border-zinc-800 flex flex-col"
+            >
+                {/* Logo */}
+                <div className="p-6 border-b border-zinc-800">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <Code className="w-6 h-6 text-white" />
                         </div>
-                        <span className="font-bold text-xl tracking-tight">CodeBound</span>
-                    </div>
-
-                    <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-                        <a href="#features" className="hover:text-primary transition-colors">Features</a>
-                        <a href="#about" className="hover:text-primary transition-colors">About</a>
-                        <a href="#community" className="hover:text-primary transition-colors">Community</a>
-                    </nav>
-
-                    <div className="flex items-center gap-4">
-                        <Link to="/auth/login">
-                            <Button variant="ghost" size="sm" className="hidden sm:flex">
-                                Login
-                            </Button>
-                        </Link>
-                        <Link to="/auth/register">
-                            <Button size="sm" className="shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow">
-                                Get Started
-                            </Button>
-                        </Link>
+                        <div>
+                            <h1 className="font-bold text-lg tracking-tight">CodeBound</h1>
+                            <p className="text-xs text-zinc-500">Learn by Gaming</p>
+                        </div>
                     </div>
                 </div>
-            </header>
 
-            {/* Hero Section */}
-            <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
-                {/* Background Decor */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none z-0">
-                    <div className="absolute top-20 left-20 w-72 h-72 bg-primary/10 rounded-full blur-[100px] animate-pulse" />
-                    <div className="absolute top-40 right-20 w-96 h-96 bg-accent/20 rounded-full blur-[120px]" />
-                </div>
+                {/* Navigation */}
+                <nav className="flex-1 p-4 space-y-2">
+                    {[
+                        { id: 'home', icon: HomeIcon, label: 'Home' },
+                        { id: 'browse', icon: Compass, label: 'Browse Levels' },
+                        { id: 'explore', icon: Gamepad2, label: 'Explore' },
+                    ].map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => setActiveNav(item.id)}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeNav === item.id
+                                ? 'bg-gradient-to-r from-blue-500/20 to-orange-500/20 text-white border border-blue-500/30'
+                                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                                }`}
+                        >
+                            <item.icon className="w-5 h-5" />
+                            <span className="font-medium text-sm">{item.label}</span>
+                        </button>
+                    ))}
+                </nav>
 
-                <div className="container relative z-10 px-4 mx-auto text-center space-y-8">
-                    <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                        <span className="mr-2">✨</span> The Future of Coding Education
-                    </Badge>
-
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
-                        Master Programming <br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-600">
-                            Through Gameplay
-                        </span>
-                    </h1>
-
-                    <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-                        Dive into an immersive world where code controls reality. Solve puzzles, defeat bosses, and build your legacy—all while learning real-world programming skills.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
-                        <Link to="/dashboard">
-                            <Button size="lg" className="h-12 px-8 text-base shadow-xl shadow-primary/25 hover:scale-105 transition-transform duration-300">
-                                Start Your Journey
-                                <ArrowRight className="ml-2 w-4 h-4" />
-                            </Button>
-                        </Link>
-                        <Button size="lg" variant="outline" className="h-12 px-8 text-base bg-background/50 hover:bg-muted/50 backdrop-blur-sm">
-                            View Demo
-                        </Button>
-                    </div>
-
-                    {/* Stats or Trust Indicators */}
-                    <div className="pt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto opacity-0 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 fill-mode-forwards">
-                        {[
-                            { label: "Active Players", value: "10k+" },
-                            { label: "Challenges Solved", value: "500k+" },
-                            { label: "Languages Supported", value: "4+" },
-                            { label: "Community Rating", value: "4.9/5" },
-                        ].map((stat, i) => (
-                            <div key={i} className="space-y-1">
-                                <h3 className="text-2xl md:text-3xl font-bold">{stat.value}</h3>
-                                <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
+                {/* Suggested */}
+                <div className="p-4 border-t border-zinc-800">
+                    <h3 className="text-xs font-semibold text-zinc-500 uppercase mb-3">Suggested</h3>
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 p-2 rounded hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center text-xs font-bold">
+                                CB
                             </div>
-                        ))}
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">CodeBound Live</p>
+                                <p className="text-xs text-zinc-500">6 watching</p>
+                            </div>
+                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                        </div>
                     </div>
                 </div>
-            </section>
 
-            {/* Features Grid */}
-            <section id="features" className="py-20 bg-muted/30">
-                <div className="container px-4 mx-auto space-y-16">
-                    <div className="text-center space-y-4 max-w-2xl mx-auto">
-                        <h2 className="text-3xl md:text-4xl font-bold">Why CodeBound?</h2>
-                        <p className="text-muted-foreground text-lg">
-                            We bridge the gap between abstract concepts and tangible results through an engaging RPG experience.
-                        </p>
-                    </div>
+                {/* Footer Links */}
+                <div className="p-4 border-t border-zinc-800">
+                    <p className="text-xs text-zinc-600">© 2026 CodeBound</p>
+                </div>
+            </motion.aside>
 
-                    <div className="grid md:grid-cols-3 gap-8">
-                        {[
-                            {
-                                icon: Gamepad2,
-                                title: "Immersive Gameplay",
-                                desc: "Forget boring tutorials. Learn loops, logic, and algorithms by casting spells and hacking terminals in a 3D world."
-                            },
-                            {
-                                icon: Globe,
-                                title: "Real-World Skills",
-                                desc: "From Python to JavaScript, the syntax you write in-game is the code you'll use in professional development."
-                            },
-                            {
-                                icon: Shield,
-                                title: "Interactive Challenges",
-                                desc: "Test your skills against dynamic puzzles that adapt to your learning pace and provide instant feedback."
-                            }
-                        ].map((feature, i) => (
-                            <Card key={i} className="border-0 shadow-lg shadow-black/5 bg-card/50 backdrop-blur-sm hover:-translate-y-1 transition-transform duration-300">
-                                <CardHeader className="space-y-4">
-                                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                        <feature.icon className="w-6 h-6" />
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto">
+                <ScrollArea className="h-full">
+                    <div className="p-8 space-y-8">
+                        {/* Game Trailer / Hero Video Section */}
+                        <motion.section
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="relative"
+                        >
+                            <div className="relative h-[500px] rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border border-zinc-700">
+                                {/* Video Placeholder */}
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200')] bg-cover bg-center opacity-20" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+
+                                    {/* Play Button */}
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="relative z-10 w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-2xl shadow-blue-500/50 hover:shadow-blue-500/80 transition-shadow"
+                                    >
+                                        <Play className="w-10 h-10 text-white ml-1" fill="white" />
+                                    </motion.button>
+                                </div>
+
+                                {/* Video Info Overlay */}
+                                <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+                                    <div className="flex items-end justify-between">
+                                        <div className="space-y-3">
+                                            <div className="flex items-center gap-3">
+                                                <Badge className="bg-red-500/90 hover:bg-red-500 text-white border-0">
+                                                    🔴 LIVE
+                                                </Badge>
+                                                <span className="text-sm text-zinc-300">Just Chatting</span>
+                                            </div>
+                                            <h2 className="text-4xl font-bold">CodeBound Official Trailer</h2>
+                                            <p className="text-zinc-300 max-w-2xl">
+                                                Watch how thousands of developers started their coding journey through our immersive game-based learning platform. Master programming while having fun!
+                                            </p>
+                                            <div className="flex items-center gap-4 pt-2">
+                                                <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0 shadow-lg shadow-blue-500/30">
+                                                    <Play className="w-4 h-4 mr-2" />
+                                                    Watch Trailer
+                                                </Button>
+                                                <Button size="lg" variant="outline" className="border-zinc-600 hover:bg-zinc-800">
+                                                    Learn More
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm text-zinc-400">6,420 watching</p>
+                                        </div>
                                     </div>
-                                    <CardTitle>{feature.title}</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <CardDescription className="text-base">
-                                        {feature.desc}
-                                    </CardDescription>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                </div>
-            </section>
+                                </div>
+                            </div>
+                        </motion.section>
 
-            {/* CTA Section */}
-            <section className="py-24 relative overflow-hidden">
-                <div className="absolute inset-0 bg-primary/5"></div>
-                <div className="container px-4 mx-auto relative z-10">
-                    <div className="bg-gradient-to-br from-background to-muted border border-white/50 dark:border-white/10 p-12 md:p-16 rounded-3xl shadow-2xl text-center space-y-8 max-w-5xl mx-auto backdrop-blur-xl">
-                        <div className="inline-flex items-center justify-center p-3 rounded-full bg-primary/10 text-primary mb-4">
-                            <Zap className="w-6 h-6" />
-                        </div>
-                        <h2 className="text-3xl md:text-5xl font-bold">Ready to Start Coding?</h2>
-                        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                            Join thousands of developers who started their journey with CodeBound.
-                            No prior experience required—just curiosity.
-                        </p>
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Link to="/auth/register">
-                                <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-6 shadow-xl shadow-primary/20">
-                                    Create Free Account
+                        {/* Overview Section */}
+                        <motion.section
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="space-y-6"
+                        >
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-2xl font-bold">Featured Challenges</h2>
+                                <button className="text-blue-400 hover:text-blue-300 flex items-center gap-2 text-sm font-medium">
+                                    View all <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {[
+                                    { title: "Beginner's Quest", level: "Levels 1-25", students: "15.2k", icon: Zap, gradient: "from-green-400 to-emerald-600" },
+                                    { title: "Loop Master", level: "Levels 26-50", students: "8.7k", icon: Terminal, gradient: "from-blue-400 to-cyan-600" },
+                                    { title: "Function Warrior", level: "Levels 51-75", students: "4.3k", icon: Code, gradient: "from-purple-400 to-pink-600" },
+                                    { title: "OOP Legend", level: "Levels 76-100", students: "2.1k", icon: Award, gradient: "from-orange-400 to-red-600" },
+                                ].map((challenge, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 + i * 0.1 }}
+                                        whileHover={{ y: -5 }}
+                                        className="relative group"
+                                    >
+                                        <Card className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-all cursor-pointer overflow-hidden">
+                                            <div className={`absolute inset-0 bg-gradient-to-br ${challenge.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                                            <CardHeader className="relative">
+                                                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${challenge.gradient} flex items-center justify-center mb-3 shadow-lg`}>
+                                                    <challenge.icon className="w-6 h-6 text-white" />
+                                                </div>
+                                                <CardTitle className="text-lg">{challenge.title}</CardTitle>
+                                                <p className="text-sm text-zinc-500">{challenge.level}</p>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <div className="flex items-center gap-2 text-sm text-zinc-400">
+                                                    <Users className="w-4 h-4" />
+                                                    <span>{challenge.students} students</span>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.section>
+
+                        {/* Community Hub */}
+                        <motion.section
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            id="community"
+                            className="space-y-6"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                                        <MessageCircle className="w-5 h-5 text-white" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold">Community Hub</h2>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                                {communityPosts.map((post, i) => (
+                                    <Card key={i} className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+                                        <CardHeader>
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-sm font-bold">
+                                                        {post.user[0]}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-sm">{post.user}</p>
+                                                        <p className="text-xs text-zinc-500">{post.time}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <p className="text-sm text-zinc-300 mb-3">{post.content}</p>
+                                            <div className="flex items-center gap-4 text-xs text-zinc-500">
+                                                <button className="flex items-center gap-1 hover:text-red-400 transition-colors">
+                                                    <Star className="w-4 h-4" />
+                                                    {post.likes}
+                                                </button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+
+                            <div className="text-center">
+                                <Button variant="outline" className="border-zinc-700 hover:bg-zinc-800">
+                                    <Users className="w-4 h-4 mr-2" />
+                                    Join the Community
                                 </Button>
-                            </Link>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                            Free forever for students. No credit card required.
-                        </p>
+                            </div>
+                        </motion.section>
+
+                        {/* FAQs Section */}
+                        <motion.section
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                            id="faq"
+                            className="space-y-6"
+                        >
+                            <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
+
+                            <Accordion type="single" collapsible className="space-y-4">
+                                {faqs.map((faq, i) => (
+                                    <AccordionItem
+                                        key={i}
+                                        value={`item-${i}`}
+                                        className="bg-zinc-900 border border-zinc-800 rounded-lg px-6 data-[state=open]:border-blue-500/50"
+                                    >
+                                        <AccordionTrigger className="text-left hover:no-underline py-4">
+                                            <span className="font-semibold">{faq.question}</span>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="text-zinc-400 pb-4">
+                                            {faq.answer}
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))}
+                            </Accordion>
+                        </motion.section>
+
+                        {/* Call to Action */}
+                        <motion.section
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.7 }}
+                            className="relative rounded-2xl overflow-hidden"
+                        >
+                            <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-12 text-center">
+                                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30" />
+                                <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
+                                    <h2 className="text-4xl font-bold">Ready to Start Your Coding Adventure?</h2>
+                                    <p className="text-lg text-blue-100">
+                                        Join thousands of developers who transformed their careers through CodeBound. Download now and start learning!
+                                    </p>
+                                    <Button size="lg" className="bg-white text-purple-600 hover:bg-zinc-100">
+                                        <Download className="w-5 h-5 mr-2" />
+                                        Download CodeBound
+                                    </Button>
+                                </div>
+                            </div>
+                        </motion.section>
                     </div>
+                </ScrollArea>
+            </main>
+
+            {/* Right Sidebar - Leaderboard */}
+            <motion.aside
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="w-80 bg-zinc-950 border-l border-zinc-800 flex flex-col"
+            >
+                {/* Header */}
+                <div className="p-6 border-b border-zinc-800">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-bold">Leaderboard</h2>
+                        <Trophy className="w-5 h-5 text-yellow-500" />
+                    </div>
+                    <p className="text-xs text-zinc-500">Be the first to top the leaderboard!</p>
+                    <p className="text-xs text-zinc-600 mt-1">Stay tuned for new events and streams.</p>
                 </div>
-            </section>
 
-            {/* Footer */}
-            <footer className="border-t bg-muted/20 py-12">
-                <div className="container px-4 mx-auto">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-                        <div className="col-span-2 md:col-span-1 space-y-4">
-                            <div className="flex items-center gap-2">
-                                <div className="size-6 rounded bg-primary flex items-center justify-center text-white text-xs font-bold">C</div>
-                                <span className="font-bold">CodeBound</span>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                                Empowering the next generation of developers through play.
-                            </p>
-                        </div>
+                {/* Leaderboard List */}
+                <ScrollArea className="flex-1 p-4">
+                    <div className="space-y-3">
+                        {leaderboardData.map((player, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.2 + i * 0.1 }}
+                                className="group"
+                            >
+                                <div className={`relative p-4 rounded-lg border transition-all ${player.rank === 1
+                                    ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/30'
+                                    : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'
+                                    }`}>
+                                    <div className="flex items-center gap-3">
+                                        {/* Rank */}
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-black' :
+                                            player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-black' :
+                                                player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-white' :
+                                                    'bg-zinc-800 text-zinc-400'
+                                            }`}>
+                                            {player.rank}
+                                        </div>
 
-                        {/* Links groups */}
-                        {[
-                            { title: "Product", links: ["Features", "Pricing", "Enterprise", "Roadmap"] },
-                            { title: "Resources", links: ["Documentation", "API", "Community", "Blog"] },
-                            { title: "Company", links: ["About", "Careers", "Contact", "Privacy"] }
-                        ].map((group, i) => (
-                            <div key={i} className="space-y-4">
-                                <h4 className="font-semibold">{group.title}</h4>
-                                <ul className="space-y-2 text-sm text-muted-foreground">
-                                    {group.links.map((link) => (
-                                        <li key={link}><a href="#" className="hover:text-primary transition-colors">{link}</a></li>
-                                    ))}
-                                </ul>
-                            </div>
+                                        {/* Avatar */}
+                                        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${player.color} flex items-center justify-center text-sm font-bold shadow-lg`}>
+                                            {player.avatar}
+                                        </div>
+
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-sm truncate">{player.name}</p>
+                                            <div className="flex items-center gap-2 text-xs text-zinc-500">
+                                                <TrendingUp className="w-3 h-3" />
+                                                <span>{player.score.toLocaleString()} pts</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Rank Badge */}
+                                        {player.rank <= 3 && (
+                                            <Award className={`w-5 h-5 ${player.rank === 1 ? 'text-yellow-400' :
+                                                player.rank === 2 ? 'text-gray-400' :
+                                                    'text-amber-600'
+                                                }`} />
+                                        )}
+                                    </div>
+                                </div>
+                            </motion.div>
                         ))}
                     </div>
-                    <div className="border-t pt-8 text-center text-sm text-muted-foreground">
-                        © 2024 CodeBound. All rights reserved.
+                </ScrollArea>
+
+                {/* Updates Section */}
+                <div className="p-4 border-t border-zinc-800">
+                    <div className="flex items-center gap-2 mb-3">
+                        <Zap className="w-4 h-4 text-yellow-500" />
+                        <h3 className="text-sm font-semibold">Updates & News</h3>
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800">
+                            <div className="flex items-start gap-3">
+                                <Calendar className="w-4 h-4 text-blue-400 mt-1" />
+                                <div>
+                                    <p className="text-xs font-medium">New Challenge Live!</p>
+                                    <p className="text-xs text-zinc-500 mt-1">Weekly coding challenge starts now</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </footer>
+
+                {/* Download Button - Fixed Bottom Right */}
+                <div className="p-4 border-t border-zinc-800">
+                    <Button className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0 shadow-lg shadow-blue-500/30">
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Now
+                    </Button>
+                </div>
+            </motion.aside>
         </div>
     );
-}
+};
 
 export default Home;
