@@ -140,10 +140,82 @@ public class APIService : IAPIService
     }
 
     // Implement other methods similarly
-    public Task<ApiResponse<T>> Get<T>(string endpoint, string authToken = null)
+    public async Task<ApiResponse<T>> Get<T>(string endpoint, string authToken = null)
     {
-        // Implement GET
-        throw new NotImplementedException();
+         // Circuit breaker check
+        if (_circuitBreaker.IsOpen)
+        {
+            return ApiResponse<T>.Failure("Service temporarily unavailable");
+        }
+
+        try
+        {
+            return await GetWithRetry<T>(endpoint, authToken, maxRetries: 3);
+        }
+        catch (Exception ex)
+        {
+             _circuitBreaker.RecordFailure();
+            Debug.LogError($"API Error: {ex.Message}");
+            return ApiResponse<T>.Failure(ex.Message);
+        }
+    }
+
+    private async Task<ApiResponse<T>> GetWithRetry<T>(
+        string endpoint,
+        string authToken,
+        int maxRetries
+    )
+    {
+        int attempt = 0;
+        Exception lastException = null;
+
+        while (attempt < maxRetries)
+        {
+            try
+            {
+                string url = $"{_baseUrl}{endpoint}";
+
+                UnityWebRequest request = UnityWebRequest.Get(url);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    request.SetRequestHeader("Authorization", $"Bearer {authToken}");
+                }
+
+                await request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    string responseText = request.downloadHandler.text;
+                    T responseData = JsonUtility.FromJson<T>(responseText);
+                    return ApiResponse<T>.Success(responseData);
+                }
+                else
+                {
+                    lastException = new Exception(request.error);
+                    attempt++;
+
+                    if (attempt < maxRetries)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+                attempt++;
+
+                if (attempt < maxRetries)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
+                }
+            }
+        }
+
+        return ApiResponse<T>.Failure(lastException?.Message ?? "Unknown error");
     }
 
     public Task<ApiResponse<T>> Put<T>(string endpoint, object data, string authToken = null)

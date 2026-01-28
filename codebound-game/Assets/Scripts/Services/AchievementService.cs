@@ -1,5 +1,19 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
+using System;
+
+[Serializable]
+public class UnlockRequest
+{
+    public string achievementId;
+}
+
+[Serializable]
+public class AchievementsResponse
+{
+    public List<Achievement> achievements;
+}
 
 public class AchievementService : IAchievementService
 {
@@ -17,13 +31,13 @@ public class AchievementService : IAchievementService
 
     public async Task UnlockAchievement(string achievementId)
     {
-        var achievement = _achievements.Find(a => a.Id == achievementId);
-        if (achievement != null && !achievement.IsUnlocked)
+        var achievement = _achievements.Find(a => a.id == achievementId);
+        if (achievement != null && !achievement.isUnlocked)
         {
-            achievement.IsUnlocked = true;
+            achievement.isUnlocked = true;
             await _storageService.SaveData($"achievement_{achievementId}", true);
             // Sync with server
-            await _apiService.Post<object>("/achievements/unlock", new { achievementId });
+            await _apiService.Post<object>("/achievements/unlock", new UnlockRequest { achievementId = achievementId });
         }
     }
 
@@ -39,11 +53,30 @@ public class AchievementService : IAchievementService
 
     private async void LoadAchievements()
     {
-        // Load from server or local
-        _achievements = new List<Achievement>
+        // Try to load from server
+        var response = await _apiService.Get<AchievementsResponse>("/achievements");
+        
+        if (response.IsSuccess && response.Data != null && response.Data.achievements != null)
         {
-            new Achievement { Id = "first_level", Name = "First Steps", Description = "Complete the first level" },
-            // Add more achievements
-        };
+            _achievements = response.Data.achievements;
+            // Validate unlocks with local storage
+            foreach (var ach in _achievements)
+            {
+                if (await IsAchievementUnlocked(ach.id))
+                {
+                    ach.isUnlocked = true;
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Failed to fetch achievements, using defaults.");
+            // Fallback defaults
+            _achievements = new List<Achievement>
+            {
+                new Achievement { id = "first_level", name = "First Steps", description = "Complete the first level" },
+                // Add more achievements
+            };
+        }
     }
 }

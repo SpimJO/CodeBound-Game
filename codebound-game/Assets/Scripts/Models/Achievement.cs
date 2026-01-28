@@ -1,7 +1,8 @@
+[System.Serializable]
 public class Achievement
 {
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public bool IsUnlocked { get; set; }
+    public string id;
+    public string name;
+    public string description;
+    public bool isUnlocked;
 }
