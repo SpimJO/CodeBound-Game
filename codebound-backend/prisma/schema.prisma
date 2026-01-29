@@ -7,11 +7,220 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+// USED IN: 
+// - GAME: Login/Register to play, sync progress
+// - LANDING PAGE: Community posts (show username)
+
 model User {
   id         String   @id @default(cuid())
-  name       String?
-  email      String   @unique
-  password   String
+  email      String   @unique // Login credential
+  password   String   // Hashed password
+  username   String   @unique // Display name in leaderboard & community
+  avatar     String?  // Optional avatar URL
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  // Relations
+  progress        UserProgress?
+  levelCompletions LevelCompletion[]
+  achievements    UserAchievement[]
+  ownedSkins      UserSkin[]
+  communityPosts  CommunityPost[]
+  communityComments CommunityComment[]
+
+  @@map("users")
+}
+
+// ============================================
+// GAME PROGRESS TRACKING
+// ============================================
+// USED IN:
+// - GAME: Load/save progress, resume from currentLevel
+// - LANDING PAGE LEADERBOARD: Sort by highestLevel, totalTokens
+
+model UserProgress {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  currentLevel    Int      @default(1) // Game: Resume level
+  highestLevel    Int      @default(1) // Leaderboard: Ranking metric
+  totalTokens     Int      @default(0) // Leaderboard: Secondary ranking
+  totalPlayTime   Float    @default(0) // in seconds
+  lastPlayed      DateTime @default(now())
+  equippedSkin    String   @default("default") // Game: Active skin
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_progress")
+}
+
+// USED IN:
+// - GAME: Track which levels completed, history
+// - NOT directly shown in landing page (aggregated in UserProgress)
+
+model LevelCompletion {
+  id              String   @id @default(cuid())
+  userId          String
+  levelNumber     Int      // 1-100 (level defined in Unity)
+  tokensEarned    Int
+  attemptsCount   Int      @default(1)
+  timeSpent       Float    @default(0) // in seconds
+  hintsUsed       Int      @default(0)
+  completedAt     DateTime @default(now())
+  isPerfect       Boolean  @default(false) // Completed without hints
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, levelNumber])
+  @@map("level_completions")
+  @@index([userId])
+  @@index([levelNumber])
+  @@index([completedAt])
+}
+
+// ============================================
+// ACHIEVEMENTS TRACKING
+// ============================================
+// USED IN:
+// - GAME: Track unlocked achievements
+// - LANDING PAGE LEADERBOARD: Count for ranking (achievementsCount)
+
+model UserAchievement {
+  id              String   @id @default(cuid())
+  userId          String
+  achievementId   String   // Achievement ID from Unity (e.g., "first_level", "speed_demon")
+  progress        Float?   @default(0) // Progress percentage (0-100)
+  unlockedAt      DateTime @default(now())
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+  @@index([userId])
+  @@index([achievementId])
+  @@index([unlockedAt])
+}
+
+// ============================================
+// SKINS OWNERSHIP
+// ============================================
+// USED IN:
+// - GAME: Check owned skins, shop UI
+// - NOT shown in landing page
+
+model UserSkin {
+  id              String   @id @default(cuid())
+  userId          String
+  skinId          String   // Skin ID from Unity (e.g., "ninja", "wizard")
+  purchasedAt     DateTime @default(now())
+  purchasedWithTokens Int  @default(0)
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skinId])
+  @@map("user_skins")
+  @@index([userId])
+}
+
+// ============================================
+// LEADERBOARD (Computed from UserProgress)
+// ============================================
+// USED IN:
+// - LANDING PAGE: Show Top 100 players (sorted by highestLevel → totalTokens)
+// - GAME: Show player's current rank
+
+model Leaderboard {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  username        String   // Display name for leaderboard
+  highestLevel    Int      @default(1) // Primary ranking metric
+  totalTokens     Int      @default(0) // Secondary ranking metric
+  achievementsCount Int    @default(0) // Tertiary ranking metric
+  lastUpdated     DateTime @default(now())
+
+  @@map("leaderboard")
+  @@index([highestLevel])
+  @@index([totalTokens])
+  @@index([lastUpdated])
+}
+
+// ============================================
+// COMMUNITY HUB (With Authentication)
+// ============================================
+// USED IN:
+// - LANDING PAGE: Display posts with username, like count, comments
+// - User must be logged in to post/comment
+
+model CommunityPost {
+  id          String   @id @default(cuid())
+  userId      String   // Author (logged in user)
+  content     String   @db.Text // Post text
+  likes       Int      @default(0) // Like count (anyone can like)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments    CommunityComment[]
+
+  @@map("community_posts")
+  @@index([userId])
+  @@index([created_at])
+}
+
+model CommunityComment {
+  id          String   @id @default(cuid())
+  postId      String
+  userId      String   // Commenter (logged in user)
+  content     String   @db.Text
+  created_at  DateTime @default(now())
+
+  // Relations
+  post        CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("community_comments")
+  @@index([postId])
+  @@index([userId])
+  @@index([created_at])
+}
+
+// ============================================
+// ANALYTICS
+// ============================================
+
+// USED IN:
+// - LANDING PAGE: Show "Downloaded X times" stat
+model DownloadCounter {
+  id              String   @id @default(cuid())
+  totalDownloads  Int      @default(0)
+  lastIncrement   DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("download_counter")
+}
+
+// USED IN:
+// - GAME: Track play sessions (start/end)
+// - NOT shown in landing page (internal analytics)
+model GameSession {
+  id              String   @id @default(cuid())
+  userId          String
+  startedAt       DateTime @default(now())
+  endedAt         DateTime?
+  duration        Float?   // in seconds
+  levelsPlayed    Int      @default(0)
+  tokensEarned    Int      @default(0)
+
+  @@map("game_sessions")
+  @@index([userId])
+  @@index([startedAt])
 }
