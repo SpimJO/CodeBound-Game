@@ -8,12 +8,11 @@ if (process.env.NODE_ENV === "development") {
     console.log("Loaded Production Envornment Variables");
 }
 
-export = () => {
+const validateEnv = () => {
     const requiredVariables = [
         "PORT",
         "VERSION",
         "BASEROUTE",
-        "REDIS_URL",
         "ENC_KEY_SECRET",
         "CIPHER_KEY_SECRET",
         "DATABASE_URL"
@@ -37,3 +36,5 @@ export = () => {
 
     console.log("Environment variables are valid.");
 };
+
+export default validateEnv;

@@ -4,27 +4,24 @@
  * This middleware provides protection against brute force attacks and abuse
  * by limiting the number of requests a single IP can make within a time window.
  * 
- * For production environments, it uses Redis as a distributed store,
- * allowing rate limiting to work across multiple server instances.
+ * Uses in-memory store for rate limiting (suitable for single-instance deployments).
  * 
  * Usage:
  * 1. Global rate limiting:
  *    ```
  *    // In your server.ts or app.ts
- *    const globalRateLimiter = await createRateLimiterMiddleware();
+ *    const globalRateLimiter = createRateLimiterMiddleware();
  *    app.use(globalRateLimiter);
  *    ```
  * 
  * 2. Route-specific rate limiting:
  *    ```
  *    // For authentication routes with stricter limits
- *    const authLimiter = await createAuthRateLimiterMiddleware();
+ *    const authLimiter = createAuthRateLimiterMiddleware();
  *    app.post('/login', authLimiter, loginController);
  *    ```
  */
 import { rateLimit } from 'express-rate-limit';
-import { RedisStore } from 'rate-limit-redis';
-import redis, { connectRedis } from '../db/redis';
 import { Request, Response } from 'express';
 
 /**
@@ -43,19 +40,6 @@ export const shouldRateLimit = (req: Request, res: Response): boolean => {
 };
 
 /**
- * Base rate limiter configuration
- * Uses Redis as a store for distributed rate limiting across multiple server instances
- */
-const createRedisStore = async () => {
-    await connectRedis();
-
-    return new RedisStore({
-        sendCommand: (...args: unknown[]) => redis.sendCommand(args as any),
-        prefix: 'rate-limit:',
-    });
-};
-
-/**
  * Standard rate limiter options for general API routes
  */
 export const standardRateLimiterOptions = {
@@ -71,36 +55,23 @@ export const standardRateLimiterOptions = {
 };
 
 /**
- * Initializes and returns a configured rate limiter middleware with Redis store
- * for distributed rate limiting in production environments
+ * Creates and returns a configured rate limiter middleware with in-memory store
  * 
  * Usage example:
  * ```
  * // In your Express app setup
- * async function setupMiddleware() {
- *   const limiter = await createRateLimiterMiddleware();
- *   app.use(limiter);
- * }
+ * const limiter = createRateLimiterMiddleware();
+ * app.use(limiter);
  * ```
  * 
- * @returns Promise resolving to configured Express rate limiter middleware
+ * @returns Configured Express rate limiter middleware
  */
-export const createRateLimiterMiddleware = async () => {
-    await connectRedis();
-
-    return rateLimit({
-        ...standardRateLimiterOptions,
-        store: new RedisStore({
-            sendCommand: (...args: unknown[]) => redis.sendCommand(args as any),
-            prefix: 'rate-limit:',
-        })
-    });
+export const createRateLimiterMiddleware = () => {
+    return rateLimit(standardRateLimiterOptions);
 };
 
 /**
  * Basic in-memory rate limiter middleware for quick usage
- * NOTE: This should be used only for local development or testing
- * For production, use createRateLimiterMiddleware() instead
  * 
  * Usage: app.use(basicRateLimiterMiddleware);
  */
@@ -123,28 +94,18 @@ export const authRateLimiterOptions = {
 };
 
 /**
- * Initializes and returns a stricter rate limiter for auth-related endpoints
+ * Creates and returns a stricter rate limiter for auth-related endpoints
  * This provides better protection against brute force login attempts
  * 
  * Usage example:
  * ```
  * // In your auth routes setup
- * async function setupAuthRoutes() {
- *   const authLimiter = await createAuthRateLimiterMiddleware();
- *   router.post('/login', authLimiter, loginController);
- * }
+ * const authLimiter = createAuthRateLimiterMiddleware();
+ * router.post('/login', authLimiter, loginController);
  * ```
  * 
- * @returns Promise resolving to configured strict rate limiter middleware
+ * @returns Configured strict rate limiter middleware
  */
-export const createAuthRateLimiterMiddleware = async () => {
-    await connectRedis();
-
-    return rateLimit({
-        ...authRateLimiterOptions,
-        store: new RedisStore({
-            sendCommand: (...args: unknown[]) => redis.sendCommand(args as any),
-            prefix: 'auth-rate-limit:',
-        }),
-    });
+export const createAuthRateLimiterMiddleware = () => {
+    return rateLimit(authRateLimiterOptions);
 };

@@ -32,7 +32,7 @@ class AuthController extends Api {
             const encryptToken = await this.cipherToken.encrypt({
                 id: user.id,
                 name: user.name as string,
-                email: user.name as string,
+                email: user.email,
                 expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30,
                 issuedAt: Date.now()
             })

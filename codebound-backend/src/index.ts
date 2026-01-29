@@ -11,10 +11,11 @@ import { Request, Response, NextFunction } from "express";
 
 class index {
     public app: express.Application;
-    private appRouter = new AppRouter().router;
+    private appRouter: AppRouter;
 
     constructor() {
         this.app = express();
+        this.appRouter = new AppRouter();
         this.Middleware();
         this.Routes();
         this.ErrorHandler();
@@ -33,7 +34,7 @@ class index {
     }
 
     private Routes(): void {
-        this.app.use(`/${appConfig.BASEROUTE}/${appConfig.VERSION}`, this.appRouter)
+        this.app.use(`/${appConfig.BASEROUTE}/${appConfig.VERSION}`, this.appRouter.router);
     }
 
     private ErrorHandler(): void {

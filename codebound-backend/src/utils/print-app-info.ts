@@ -10,7 +10,6 @@ const printAppInfo = (
 
     const env = appConfig.NODE_ENV || "development";
     const port = appConfig.PORT || "Not set";
-    const redisUrl = appConfig.REDIS_URL || "Not set";
     const dbUrl = appConfig.DATABASE_URL || "Not set";
 
     console.log(`
@@ -21,7 +20,6 @@ const printAppInfo = (
     \r${label("API Base Route")} ${kleur.yellow(
         `/${appConfig.BASEROUTE}/${appConfig.VERSION}`
     )}\n
-    \r${label("REDIS URL")} ${kleur.yellow(redisUrl)}\n
     \r${label("DB URL")} ${kleur.yellow(getDBUrl(dbUrl))}\n
     \r${customMessage ? kleur.blue(customMessage) : ""}\n
     \r${kleur.yellow("-----------------------------------")}\n

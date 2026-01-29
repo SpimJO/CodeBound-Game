@@ -1,36 +1,54 @@
 import "./utils/env";
-import index from ".";
 import http from "http";
-import { connectRedis } from "./db/redis";
-import { connectPrisma, disconnectPrisma } from "./db/prisma";
 import printAppInfo from "./utils/print-app-info";
-
-
-const _index = new index();
-const main = _index.app;
-const server = http.createServer(main);
 
 const createServer = (process: NodeJS.Process) => {
     return async () => {
+        let disconnectPrisma: (() => Promise<void>) | null = null;
+        
         try {
+            console.log("[server] Starting server initialization...");
+            
+            // Import modules dynamically to catch errors
+            console.log("[server] Importing modules...");
+            const prismaModule = await import("./db/prisma");
+            const { connectPrisma } = prismaModule;
+            disconnectPrisma = prismaModule.disconnectPrisma;
+            
+            const indexModule = await import(".");
+            const index = indexModule.default;
+            
+            console.log("[server] Creating Express app...");
+            const _index = new index();
+            const main = _index.app;
+            const server = http.createServer(main);
 
-            // await connectRedis();
+            console.log("[server] Connecting to database...");
             await connectPrisma();
-            shutdown(server, process)
+            
+            shutdown(server, process, disconnectPrisma);
 
+            console.log("[server] Starting HTTP server on port", process.env.PORT);
             server.listen(process.env.PORT, () => {
                 printAppInfo(
                     `Server started on port ${process.env.PORT}`
                 );
             });
         } catch (error) {
-
+            console.error("\n[server] ❌ Failed to start server!");
+            console.error("[server] Error type:", error?.constructor?.name || typeof error);
+            if (error instanceof Error) {
+                console.error("[server] Error message:", error.message);
+                console.error("[server] Error stack:", error.stack);
+            } else {
+                console.error("[server] Error object:", error);
+            }
             process.exit(1);
         }
     };
 };
 
-const shutdown = (server: http.Server, proc: NodeJS.Process) => {
+const shutdown = (server: http.Server, proc: NodeJS.Process, disconnectPrisma?: () => Promise<void>) => {
     const signals: NodeJS.Signals[] = ["SIGINT", "SIGTERM"];
     let shuttingDown = false;
 
@@ -53,8 +71,10 @@ const shutdown = (server: http.Server, proc: NodeJS.Process) => {
             }
 
             try {
-                await disconnectPrisma()
-                console.log("[shutdown] prisma disconnected");
+                if (disconnectPrisma) {
+                    await disconnectPrisma()
+                    console.log("[shutdown] prisma disconnected");
+                }
             } catch (e) {
                 console.error("[shutdown] prisma disconnect error:", e);
             }
