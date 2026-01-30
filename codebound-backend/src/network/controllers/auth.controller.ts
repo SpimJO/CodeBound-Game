@@ -31,7 +31,7 @@ class AuthController extends Api {
 
             const encryptToken = await this.cipherToken.encrypt({
                 id: user.id,
-                name: user.name as string,
+                username: user.username,
                 email: user.email,
                 expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30,
                 issuedAt: Date.now()
@@ -49,13 +49,16 @@ class AuthController extends Api {
 
     public async register(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, email, password } = await req.body;
+            const { username, email, password } = await req.body;
+            const displayName = username?.trim() || email?.split("@")[0] || "Player";
 
-            const user = await prisma.user.findUnique({
-                where: { email: email }
-            })
+            const existingUser = await prisma.user.findFirst({
+                where: {
+                    OR: [{ email }, { username: displayName }]
+                }
+            });
 
-            if (user) {
+            if (existingUser) {
                 return this.httpError.conflict("Account is already taken")
             }
 
@@ -64,7 +67,7 @@ class AuthController extends Api {
             await prisma.$transaction(async (tx) => {
                 await tx.user.create({
                     data: {
-                        name: name,
+                        username: displayName,
                         email: email,
                         password: passwordHashed
                     }
@@ -86,8 +89,9 @@ class AuthController extends Api {
             const user = await prisma.user.findUnique({
                 where: { id: req.user.id },
                 select: {
-                    name: true,
+                    username: true,
                     email: true,
+                    avatar: true,
                     created_at: true,
                     updated_at: true
                 }

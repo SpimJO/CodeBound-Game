@@ -74,3 +74,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide scrollbars but keep scroll functionality */
+.scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+/* Hide Radix ScrollArea scrollbar when using scrollbar-hidden */
+.scrollbar-hidden [data-slot="scroll-area-scrollbar"] {
+  display: none;
+}
+/* Hide native scrollbar on ScrollArea viewport (leaderboard, etc.) */
+.scrollbar-hidden [data-slot="scroll-area-viewport"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hidden [data-slot="scroll-area-viewport"]::-webkit-scrollbar {
+  display: none;
+}
