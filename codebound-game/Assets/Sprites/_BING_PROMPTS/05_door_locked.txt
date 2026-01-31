@@ -1,0 +1,52 @@
+====================================
+DOOR: Locked State (Red Light)
+====================================
+
+SIZE: 32x64 pixels (tall)
+STYLE: Pixel art, sci-fi sliding door
+USE: Blocks player until code correct
+
+---
+
+BING PROMPT (Copy everything below):
+---
+
+Pixel art futuristic sliding door for 2D game, tall vertical tech door with RED indicator light at top center, closed state, metallic dark gray surface with cyan panel lines and geometric tech patterns, 32x64 pixels tall and narrow rectangle, solid and imposing appearance, transparent background, sci-fi laboratory style door, Metal Slug pixel art aesthetic, has frame border and security lock details
+
+---
+
+ALTERNATIVE PROMPT:
+---
+
+Retro pixel art sci-fi door sprite, tall closed door with red warning light, 32x64 pixels vertical, dark metal with tech details, transparent background, futuristic security door, game sprite style
+
+---
+
+POST-PROCESSING STEPS:
+1. Download from Bing
+2. Crop to 32x64 pixels (tall rectangle)
+3. Ensure red light is visible at top
+4. Remove background
+5. Save as: door_locked.png
+6. Place in: Assets/Sprites/Environment/Interactables/
+
+---
+
+UNITY IMPORT SETTINGS:
+- Texture Type: Sprite (2D and UI)
+- Pixels Per Unit: 32
+- Filter Mode: Point (no filter)
+- Compression: None
+
+---
+
+NOTES:
+- Taller than character (64 pixels vs 32)
+- Red light indicates LOCKED state
+- Should look solid/impenetrable
+- Dark colors (closed/secured)
+- Vertical sliding door style
+
+---
+
+NEXT: Generate door_open.txt (green light version)

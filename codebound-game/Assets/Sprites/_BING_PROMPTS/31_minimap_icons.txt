@@ -1,0 +1,1 @@
+A set of pixel art minimap icons for 2D game, 8x8 to 12x12 pixels each, includes: player dot (cyan pulse), objective marker (yellow star), collectible marker (golden coin), enemy marker (red dot), checkpoint marker (green flag), simple recognizable shapes, PNG with transparency, Metal Slug style, minimap UI elements

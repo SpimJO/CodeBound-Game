@@ -1,0 +1,1 @@
+A pixel art interaction prompt badge for 2D game, 200x60 pixels, semi-transparent dark background, glowing cyan text "Press [E] to Interact", keyboard key icon, floating UI element, cyberpunk style, subtle animation frame suggestion, PNG with transparency, Metal Slug UI aesthetic, game interface overlay

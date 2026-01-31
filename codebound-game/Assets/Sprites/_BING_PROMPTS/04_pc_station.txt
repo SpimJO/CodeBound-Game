@@ -1,0 +1,56 @@
+====================================
+PC STATION: Computer Terminal
+====================================
+
+SIZE: 64x64 pixels (larger object)
+STYLE: Pixel art, sci-fi workstation
+USE: Player codes here
+
+---
+
+BING PROMPT (Copy everything below):
+---
+
+Pixel art computer workstation terminal for 2D game, futuristic desk with monitor and keyboard, cyan glowing screen displaying code or matrix-style data, 64x64 pixels, front view perspective, dark metallic frame with tech details and cables, transparent background, sci-fi laboratory equipment style, Metal Slug pixel art aesthetics, visible keyboard and control panel, has status lights
+
+---
+
+ALTERNATIVE PROMPT:
+---
+
+Retro pixel art computer terminal, futuristic workstation with glowing cyan screen, 64x64 pixels, front view, dark metal desk with keyboard, transparent background, sci-fi coding station, detailed pixel art
+
+---
+
+POST-PROCESSING STEPS:
+1. Download from Bing
+2. Crop to 64x64 pixels
+3. Center the PC station in frame
+4. Make screen area bright (cyan glow)
+5. Save as: pc_station.png
+6. Place in: Assets/Sprites/Environment/Interactables/
+
+---
+
+UNITY IMPORT SETTINGS:
+- Texture Type: Sprite (2D and UI)
+- Pixels Per Unit: 32 (same as others)
+- Filter Mode: Point (no filter)
+- Compression: None
+
+---
+
+ANIMATION IDEAS (Optional):
+- Screen flicker
+- Keyboard typing effect
+- Status lights blinking
+- Add Light2D for screen glow
+
+---
+
+NOTES:
+- Bigger than character (64x64 vs 32x32)
+- Screen should glow cyan (indicates active)
+- Player presses [E] to access terminal
+- Can add particle effect (screen glow)
+- Consider adding chair (optional)

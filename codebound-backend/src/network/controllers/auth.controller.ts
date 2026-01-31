@@ -13,10 +13,17 @@ class AuthController extends Api {
 
     public async login(req: Request, res: Response, next: NextFunction) {
         try {
-            const { email, password } = await req.body;
+            const { username, password } = await req.body;
+            
+            if (!username || !password) {
+                return this.httpError.badRequest("Username and password are required");
+            }
 
-            const user = await prisma.user.findFirst({
-                where: { email: email }
+            // Find user by username only
+            const user = await prisma.user.findUnique({
+                where: {
+                    username: username
+                }
             })
 
             if (!user) {

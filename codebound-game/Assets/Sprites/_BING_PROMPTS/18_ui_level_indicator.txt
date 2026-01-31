@@ -1,0 +1,1 @@
+A pixel art level number display badge for game HUD, 150x50 pixels, dark background with cyan border, space for "LEVEL ##" text, futuristic digital display style, corner banner shape, PNG with transparency, cyberpunk tech aesthetic, Metal Slug UI style, game interface element
