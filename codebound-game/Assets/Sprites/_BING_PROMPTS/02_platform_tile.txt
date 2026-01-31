@@ -1,0 +1,48 @@
+====================================
+PLATFORM: Ground Tile
+====================================
+
+SIZE: 32x32 pixels (single tile)
+STYLE: Pixel art, sci-fi tech
+USE: Repeatable platform tiles
+
+---
+
+BING PROMPT (Copy everything below):
+---
+
+Pixel art platform tile for 2D platformer, futuristic metallic floor tile with cyan glowing edge lines, dark gunmetal gray surface with tech panel details and circuit patterns, 32x32 pixels single square tile, seamless tileable texture on all four edges, top-down view with slight angle, transparent background, sci-fi laboratory aesthetic, Metal Slug pixel art style
+
+---
+
+ALTERNATIVE PROMPT:
+---
+
+Retro pixel art game tile, futuristic tech platform with glowing cyan edges, 32x32 pixels, tileable seamless texture, dark metal with circuit details, transparent background, sci-fi style
+
+---
+
+POST-PROCESSING STEPS:
+1. Download from Bing
+2. Crop to exactly 32x32 pixels
+3. Ensure edges are seamless (check by tiling)
+4. Remove background
+5. Save as: platform_32x32.png
+6. Place in: Assets/Sprites/Environment/Platforms/
+
+---
+
+UNITY IMPORT SETTINGS:
+- Texture Type: Sprite (2D and UI)
+- Sprite Mode: Single
+- Pixels Per Unit: 32
+- Filter Mode: Point (no filter)
+- Wrap Mode: Repeat (for tiling)
+
+---
+
+TIPS:
+- Test tiling by placing 4 tiles side-by-side
+- Edges should connect seamlessly
+- Can generate 2x1 (64x32) and 4x1 (128x32) versions
+- Top edge should have slight highlight (platform edge)

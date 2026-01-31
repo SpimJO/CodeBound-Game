@@ -1,0 +1,1 @@
+A pixel art "PAUSE" menu overlay panel, 600x400 pixels, semi-transparent dark background, cyan tech border, "GAME PAUSED" header text area, space for resume/settings/quit buttons, futuristic design, PNG with transparency, Metal Slug UI aesthetic, ingame pause menu interface

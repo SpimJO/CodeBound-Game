@@ -3,6 +3,9 @@ public class ApiResponse<T>
     public bool IsSuccess { get; private set; }
     public T Data { get; private set; }
     public string Error { get; private set; }
+    
+    // Alias for Error (for compatibility)
+    public string ErrorMessage => Error;
 
     private ApiResponse(bool isSuccess, T data, string error)
     {
