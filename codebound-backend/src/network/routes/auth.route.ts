@@ -10,5 +10,6 @@ const authController = new AuthController();
 auth.route("/login").post(apiKeyMiddleware, (req: Request, res: Response, next: NextFunction) => authController.login(req, res, next))
 auth.route("/register").post(apiKeyMiddleware, (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
 auth.route("/sessionToken").post(apiKeyMiddleware, authMiddleware, (req: Request, res: Response, next: NextFunction) => authController.sessionToken(req, res, next))
+auth.route("/profile").put(apiKeyMiddleware, authMiddleware, (req: Request, res: Response, next: NextFunction) => authController.updateProfile(req, res, next))
 
 export default auth;
