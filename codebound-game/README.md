@@ -6,36 +6,32 @@
 
 ---
 
-## 🚀 **KAILANGAN MO LANG BASAHIN (3 FILES):**
+## 🚀 **KAILANGAN MO LANG BASAHIN (setup + connect + prompts):**
 
-### **1. 🔌 [HOW_TO_CONNECT_SCRIPTS.md](HOW_TO_CONNECT_SCRIPTS.md)**
-**MOST IMPORTANT! Shows paano mag-connect sa Unity**
-- Step-by-step paano i-drag yung Door, Terminal, UI
-- All critical connections explained
-- Common errors at solutions
+### **Setup at backend**
+- **[UNITY_FULL_SYSTEM_SETUP.md](UNITY_FULL_SYSTEM_SETUP.md)** – Backend + Unity + Build Settings + API config. Start here.
+- **[UNITY_WHAT_YOU_SETUP.md](UNITY_WHAT_YOU_SETUP.md)** – Ano nasa code na vs ano sa Unity (designs, sounds, images).
 
-### **2. 🏗️ [UNITY_SCENE_BUILD_GUIDE.md](UNITY_SCENE_BUILD_GUIDE.md)**
-**Complete 2-hour guide para build Level 1**
-- All GameObjects with exact positions
-- All Components needed
-- All UI Canvases
+### **Connect scripts sa Unity**
+- **[HOW_TO_CONNECT_SCRIPTS.md](HOW_TO_CONNECT_SCRIPTS.md)** – Paano i-drag references (Door, Terminal, Paper, UI). Critical.
+- **[UNITY_SCENE_BUILD_GUIDE.md](UNITY_SCENE_BUILD_GUIDE.md)** – Build Level 1: GameObjects, components, UI.
+- **[LEVEL_1_QUICK_CHECKLIST.md](LEVEL_1_QUICK_CHECKLIST.md)** – Quick checklist para Level 1.
 
-### **3. 📋 [MASTER_ROADMAP.md](MASTER_ROADMAP.md)**
-**50 todos - track progress dito**
-- Phase 1: Build Level 1 (Todos 1-14)
-- Phase 2: Test (Todos 15-20)
-- Phase 3: Auto-generate 99 levels (Todos 23-25)
+### **Prompts at assets (character, sprites, sounds)**
+- **[IMAGE_PROMPTS.md](IMAGE_PROMPTS.md)** – Prompts para sa character at UI (DALL-E / ideogram).
+- **[ASSET_SOURCES.md](ASSET_SOURCES.md)** – Free assets: OpenGameArt, Kenney, GitHub, Bfxr (sounds).
+- **Assets/Sprites/_BING_PROMPTS/** – Per-file .txt prompts (01_character_default.txt, etc.) + WHERE_TO_SAVE.md, HOW_TO_REPLACE.md.
 
 ---
 
 ## ⚡ **QUICK START:**
 
 ```
-1. Open Unity Editor → Open Project → codebound-game folder
-2. Follow HOW_TO_CONNECT_SCRIPTS.md → Build Level 1
-3. Press PLAY → Test everything works
-4. Run LevelGenerator → Auto-create 99 levels
-5. Done! 100 working levels! 🎉
+1. Backend: cd codebound-backend → npx prisma db push → npm run dev
+2. Unity: Open project (codebound-game folder) → Build Settings: add scenes
+3. Follow HOW_TO_CONNECT_SCRIPTS.md → connect Door, Terminal, Paper, UI
+4. Prompts: use IMAGE_PROMPTS.md or _BING_PROMPTS/*.txt → import sprites
+5. Press PLAY (backend dapat naka-run)
 ```
 
 ---
@@ -137,11 +133,12 @@ codebound-game/
 │   │   └── UI/             # Buttons, icons
 │   └── Resources/
 │       └── LevelData/      # level_001.json to level_100.json
-├── GAME_MECHANICS.md       # Complete game design
-├── JAVA_CHALLENGES_100.md  # All 100 coding challenges
-├── IDE_IMPLEMENTATION.md   # Code editor technical specs
-├── LEVEL_DESIGN_GUIDE.md   # Level creation guide
-└── README.md               # This file
+├── HOW_TO_CONNECT_SCRIPTS.md
+├── UNITY_FULL_SYSTEM_SETUP.md
+├── UNITY_WHAT_YOU_SETUP.md
+├── IMAGE_PROMPTS.md
+├── ASSET_SOURCES.md
+└── README.md
 ```
 
 ---
@@ -167,9 +164,9 @@ cd CodeBound-Game/codebound-game
 - Open project
 
 3. **Configure API**
-- Open `Assets/Scripts/Config/APIConfig.cs`
-- Verify backend URL (default: http://localhost:3000)
-- API key is already configured
+- Open `Assets/Scripts/Services/APIConfig.cs`
+- BASE_URL = http://localhost:3000/api (must match backend)
+- API_KEY = same as codebound-backend .env
 
 4. **Run Backend** (separate terminal)
 ```bash
@@ -185,15 +182,12 @@ npm run dev
 
 ---
 
-## 📚 **Documentation**
+## 📚 **Documentation (lahat nasa root at Assets/Sprites)**
 
-- **[GAME_MECHANICS.md](GAME_MECHANICS.md)** - Complete gameplay mechanics
-- **[JAVA_CHALLENGES_100.md](JAVA_CHALLENGES_100.md)** - All 100 coding challenges
-- **[IDE_IMPLEMENTATION.md](IDE_IMPLEMENTATION.md)** - In-game code editor specs
-- **[LEVEL_DESIGN_GUIDE.md](LEVEL_DESIGN_GUIDE.md)** - How to create levels
-- **[BACKEND_CONNECTION.md](BACKEND_CONNECTION.md)** - API integration guide
-- **[CHARACTER_DESIGNS.md](CHARACTER_DESIGNS.md)** - 8 character skin designs
-- **[GAME_ECONOMY_GUIDE.md](GAME_ECONOMY_GUIDE.md)** - Token system & pricing
+- Setup: UNITY_FULL_SYSTEM_SETUP.md, UNITY_WHAT_YOU_SETUP.md
+- Connect: HOW_TO_CONNECT_SCRIPTS.md, UNITY_SCENE_BUILD_GUIDE.md, LEVEL_1_QUICK_CHECKLIST.md
+- Art/sound: IMAGE_PROMPTS.md, ASSET_SOURCES.md, Assets/Sprites/_BING_PROMPTS/
+- Characters: Assets/Sprites/Characters/CHARACTER_DESIGNS.md, GENERATION_GUIDE.md
 
 ---
 

@@ -21,21 +21,26 @@ class GameSessionService {
     /**
      * End a game session
      */
-    async endSession(sessionId: string, levelsPlayed: number, tokensEarned: number) {
-        const session = await prisma.gameSession.findUnique({
+    async endSession(userId: string, sessionId: string, levelsPlayed: number, tokensEarned: number) {
+        // Single query - verify session ownership and get session
+        const existingSession = await prisma.gameSession.findUnique({
             where: { id: sessionId },
         });
 
-        if (!session) {
+        if (!existingSession) {
             throw new HttpError(404, 'Session not found');
         }
 
-        if (session.endedAt) {
+        if (existingSession.userId !== userId) {
+            throw new HttpError(403, 'Unauthorized: session does not belong to user');
+        }
+
+        if (existingSession.endedAt) {
             throw new HttpError(400, 'Session already ended');
         }
 
         const endedAt = new Date();
-        const duration = (endedAt.getTime() - session.startedAt.getTime()) / 1000; // in seconds
+        const duration = (endedAt.getTime() - existingSession.startedAt.getTime()) / 1000; // in seconds
 
         const updatedSession = await prisma.gameSession.update({
             where: { id: sessionId },

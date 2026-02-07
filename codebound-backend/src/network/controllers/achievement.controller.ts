@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+import { Api } from '../../lib/api';
+import { HttpError } from '../../lib/error';
 import achievementService from '../../services/achievement.service';
 
-class AchievementController {
+class AchievementController extends Api {
+    private httpError = new HttpError();
     /**
      * Get user achievements
      * GET /api/achievements
@@ -10,15 +13,11 @@ class AchievementController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const achievements = await achievementService.getUserAchievements(userId);
-
-            res.status(200).json({
-                success: true,
-                data: achievements,
-            });
+            return this.success(res, achievements, 'User achievements retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -32,15 +31,11 @@ class AchievementController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const progress = await achievementService.getAchievementProgress(userId);
-
-            res.status(200).json({
-                success: true,
-                data: progress,
-            });
+            return this.success(res, progress, 'Achievement progress retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -53,11 +48,7 @@ class AchievementController {
     async getAllAchievements(req: Request, res: Response, next: NextFunction) {
         try {
             const achievements = await achievementService.getAllAchievements();
-
-            res.status(200).json({
-                success: true,
-                data: achievements,
-            });
+            return this.success(res, achievements, 'All achievements retrieved successfully');
         } catch (error) {
             next(error);
         }

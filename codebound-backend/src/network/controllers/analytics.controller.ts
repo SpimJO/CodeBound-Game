@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import { Api } from '../../lib/api';
 import analyticsService from '../../services/analytics.service';
 
-class AnalyticsController {
+class AnalyticsController extends Api {
     /**
      * Increment download counter
      * POST /api/analytics/downloads/increment
@@ -9,11 +10,7 @@ class AnalyticsController {
     async incrementDownloads(req: Request, res: Response, next: NextFunction) {
         try {
             const counter = await analyticsService.incrementDownloads();
-
-            res.status(200).json({
-                success: true,
-                data: counter,
-            });
+            return this.success(res, counter, 'Download count incremented successfully');
         } catch (error) {
             next(error);
         }
@@ -26,11 +23,7 @@ class AnalyticsController {
     async getDownloadStats(req: Request, res: Response, next: NextFunction) {
         try {
             const stats = await analyticsService.getDownloadStats();
-
-            res.status(200).json({
-                success: true,
-                data: stats,
-            });
+            return this.success(res, stats, 'Download statistics retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -43,11 +36,7 @@ class AnalyticsController {
     async getPlatformStats(req: Request, res: Response, next: NextFunction) {
         try {
             const stats = await analyticsService.getPlatformStats();
-
-            res.status(200).json({
-                success: true,
-                data: stats,
-            });
+            return this.success(res, stats, 'Platform statistics retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -60,11 +49,7 @@ class AnalyticsController {
     async getLevelStats(req: Request, res: Response, next: NextFunction) {
         try {
             const stats = await analyticsService.getLevelStats();
-
-            res.status(200).json({
-                success: true,
-                data: stats,
-            });
+            return this.success(res, stats, 'Level statistics retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -77,11 +62,7 @@ class AnalyticsController {
     async getEngagementMetrics(req: Request, res: Response, next: NextFunction) {
         try {
             const metrics = await analyticsService.getEngagementMetrics();
-
-            res.status(200).json({
-                success: true,
-                data: metrics,
-            });
+            return this.success(res, metrics, 'Engagement metrics retrieved successfully');
         } catch (error) {
             next(error);
         }

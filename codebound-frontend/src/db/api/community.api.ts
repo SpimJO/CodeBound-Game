@@ -1,64 +1,57 @@
-import xior from "@/http/xior";
+import api from "@/http/xior";
+import type {
+    ApiResponse,
+    CommunityPost,
+    CommunityPostsResponse,
+    CreatePostRequest,
+    UpdatePostRequest,
+    AddCommentRequest,
+    CommunityComment,
+} from "@/types/api.types";
 
-export interface CommunityPost {
-  id: string;
-  userId: string;
-  username: string;
-  avatar?: string;
-  content: string;
-  likes: number;
-  commentCount: number;
-  created_at: string;
-}
+export const communityApi = {
+    getPosts: async (limit: number = 20, offset: number = 0): Promise<ApiResponse<CommunityPostsResponse>> => {
+        const response = await api.get(`/community/posts?limit=${limit}&offset=${offset}`);
+        return response.data;
+    },
 
-export interface CommunityComment {
-  id: string;
-  postId: string;
-  userId: string;
-  username: string;
-  content: string;
-  created_at: string;
-}
+    getPostById: async (postId: string): Promise<ApiResponse<CommunityPost>> => {
+        const response = await api.get(`/community/posts/${postId}`);
+        return response.data;
+    },
 
-export interface CommunityPostsResponse {
-  posts: CommunityPost[];
-  total: number;
-}
+    createPost: async (data: CreatePostRequest): Promise<ApiResponse<CommunityPost>> => {
+        const response = await api.post("/community/posts", data);
+        return response.data;
+    },
 
-export interface CreatePostRequest {
-  content: string;
-}
+    updatePost: async (postId: string, data: UpdatePostRequest): Promise<ApiResponse<CommunityPost>> => {
+        const response = await api.put(`/community/posts/${postId}`, data);
+        return response.data;
+    },
 
-export interface CreateCommentRequest {
-  content: string;
-}
+    deletePost: async (postId: string): Promise<ApiResponse<{ message: string }>> => {
+        const response = await api.delete(`/community/posts/${postId}`);
+        return response.data;
+    },
 
-// Get community posts (public)
-export const getCommunityPosts = async (limit = 10, offset = 0): Promise<CommunityPostsResponse> => {
-  const { data } = await xior.get(`/api/v1/community/posts?limit=${limit}&offset=${offset}`);
-  return data.data;
-};
+    likePost: async (postId: string): Promise<ApiResponse<CommunityPost>> => {
+        const response = await api.post(`/community/posts/${postId}/like`);
+        return response.data;
+    },
 
-// Create post (auth required)
-export const createCommunityPost = async (content: string): Promise<CommunityPost> => {
-  const { data } = await xior.post(`/api/v1/community/posts`, { content });
-  return data.data;
-};
+    addComment: async (postId: string, data: AddCommentRequest): Promise<ApiResponse<CommunityComment>> => {
+        const response = await api.post(`/community/posts/${postId}/comments`, data);
+        return response.data;
+    },
 
-// Like post (auth required)
-export const likePost = async (postId: string): Promise<{ likes: number }> => {
-  const { data } = await xior.post(`/api/v1/community/posts/${postId}/like`);
-  return data.data;
-};
+    deleteComment: async (commentId: string): Promise<ApiResponse<{ message: string }>> => {
+        const response = await api.delete(`/community/comments/${commentId}`);
+        return response.data;
+    },
 
-// Get post comments
-export const getPostComments = async (postId: string): Promise<{ comments: CommunityComment[] }> => {
-  const { data } = await xior.get(`/api/v1/community/posts/${postId}/comments`);
-  return data.data;
-};
-
-// Add comment (auth required)
-export const addComment = async (postId: string, content: string): Promise<CommunityComment> => {
-  const { data } = await xior.post(`/api/v1/community/posts/${postId}/comments`, { content });
-  return data.data;
+    getUserPosts: async (limit: number = 10): Promise<ApiResponse<CommunityPost[]>> => {
+        const response = await api.get(`/community/my-posts?limit=${limit}`);
+        return response.data;
+    },
 };

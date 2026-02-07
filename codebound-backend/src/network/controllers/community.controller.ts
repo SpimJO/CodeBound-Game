@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { Api } from '../../lib/api';
+import { HttpError } from '../../lib/error';
 import communityService from '../../services/community.service';
 
-class CommunityController {
+class CommunityController extends Api {
+    private httpError = new HttpError();
+
     /**
      * Create a new community post
      * POST /api/community/posts
@@ -10,20 +14,16 @@ class CommunityController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const { content } = req.body;
             if (!content) {
-                return res.status(400).json({ error: 'Content is required' });
+                return next(this.httpError.badRequest('Content is required'));
             }
 
             const post = await communityService.createPost(userId, content);
-
-            res.status(201).json({
-                success: true,
-                data: post,
-            });
+            return this.created(res, post, 'Post created successfully');
         } catch (error) {
             next(error);
         }
@@ -39,11 +39,7 @@ class CommunityController {
             const offset = parseInt(req.query.offset as string) || 0;
 
             const result = await communityService.getPosts(limit, offset);
-
-            res.status(200).json({
-                success: true,
-                data: result,
-            });
+            return this.success(res, result, 'Posts retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -57,11 +53,7 @@ class CommunityController {
         try {
             const { postId } = req.params;
             const post = await communityService.getPostById(postId);
-
-            res.status(200).json({
-                success: true,
-                data: post,
-            });
+            return this.success(res, post, 'Post retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -75,22 +67,18 @@ class CommunityController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const { postId } = req.params;
             const { content } = req.body;
 
             if (!content) {
-                return res.status(400).json({ error: 'Content is required' });
+                return next(this.httpError.badRequest('Content is required'));
             }
 
             const post = await communityService.updatePost(postId, userId, content);
-
-            res.status(200).json({
-                success: true,
-                data: post,
-            });
+            return this.success(res, post, 'Post updated successfully');
         } catch (error) {
             next(error);
         }
@@ -104,16 +92,12 @@ class CommunityController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const { postId } = req.params;
             const result = await communityService.deletePost(postId, userId);
-
-            res.status(200).json({
-                success: true,
-                data: result,
-            });
+            return this.success(res, result, 'Post deleted successfully');
         } catch (error) {
             next(error);
         }
@@ -127,11 +111,7 @@ class CommunityController {
         try {
             const { postId } = req.params;
             const post = await communityService.likePost(postId);
-
-            res.status(200).json({
-                success: true,
-                data: post,
-            });
+            return this.success(res, post, 'Post liked successfully');
         } catch (error) {
             next(error);
         }
@@ -145,22 +125,18 @@ class CommunityController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const { postId } = req.params;
             const { content } = req.body;
 
             if (!content) {
-                return res.status(400).json({ error: 'Content is required' });
+                return next(this.httpError.badRequest('Content is required'));
             }
 
             const comment = await communityService.addComment(postId, userId, content);
-
-            res.status(201).json({
-                success: true,
-                data: comment,
-            });
+            return this.created(res, comment, 'Comment added successfully');
         } catch (error) {
             next(error);
         }
@@ -174,16 +150,12 @@ class CommunityController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const { commentId } = req.params;
             const result = await communityService.deleteComment(commentId, userId);
-
-            res.status(200).json({
-                success: true,
-                data: result,
-            });
+            return this.success(res, result, 'Comment deleted successfully');
         } catch (error) {
             next(error);
         }
@@ -197,16 +169,12 @@ class CommunityController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const limit = parseInt(req.query.limit as string) || 10;
             const posts = await communityService.getUserPosts(userId, limit);
-
-            res.status(200).json({
-                success: true,
-                data: posts,
-            });
+            return this.success(res, posts, 'User posts retrieved successfully');
         } catch (error) {
             next(error);
         }

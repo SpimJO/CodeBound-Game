@@ -14,7 +14,7 @@ export const useAuth = () => {
 
     const sessionMutation = useMutation({
         mutationKey: ["auth", "session"],
-        mutationFn: authApi.session,
+        mutationFn: authApi.sessionToken,
     });
 
     const registerMutation = useMutation({
@@ -57,7 +57,7 @@ export const useAuth = () => {
     const prefetchSession = () => {
         queryClient.prefetchQuery({
             queryKey: ["auth", "session"],
-            queryFn: authApi.session,
+            queryFn: authApi.sessionToken,
             staleTime: 5 * 60 * 1000,
         });
     };

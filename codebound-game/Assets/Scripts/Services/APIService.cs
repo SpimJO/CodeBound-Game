@@ -32,7 +32,7 @@ public class APIService : IAPIService
     private void SetupRequestHeaders(UnityWebRequest request, string authToken = null)
     {
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("x-api-key", _apiKey);
+        request.SetRequestHeader("api-key", _apiKey);
         
         if (!string.IsNullOrEmpty(authToken))
         {

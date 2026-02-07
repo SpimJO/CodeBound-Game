@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { Api } from '../../lib/api';
+import { HttpError } from '../../lib/error';
 import gameSessionService from '../../services/gameSession.service';
 
-class GameSessionController {
+class GameSessionController extends Api {
+    private httpError = new HttpError();
+
     /**
      * Start a new game session
      * POST /api/sessions/start
@@ -10,15 +14,11 @@ class GameSessionController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const session = await gameSessionService.startSession(userId);
-
-            res.status(201).json({
-                success: true,
-                data: session,
-            });
+            return this.created(res, session, 'Game session started successfully');
         } catch (error) {
             next(error);
         }
@@ -30,25 +30,26 @@ class GameSessionController {
      */
     async endSession(req: Request, res: Response, next: NextFunction) {
         try {
+            const userId = req.user?.id;
+            if (!userId) {
+                return next(this.httpError.unauthorized('Unauthorized'));
+            }
+
             const { sessionId } = req.params;
             const { levelsPlayed, tokensEarned } = req.body;
 
             if (levelsPlayed === undefined || tokensEarned === undefined) {
-                return res.status(400).json({
-                    error: 'levelsPlayed and tokensEarned are required'
-                });
+                return next(this.httpError.badRequest('levelsPlayed and tokensEarned are required'));
             }
 
             const session = await gameSessionService.endSession(
+                userId,
                 sessionId,
                 levelsPlayed,
                 tokensEarned
             );
 
-            res.status(200).json({
-                success: true,
-                data: session,
-            });
+            return this.success(res, session, 'Game session ended successfully');
         } catch (error) {
             next(error);
         }
@@ -62,16 +63,13 @@ class GameSessionController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const limit = parseInt(req.query.limit as string) || 10;
             const sessions = await gameSessionService.getUserSessions(userId, limit);
 
-            res.status(200).json({
-                success: true,
-                data: sessions,
-            });
+            return this.success(res, sessions, 'Sessions retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -85,15 +83,11 @@ class GameSessionController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const session = await gameSessionService.getActiveSession(userId);
-
-            res.status(200).json({
-                success: true,
-                data: session,
-            });
+            return this.success(res, session, 'Active session retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -107,15 +101,11 @@ class GameSessionController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const stats = await gameSessionService.getSessionStats(userId);
-
-            res.status(200).json({
-                success: true,
-                data: stats,
-            });
+            return this.success(res, stats, 'Session statistics retrieved successfully');
         } catch (error) {
             next(error);
         }

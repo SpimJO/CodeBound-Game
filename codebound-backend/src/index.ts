@@ -34,10 +34,15 @@ class index {
     }
 
     private Routes(): void {
-        this.app.use(`/${appConfig.BASEROUTE}/${appConfig.VERSION}`, this.appRouter.router);
+        this.app.use(`/${appConfig.BASEROUTE}`, this.appRouter.router);
     }
 
     private ErrorHandler(): void {
+        // Prisma error handler first
+        const { prismaErrorHandler } = require('./middleware/prismaErrorHandler');
+        this.app.use(prismaErrorHandler);
+
+        // Global error handler
         this.app.use(
             (error: any, req: Request, res: Response, next: NextFunction): void => {
                 const statusCode = error.statusCode || 500;
@@ -45,11 +50,9 @@ class index {
                 const rawErrors = error.rawErrors || [];
 
                 res.status(statusCode).json({
+                    success: false,
                     message,
-                    error: {
-                        statusCode,
-                        rawErrors,
-                    },
+                    errors: rawErrors.length > 0 ? { details: rawErrors } : undefined,
                 });
             }
         );

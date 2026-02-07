@@ -1,26 +1,38 @@
-import xior from "@/http/xior";
+import api from "@/http/xior";
+import type {
+    ApiResponse,
+    LeaderboardResponse,
+    LeaderboardStats,
+    LeaderboardPlayer,
+} from "@/types/api.types";
 
-export interface LeaderboardEntry {
-  id: string;
-  userId: string;
-  username: string;
-  highestLevel: number;
-  totalTokens: number;
-  achievementsCount: number;
-  lastUpdated: string;
-}
+export const leaderboardApi = {
+    getLeaderboard: async (
+        limit: number = 50,
+        offset: number = 0,
+        sort: 'level' | 'tokens' | 'playtime' | 'recent' = 'level'
+    ): Promise<ApiResponse<LeaderboardResponse>> => {
+        const response = await api.get(`/leaderboard?limit=${limit}&offset=${offset}&sort=${sort}`);
+        return response.data;
+    },
 
-export interface LeaderboardResponse {
-  entries: (LeaderboardEntry & { rank: number })[];
-  total: number;
-}
+    getTopPlayers: async (count: number = 10): Promise<ApiResponse<LeaderboardPlayer[]>> => {
+        const response = await api.get(`/leaderboard/top/${count}`);
+        return response.data;
+    },
 
-export const getLeaderboard = async (limit = 100): Promise<LeaderboardResponse> => {
-  const { data } = await xior.get(`/api/v1/leaderboard?limit=${limit}`);
-  return data.data;
-};
+    getPlayerRank: async (): Promise<ApiResponse<{ rank: number }>> => {
+        const response = await api.get("/leaderboard/rank");
+        return response.data;
+    },
 
-export const getMyRank = async (): Promise<{ rank: number; entry: LeaderboardEntry }> => {
-  const { data } = await xior.get(`/api/v1/leaderboard/me`);
-  return data.data;
+    getLeaderboardAroundPlayer: async (range: number = 10): Promise<ApiResponse<LeaderboardResponse>> => {
+        const response = await api.get(`/leaderboard/around-me?range=${range}`);
+        return response.data;
+    },
+
+    getLeaderboardStats: async (): Promise<ApiResponse<LeaderboardStats>> => {
+        const response = await api.get("/leaderboard/stats");
+        return response.data;
+    },
 };
