@@ -2,13 +2,17 @@ import { z } from 'zod';
 import { socket } from '@/lib/socket';
 import type { ReactNode } from 'react'
 
+export interface SocketData {
+    [key: string]: unknown;
+}
+
 export type WSContextType = {
     socket: typeof socket;
     isConnected: boolean;
     connectionError: string | null;
-    emit: (event: string, data?: any) => void;
-    on: (event: string, callback: (...args: any[]) => void) => void;
-    off: (event: string, callback?: (...args: any[]) => void) => void;
+    emit: (event: string, data?: SocketData) => void;
+    on: (event: string, callback: (...args: unknown[]) => void) => void;
+    off: (event: string, callback?: (...args: unknown[]) => void) => void;
     connect: () => void;
     disconnect: () => void;
     forceReconnect: () => void;

@@ -2,13 +2,12 @@ import { HttpStatusCode } from "axios";
 import { Response } from "express";
 
 /**
- * Base API response interface
+ * Base API response interface (matches architecture standard)
  */
 interface ApiResponse<T = any> {
+    success: boolean;
     message: string;
     data?: T;
-    statusCode: number;
-    timestamp: string;
 }
 
 /**
@@ -36,9 +35,8 @@ abstract class Api {
         message: string
     ): Response {
         const response: ApiResponse<T> = {
+            success: statusCode >= 200 && statusCode < 300,
             message,
-            statusCode,
-            timestamp: new Date().toISOString(),
         };
 
         if (data !== undefined && data !== null) {

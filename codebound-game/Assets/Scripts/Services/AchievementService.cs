@@ -24,20 +24,54 @@ public class AchievementService : IAchievementService
     public AchievementService(IAPIService apiService)
     {
         _apiService = apiService;
-        _storageService = GameManager.Instance.StorageService;
+        
+        // Null check for GameManager and StorageService
+        if (GameManager.Instance != null && GameManager.Instance.StorageService != null)
+        {
+            _storageService = GameManager.Instance.StorageService;
+        }
+        else
+        {
+            Debug.LogError("AchievementService: GameManager or StorageService not initialized");
+        }
+        
         _achievements = new List<Achievement>();
-        LoadAchievements();
+        _ = LoadAchievements(); // Fire and forget, but properly awaitable
     }
 
     public async Task UnlockAchievement(string achievementId)
     {
-        var achievement = _achievements.Find(a => a.id == achievementId);
+        if (string.IsNullOrEmpty(achievementId))
+        {
+            Debug.LogWarning("AchievementService: Cannot unlock achievement with null or empty ID");
+            return;
+        }
+
+        if (_achievements == null)
+        {
+            Debug.LogWarning("AchievementService: Achievements list not initialized");
+            return;
+        }
+
+        var achievement = _achievements.Find(a => a != null && a.id == achievementId);
         if (achievement != null && !achievement.isUnlocked)
         {
             achievement.isUnlocked = true;
-            await _storageService.SaveData($"achievement_{achievementId}", true);
-            // Sync with server
-            await _apiService.Post<object>("/achievements/unlock", new UnlockRequest { achievementId = achievementId });
+            
+            if (_storageService != null)
+            {
+                try
+                {
+                    await _storageService.SaveData($"achievement_{achievementId}", true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"AchievementService: Failed to save achievement unlock: {ex.Message}");
+                }
+            }
+            
+            // Note: Backend auto-unlocks achievements based on progress
+            // No manual unlock endpoint needed
         }
     }
 
@@ -51,32 +85,48 @@ public class AchievementService : IAchievementService
         return await _storageService.HasKey($"achievement_{achievementId}");
     }
 
-    private async void LoadAchievements()
+    private async Task LoadAchievements()
     {
-        // Try to load from server
-        var response = await _apiService.Get<AchievementsResponse>("/achievements");
-        
-        if (response.IsSuccess && response.Data != null && response.Data.achievements != null)
+        try
         {
-            _achievements = response.Data.achievements;
-            // Validate unlocks with local storage
-            foreach (var ach in _achievements)
+            // Try to load from server - use /all endpoint for public list
+            var response = await _apiService.Get<List<Achievement>>("/achievements/all");
+            
+            if (response != null && response.IsSuccess && response.Data != null)
             {
-                if (await IsAchievementUnlocked(ach.id))
+                _achievements = response.Data;
+                // Validate unlocks with local storage
+                foreach (var ach in _achievements)
                 {
-                    ach.isUnlocked = true;
+                    if (ach != null && !string.IsNullOrEmpty(ach.id))
+                    {
+                        if (await IsAchievementUnlocked(ach.id))
+                        {
+                            ach.isUnlocked = true;
+                        }
+                    }
                 }
             }
-        }
-        else
-        {
-            Debug.LogWarning("Failed to fetch achievements, using defaults.");
-            // Fallback defaults
-            _achievements = new List<Achievement>
+            else
             {
-                new Achievement { id = "first_level", name = "First Steps", description = "Complete the first level" },
-                // Add more achievements
-            };
+                Debug.LogWarning("Failed to fetch achievements, using defaults.");
+                InitializeDefaultAchievements();
+            }
         }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error loading achievements: {ex.Message}");
+            InitializeDefaultAchievements();
+        }
+    }
+
+    private void InitializeDefaultAchievements()
+    {
+        // Fallback defaults
+        _achievements = new List<Achievement>
+        {
+            new Achievement { id = "first_level", name = "First Steps", description = "Complete the first level" },
+            // Add more achievements
+        };
     }
 }

@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+import { Api } from '../../lib/api';
+import { HttpError } from '../../lib/error';
 import progressService from '../../services/progress.service';
 
-class ProgressController {
+class ProgressController extends Api {
+    private httpError = new HttpError();
     /**
      * Update player progress after level completion
      * POST /api/progress/update
@@ -10,15 +13,13 @@ class ProgressController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const { levelCompleted, tokensEarned, timeSpent, hintsUsed, isPerfect } = req.body;
 
             if (!levelCompleted || tokensEarned === undefined || timeSpent === undefined) {
-                return res.status(400).json({
-                    error: 'Missing required fields: levelCompleted, tokensEarned, timeSpent'
-                });
+                return next(this.httpError.badRequest('Missing required fields: levelCompleted, tokensEarned, timeSpent'));
             }
 
             const result = await progressService.updateProgress(userId, {
@@ -29,10 +30,7 @@ class ProgressController {
                 isPerfect: isPerfect || false,
             });
 
-            res.status(200).json({
-                success: true,
-                data: result,
-            });
+            return this.success(res, result, 'Progress updated successfully');
         } catch (error) {
             next(error);
         }
@@ -46,15 +44,11 @@ class ProgressController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const progress = await progressService.getProgress(userId);
-
-            res.status(200).json({
-                success: true,
-                data: progress,
-            });
+            return this.success(res, progress, 'Progress retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -68,16 +62,13 @@ class ProgressController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const limit = parseInt(req.query.limit as string) || 10;
             const completions = await progressService.getLevelCompletions(userId, limit);
 
-            res.status(200).json({
-                success: true,
-                data: completions,
-            });
+            return this.success(res, completions, 'Level completions retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -91,15 +82,11 @@ class ProgressController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const stats = await progressService.getPlayerStats(userId);
-
-            res.status(200).json({
-                success: true,
-                data: stats,
-            });
+            return this.success(res, stats, 'Player statistics retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -113,15 +100,11 @@ class ProgressController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const result = await progressService.resetProgress(userId);
-
-            res.status(200).json({
-                success: true,
-                data: result,
-            });
+            return this.success(res, result, 'Progress reset successfully');
         } catch (error) {
             next(error);
         }

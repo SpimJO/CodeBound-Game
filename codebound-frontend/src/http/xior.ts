@@ -1,17 +1,19 @@
 import xior from "xior";
-import { useToken } from "@/hooks/useToken";
+import { getAuthToken } from "@/utils/auth";
 
 const api = xior.create({
-    baseURL: `${import.meta.env.VITE_BACKEND_BASE_URL}/api/v1`,
+    baseURL: `${import.meta.env.VITE_BACKEND_BASE_URL}/api`,
     headers: {
         "Content-Type": "application/json",
     },
-    withCredentials: false, // Do not allow to parse the cookies from the api
+    withCredentials: false,
 });
 
+// Request interceptor: Add auth token and API key
 api.interceptors.request.use(
     (config) => {
-        const token = useToken();
+        // Get token from cookies directly (not using hook)
+        const token = getAuthToken();
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;

@@ -6,6 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useTopPlayers, useLeaderboardStats } from '@/db/queries/useLeaderboard';
+import { useCommunityPosts } from '@/db/queries/useCommunity';
+import { useDownloadCount, useIncrementDownload, useLevelStats } from '@/db/queries/useAnalytics';
 import {
     Home as HomeIcon,
     Trophy,
@@ -27,9 +30,20 @@ import {
 
 const Home = () => {
     const [activeNav, setActiveNav] = useState('home');
-    const [downloadCount, setDownloadCount] = useState(1532);
-    const [totalPlayers] = useState(5230);
     const [showFloatingInstall, setShowFloatingInstall] = useState(true);
+
+    // API data
+    const { data: topPlayersData, isLoading: isLoadingLeaderboard } = useTopPlayers(8);
+    const { data: leaderboardStatsData } = useLeaderboardStats();
+    const { data: communityPostsData, isLoading: isLoadingPosts } = useCommunityPosts(3);
+    const { data: downloadCountData } = useDownloadCount();
+    const incrementDownloadMutation = useIncrementDownload();
+    const { data: levelStatsData } = useLevelStats();
+
+    const leaderboardData = topPlayersData || [];
+    const communityPosts = communityPostsData?.posts || [];
+    const downloadCount = downloadCountData?.totalDownloads || 0;
+    const totalPlayers = leaderboardStatsData?.totalPlayers || 0;
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -41,57 +55,71 @@ const Home = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    // Mock leaderboard data (matching backend schema)
-    const leaderboardData = [
-        { rank: 1, username: "JavaNinja", highestLevel: 100, totalTokens: 5000, achievementsCount: 45, avatar: "JN", color: "from-yellow-400 to-orange-500" },
-        { rank: 2, username: "CodeMaster", highestLevel: 98, totalTokens: 4800, achievementsCount: 42, avatar: "CM", color: "from-gray-300 to-gray-400" },
-        { rank: 3, username: "LogicQueen", highestLevel: 95, totalTokens: 4500, achievementsCount: 40, avatar: "LQ", color: "from-amber-600 to-amber-700" },
-        { rank: 4, username: "DebugKing", highestLevel: 92, totalTokens: 4200, achievementsCount: 38, avatar: "DK", color: "from-blue-400 to-blue-600" },
-        { rank: 5, username: "SyntaxWizard", highestLevel: 90, totalTokens: 4000, achievementsCount: 35, avatar: "SW", color: "from-purple-400 to-purple-600" },
-        { rank: 6, username: "LoopMaster", highestLevel: 87, totalTokens: 3850, achievementsCount: 33, avatar: "LM", color: "from-cyan-400 to-blue-500" },
-        { rank: 7, username: "ArrayExplorer", highestLevel: 85, totalTokens: 3700, achievementsCount: 31, avatar: "AE", color: "from-green-400 to-emerald-600" },
-        { rank: 8, username: "FunctionFox", highestLevel: 82, totalTokens: 3500, achievementsCount: 29, avatar: "FF", color: "from-orange-400 to-red-600" },
-    ];
-
-    // Mock community posts (matching backend schema)
-    const communityPosts = [
-        { 
-            id: "post_1",
-            username: "JavaLearner", 
-            time: "2h ago", 
-            content: "Just completed Level 50! This game is amazing for learning loops 🔥", 
-            likes: 42,
-            commentCount: 5,
-            avatar: "JL" 
-        },
-        { 
-            id: "post_2",
-            username: "CodeNinja", 
-            time: "5h ago", 
-            content: "Any tips for Level 75? Stuck on the recursion puzzle 🤔", 
-            likes: 18,
-            commentCount: 12,
-            avatar: "CN" 
-        },
-        { 
-            id: "post_3",
-            username: "DevStudent", 
-            time: "1d ago", 
-            content: "Finally understood OOP thanks to the dragon boss fight! Best learning experience ever! 🐉", 
-            likes: 156,
-            commentCount: 23,
-            avatar: "DS" 
-        },
-    ];
-
-    const handleDownload = () => {
-        setDownloadCount(prev => prev + 1);
-        toast.success('Download started! Check your device.');
-        // TODO: Replace with actual API call
-        // incrementDownload();
+    const handleDownload = async () => {
+        try {
+            await incrementDownloadMutation.mutateAsync();
+            toast.success('Download started! Check your device.');
+        } catch (error) {
+            toast.error('Failed to start download');
+        }
     };
 
     const handleDismissFloating = () => setShowFloatingInstall(false);
+
+    // Helper function to get avatar initials
+    const getAvatarInitials = (username: string) => {
+        return username.slice(0, 2).toUpperCase();
+    };
+
+    // Helper function to get avatar color
+    const getAvatarColor = (index: number) => {
+        const colors = [
+            "from-yellow-400 to-orange-500",
+            "from-gray-300 to-gray-400",
+            "from-amber-600 to-amber-700",
+            "from-blue-400 to-blue-600",
+            "from-purple-400 to-purple-600",
+            "from-cyan-400 to-blue-500",
+            "from-green-400 to-emerald-600",
+            "from-orange-400 to-red-600",
+        ];
+        return colors[index % colors.length];
+    };
+
+    // Helper function to format time ago
+    const formatTimeAgo = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInMs = now.getTime() - date.getTime();
+        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+        if (diffInMinutes < 60) {
+            return `${diffInMinutes}m ago`;
+        } else if (diffInHours < 24) {
+            return `${diffInHours}h ago`;
+        } else {
+            return `${diffInDays}d ago`;
+        }
+    };
+
+    // Featured challenges: completion counts per level range from backend
+    const levelRanges = [
+        { title: "Beginner's Quest", level: "Levels 1-25", min: 1, max: 25, icon: Zap, gradient: "from-green-400 to-emerald-600" },
+        { title: "Loop Master", level: "Levels 26-50", min: 26, max: 50, icon: Terminal, gradient: "from-blue-400 to-cyan-600" },
+        { title: "Function Warrior", level: "Levels 51-75", min: 51, max: 75, icon: Code, gradient: "from-purple-400 to-pink-600" },
+        { title: "OOP Legend", level: "Levels 76-100", min: 76, max: 100, icon: Award, gradient: "from-orange-400 to-red-600" },
+    ];
+    const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+    const featuredChallenges = levelRanges.map((range) => {
+        const completions = levelStatsData
+            ? levelStatsData
+                .filter((s) => s.level >= range.min && s.level <= range.max)
+                .reduce((sum, s) => sum + s.completions, 0)
+            : 0;
+        return { ...range, students: formatCount(completions) };
+    });
 
     const faqs = [
         {
@@ -273,12 +301,7 @@ const Home = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {[
-                                    { title: "Beginner's Quest", level: "Levels 1-25", students: "15.2k", icon: Zap, gradient: "from-green-400 to-emerald-600" },
-                                    { title: "Loop Master", level: "Levels 26-50", students: "8.7k", icon: Terminal, gradient: "from-blue-400 to-cyan-600" },
-                                    { title: "Function Warrior", level: "Levels 51-75", students: "4.3k", icon: Code, gradient: "from-purple-400 to-pink-600" },
-                                    { title: "OOP Legend", level: "Levels 76-100", students: "2.1k", icon: Award, gradient: "from-orange-400 to-red-600" },
-                                ].map((challenge, i) => (
+                                {featuredChallenges.map((challenge, i) => (
                                     <motion.div
                                         key={i}
                                         initial={{ opacity: 0, y: 20 }}
@@ -326,36 +349,65 @@ const Home = () => {
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                                {communityPosts.map((post) => (
-                                    <Card key={post.id} className="bg-zinc-900 border-transparent hover:border-transparent transition-colors">
-                                        <CardHeader>
-                                            <div className="flex items-start justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-sm font-bold">
-                                                        {post.avatar}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-sm">{post.username}</p>
-                                                        <p className="text-xs text-zinc-500">{post.time}</p>
+                                {isLoadingPosts ? (
+                                    Array(3).fill(0).map((_, i) => (
+                                        <Card key={i} className="bg-zinc-900 border-transparent">
+                                            <CardHeader>
+                                                <div className="flex items-center gap-3 animate-pulse">
+                                                    <div className="w-10 h-10 rounded-full bg-zinc-800" />
+                                                    <div className="space-y-2 flex-1">
+                                                        <div className="h-4 bg-zinc-800 rounded w-24" />
+                                                        <div className="h-3 bg-zinc-800 rounded w-16" />
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <p className="text-sm text-zinc-300 mb-3">{post.content}</p>
-                                            <div className="flex items-center gap-4 text-xs text-zinc-500">
-                                                <button className="flex items-center gap-1 hover:text-red-400 transition-colors">
-                                                    <Star className="w-4 h-4" />
-                                                    <span>{post.likes}</span>
-                                                </button>
-                                                <button className="flex items-center gap-1 hover:text-blue-400 transition-colors">
-                                                    <MessageCircle className="w-4 h-4" />
-                                                    <span>{post.commentCount}</span>
-                                                </button>
-                                            </div>
+                                            </CardHeader>
+                                            <CardContent className="animate-pulse">
+                                                <div className="space-y-2">
+                                                    <div className="h-3 bg-zinc-800 rounded" />
+                                                    <div className="h-3 bg-zinc-800 rounded w-3/4" />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))
+                                ) : communityPosts.length > 0 ? (
+                                    communityPosts.map((post, i) => (
+                                        <Card key={post.id} className="bg-zinc-900 border-transparent hover:border-transparent transition-colors">
+                                            <CardHeader>
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-sm font-bold">
+                                                            {getAvatarInitials(post.user.username)}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-semibold text-sm">{post.user.username}</p>
+                                                            <p className="text-xs text-zinc-500">{formatTimeAgo(post.created_at)}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <p className="text-sm text-zinc-300 mb-3">{post.content}</p>
+                                                <div className="flex items-center gap-4 text-xs text-zinc-500">
+                                                    <button className="flex items-center gap-1 hover:text-red-400 transition-colors">
+                                                        <Star className="w-4 h-4" />
+                                                        <span>{post.likes}</span>
+                                                    </button>
+                                                    <button className="flex items-center gap-1 hover:text-blue-400 transition-colors">
+                                                        <MessageCircle className="w-4 h-4" />
+                                                        <span>{post._count?.comments || 0}</span>
+                                                    </button>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))
+                                ) : (
+                                    <Card className="bg-zinc-900 border-transparent col-span-3">
+                                        <CardContent className="py-12 text-center">
+                                            <MessageCircle className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+                                            <p className="text-zinc-500">No community posts yet. Be the first to share!</p>
                                         </CardContent>
                                     </Card>
-                                ))}
+                                )}
                             </div>
 
                             <div className="text-center">
@@ -420,53 +472,68 @@ const Home = () => {
                 {/* Leaderboard List */}
                 <ScrollArea className="flex-1 p-4 scrollbar-hidden">
                     <div className="space-y-3">
-                        {leaderboardData.map((player, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.2 + i * 0.1 }}
-                                className="group"
-                            >
-                                <div className={`relative p-4 rounded-lg border border-transparent transition-all ${player.rank === 1
-                                    ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
-                                    : 'bg-zinc-900 hover:bg-zinc-800/80'
-                                    }`}>
+                        {isLoadingLeaderboard ? (
+                            Array(8).fill(0).map((_, i) => (
+                                <div key={i} className="p-4 rounded-lg bg-zinc-900 animate-pulse">
                                     <div className="flex items-center gap-3">
-                                        {/* Rank - trophy icon: gold, silver, bronze, classic */}
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
-                                            player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
-                                                player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
-                                                    'bg-zinc-800 text-zinc-500'
-                                            }`}>
-                                            <Trophy className="w-4 h-4" />
+                                        <div className="w-8 h-8 rounded-full bg-zinc-800" />
+                                        <div className="w-10 h-10 rounded-full bg-zinc-800" />
+                                        <div className="flex-1 space-y-2">
+                                            <div className="h-4 bg-zinc-800 rounded w-24" />
+                                            <div className="h-3 bg-zinc-800 rounded w-32" />
                                         </div>
-
-                                        {/* Avatar */}
-                                        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${player.color} flex items-center justify-center text-sm font-bold shadow-lg`}>
-                                            {player.avatar}
-                                        </div>
-
-                                        {/* Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-sm truncate">{player.username}</p>
-                                            <div className="flex items-center gap-2 text-xs text-zinc-500">
-                                                <TrendingUp className="w-3 h-3" />
-                                                <span>Lvl {player.highestLevel} • {player.totalTokens.toLocaleString()} tokens</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Rank Badge - trophy for top 3 */}
-                                        {player.rank <= 3 && (
-                                            <Trophy className={`w-5 h-5 ${player.rank === 1 ? 'text-yellow-400' :
-                                                player.rank === 2 ? 'text-gray-400' :
-                                                    'text-amber-600'
-                                                }`} />
-                                        )}
                                     </div>
                                 </div>
-                            </motion.div>
-                        ))}
+                            ))
+                        ) : (
+                            leaderboardData.map((player, i) => (
+                                <motion.div
+                                    key={player.userId}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 + i * 0.1 }}
+                                    className="group"
+                                >
+                                    <div className={`relative p-4 rounded-lg border border-transparent transition-all ${player.rank === 1
+                                        ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
+                                        : 'bg-zinc-900 hover:bg-zinc-800/80'
+                                        }`}>
+                                        <div className="flex items-center gap-3">
+                                            {/* Rank - trophy icon: gold, silver, bronze, classic */}
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
+                                                player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
+                                                    player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
+                                                        'bg-zinc-800 text-zinc-500'
+                                                }`}>
+                                                <Trophy className="w-4 h-4" />
+                                            </div>
+
+                                            {/* Avatar */}
+                                            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(i)} flex items-center justify-center text-sm font-bold shadow-lg`}>
+                                                {getAvatarInitials(player.username)}
+                                            </div>
+
+                                            {/* Info */}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-semibold text-sm truncate">{player.username}</p>
+                                                <div className="flex items-center gap-2 text-xs text-zinc-500">
+                                                    <TrendingUp className="w-3 h-3" />
+                                                    <span>Lvl {player.levelReached} • {player.tokensEarned.toLocaleString()} tokens</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Rank Badge - trophy for top 3 */}
+                                            {player.rank <= 3 && (
+                                                <Trophy className={`w-5 h-5 ${player.rank === 1 ? 'text-yellow-400' :
+                                                    player.rank === 2 ? 'text-gray-400' :
+                                                        'text-amber-600'
+                                                    }`} />
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))
+                        )}
                     </div>
                 </ScrollArea>
 

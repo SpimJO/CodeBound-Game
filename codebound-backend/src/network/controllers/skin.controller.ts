@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { Api } from '../../lib/api';
+import { HttpError } from '../../lib/error';
 import skinService from '../../services/skin.service';
 
-class SkinController {
+class SkinController extends Api {
+    private httpError = new HttpError();
+
     /**
      * Get user's owned skins
      * GET /api/skins
@@ -10,15 +14,11 @@ class SkinController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const skins = await skinService.getUserSkins(userId);
-
-            res.status(200).json({
-                success: true,
-                data: skins,
-            });
+            return this.success(res, skins, 'User skins retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -31,11 +31,7 @@ class SkinController {
     async getAvailableSkins(req: Request, res: Response, next: NextFunction) {
         try {
             const skins = await skinService.getAvailableSkins();
-
-            res.status(200).json({
-                success: true,
-                data: skins,
-            });
+            return this.success(res, skins, 'Available skins retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -49,21 +45,17 @@ class SkinController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const { skinId, tokenCost } = req.body;
 
             if (!skinId || tokenCost === undefined) {
-                return res.status(400).json({ error: 'skinId and tokenCost are required' });
+                return next(this.httpError.badRequest('skinId and tokenCost are required'));
             }
 
             const result = await skinService.purchaseSkin(userId, skinId, tokenCost);
-
-            res.status(200).json({
-                success: true,
-                data: result,
-            });
+            return this.success(res, result, 'Skin purchased successfully');
         } catch (error) {
             next(error);
         }
@@ -77,21 +69,17 @@ class SkinController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const { skinId } = req.body;
 
             if (!skinId) {
-                return res.status(400).json({ error: 'skinId is required' });
+                return next(this.httpError.badRequest('skinId is required'));
             }
 
             const progress = await skinService.equipSkin(userId, skinId);
-
-            res.status(200).json({
-                success: true,
-                data: progress,
-            });
+            return this.success(res, progress, 'Skin equipped successfully');
         } catch (error) {
             next(error);
         }
@@ -105,16 +93,12 @@ class SkinController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const { skinId } = req.params;
             const owned = await skinService.checkSkinOwnership(userId, skinId);
-
-            res.status(200).json({
-                success: true,
-                data: { owned },
-            });
+            return this.success(res, { owned }, 'Skin ownership checked successfully');
         } catch (error) {
             next(error);
         }

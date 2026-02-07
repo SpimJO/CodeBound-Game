@@ -1,15 +1,14 @@
 /// <summary>
-/// API Configuration for backend connection
+/// API Configuration for backend connection.
+/// Must match codebound-backend (no /v1 in URL; header is "api-key").
 /// </summary>
 public static class APIConfig
 {
-    // Base URL - Change this for production deployment
-    public const string BASE_URL = "http://localhost:3000/api/v1";
-    
-    // API Key - Required by backend for all requests
-    // NOTE: In production, load this from a secure source (not hardcoded)
-    // This key must match the API_KEY in codebound-backend/.env
-    public const string API_KEY = "00c41069a2c64a8b45e5a24712f7ccc5e87b496359e52898145d661b2cbf8336";
+    // Base URL - no version in path. Change for production.
+    public const string BASE_URL = "http://localhost:3000/api";
+
+    // API Key - must match API_KEY in codebound-backend/.env (plain or encrypted)
+    public const string API_KEY = "7003edba60fd212c1c89ea0d1aee6a638710ca78eeb20f8936e13c44150c2842";
     
     // Timeout settings
     public const int REQUEST_TIMEOUT_SECONDS = 30;
@@ -46,7 +45,7 @@ public static class APIConfig
         public const string ANALYTICS_EVENT = "/analytics/event";
         
         // Game Session
-        public const string SESSION_START = "/session/start";
-        public const string SESSION_END = "/session/end";
+        public const string SESSION_START = "/sessions/start";
+        public const string SESSION_END = "/sessions/end";
     }
 }

@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+import { Api } from '../../lib/api';
+import { HttpError } from '../../lib/error';
 import leaderboardService from '../../services/leaderboard.service';
 
-class LeaderboardController {
+class LeaderboardController extends Api {
+    private httpError = new HttpError();
     /**
      * Get global leaderboard
      * GET /api/leaderboard
@@ -13,11 +16,7 @@ class LeaderboardController {
             const sort = (req.query.sort as 'level' | 'tokens' | 'playtime' | 'recent') || 'level';
 
             const result = await leaderboardService.getLeaderboard({ limit, offset, sort });
-
-            res.status(200).json({
-                success: true,
-                data: result,
-            });
+            return this.success(res, result, 'Leaderboard retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -31,11 +30,7 @@ class LeaderboardController {
         try {
             const count = parseInt(req.params.count) || 10;
             const result = await leaderboardService.getTopPlayers(count);
-
-            res.status(200).json({
-                success: true,
-                data: result,
-            });
+            return this.success(res, result, `Top ${count} players retrieved successfully`);
         } catch (error) {
             next(error);
         }
@@ -49,15 +44,11 @@ class LeaderboardController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const rank = await leaderboardService.getPlayerRank(userId);
-
-            res.status(200).json({
-                success: true,
-                data: { rank },
-            });
+            return this.success(res, { rank }, 'Player rank retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -71,16 +62,12 @@ class LeaderboardController {
         try {
             const userId = req.user?.id;
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return next(this.httpError.unauthorized('Unauthorized'));
             }
 
             const range = parseInt(req.query.range as string) || 10;
             const result = await leaderboardService.getLeaderboardAroundPlayer(userId, range);
-
-            res.status(200).json({
-                success: true,
-                data: result,
-            });
+            return this.success(res, result, 'Leaderboard around player retrieved successfully');
         } catch (error) {
             next(error);
         }
@@ -93,11 +80,7 @@ class LeaderboardController {
     async getLeaderboardStats(req: Request, res: Response, next: NextFunction) {
         try {
             const stats = await leaderboardService.getLeaderboardStats();
-
-            res.status(200).json({
-                success: true,
-                data: stats,
-            });
+            return this.success(res, stats, 'Leaderboard statistics retrieved successfully');
         } catch (error) {
             next(error);
         }

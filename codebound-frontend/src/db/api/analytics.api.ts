@@ -1,27 +1,29 @@
-import xior from "@/http/xior";
+import api from "@/http/xior";
+import type {
+    ApiResponse,
+    DownloadCounter,
+    PlatformStats,
+    LevelStat,
+} from "@/types/api.types";
 
-export interface DownloadCountResponse {
-  totalDownloads: number;
-}
+export const analyticsApi = {
+    getDownloadCount: async (): Promise<ApiResponse<DownloadCounter>> => {
+        const response = await api.get("/analytics/downloads");
+        return response.data;
+    },
 
-export interface PlayerStatsResponse {
-  totalPlayers: number;
-}
+    incrementDownload: async (): Promise<ApiResponse<DownloadCounter>> => {
+        const response = await api.post("/analytics/downloads/increment");
+        return response.data;
+    },
 
-// Get download count (public)
-export const getDownloadCount = async (): Promise<DownloadCountResponse> => {
-  const { data } = await xior.get(`/api/v1/downloads/count`);
-  return data.data;
-};
+    getPlatformStats: async (): Promise<ApiResponse<PlatformStats>> => {
+        const response = await api.get("/analytics/platform");
+        return response.data;
+    },
 
-// Increment download counter (public)
-export const incrementDownload = async (): Promise<DownloadCountResponse> => {
-  const { data } = await xior.post(`/api/v1/downloads/increment`);
-  return data.data;
-};
-
-// Get total players (public)
-export const getPlayerStats = async (): Promise<PlayerStatsResponse> => {
-  const { data} = await xior.get(`/api/v1/stats/players`);
-  return data.data;
+    getLevelStats: async (): Promise<ApiResponse<LevelStat[]>> => {
+        const response = await api.get("/analytics/levels");
+        return response.data;
+    },
 };
