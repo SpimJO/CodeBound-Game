@@ -5,7 +5,7 @@ const PREFIX = 'CSTv2';
 export interface CipherPayload {
     id: string;
     username: string;
-    email: string;
+    email: string | null;
     issuedAt: number;
     expiresAt: number;
     [key: string]: any;

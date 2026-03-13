@@ -16,7 +16,7 @@ datasource db {
 
 model User {
   id         String   @id @default(cuid())
-  email      String   @unique // Login credential
+  email      String?  @unique // Optional login credential (null allowed)
   password   String   // Hashed password
   username   String   @unique // Display name in leaderboard & community
   avatar     String?  // Optional avatar URL
