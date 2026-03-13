@@ -9,6 +9,12 @@ class AuthController extends Api {
     public async login(req: Request, res: Response, next: NextFunction) {
         try {
             const { username, email, identifier, password } = req.body;
+            console.log("[AuthController] /auth/login payload", {
+                hasUsername: typeof username === "string" && username.length > 0,
+                hasEmail: typeof email === "string" && email.length > 0,
+                hasIdentifier: typeof identifier === "string" && identifier.length > 0,
+                passwordLength: typeof password === "string" ? password.length : 0,
+            });
             const loginIdentifier = identifier || email || username;
             const data = await authService.login(loginIdentifier, password);
             return this.success(res, data, "Login successful");
@@ -20,6 +26,11 @@ class AuthController extends Api {
     public async register(req: Request, res: Response, next: NextFunction) {
         try {
             const { username, email, password } = req.body;
+            console.log("[AuthController] /auth/register payload", {
+                username,
+                hasEmail: typeof email === "string" && email.length > 0,
+                passwordLength: typeof password === "string" ? password.length : 0,
+            });
             const data = await authService.register(username, email, password);
             return this.created(res, data, "Registration successful");
         } catch (error) {
@@ -41,6 +52,20 @@ class AuthController extends Api {
         }
     }
 
+    public async profile(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                return next(this.httpError.unauthorized("Unauthorized"));
+            }
+
+            const data = await authService.validateSession(userId);
+            return this.success(res, data, "Profile fetched successfully");
+        } catch (error) {
+            next(error);
+        }
+    }
+
     public async updateProfile(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.user?.id;
@@ -48,9 +73,23 @@ class AuthController extends Api {
                 return next(this.httpError.unauthorized("Unauthorized"));
             }
 
-            const { username, avatar } = req.body;
-            const data = await authService.updateProfile(userId, username, avatar);
+            const { username, avatar, currentPassword, newPassword } = req.body;
+            const data = await authService.updateProfile(userId, username, avatar, currentPassword, newPassword);
             return this.success(res, data, "Profile updated successfully");
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public async deleteProfile(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                return next(this.httpError.unauthorized("Unauthorized"));
+            }
+
+            await authService.deleteAccount(userId);
+            return this.success(res, null, "Account deleted successfully");
         } catch (error) {
             next(error);
         }

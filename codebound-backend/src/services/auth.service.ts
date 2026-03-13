@@ -11,7 +11,7 @@ const cipherToken = new CipherToken(appConfig.ENC_KEY_SECRET, appConfig.CIPHER_K
 interface UserData {
     id: string;
     username: string;
-    email: string;
+    email: string | null;
     avatar: string | null;
     created_at: Date;
     updated_at: Date;
@@ -33,7 +33,7 @@ class AuthService {
      * Authenticate user and generate token
      */
     async login(identifier: string, password: string): Promise<{
-        user: { id: string; username: string; email: string; avatar: string | null };
+        user: { id: string; username: string; email: string | null; avatar: string | null };
         token: string;
     }> {
         if (!identifier || !password) {
@@ -83,21 +83,27 @@ class AuthService {
     /**
      * Register new user with initial progress and leaderboard entry
      */
-    async register(username: string, email: string, password: string): Promise<{
-        user: { id: string; username: string; email: string };
+    async register(username: string, email: string | null | undefined, password: string): Promise<{
+        user: { id: string; username: string; email: string | null };
         token: string;
     }> {
-        const normalizedEmail = (email || "").trim().toLowerCase();
-        const displayName = username?.trim() || normalizedEmail.split("@")[0] || "Player";
+        const normalizedEmail = email ? email.trim().toLowerCase() : null;
+        // Some deployed DB states keep users.email unique with non-null default behavior.
+        // Use a unique fallback value to avoid duplicate empty-email inserts.
+        const effectiveEmail = normalizedEmail ?? `guest_${Date.now()}_${Math.floor(Math.random() * 1000000)}@codebound.local`;
+        const displayName = username?.trim() || "Player";
 
-        if (!normalizedEmail || !password) {
-            throw httpError.badRequest("Email and password are required");
+        if (!displayName || !password) {
+            throw httpError.badRequest("Username and password are required");
         }
 
         // Check if user already exists
         const existingUser = await prisma.user.findFirst({
             where: {
-                OR: [{ email: normalizedEmail }, { username: displayName }]
+                OR: [
+                    ...(normalizedEmail ? [{ email: normalizedEmail }] : []),
+                    { username: displayName }
+                ]
             }
         });
 
@@ -114,7 +120,7 @@ class AuthService {
             const user = await tx.user.create({
                 data: {
                     username: displayName,
-                    email: normalizedEmail,
+                    email: effectiveEmail,
                     password: passwordHashed
                 }
             });
@@ -149,7 +155,7 @@ class AuthService {
         const encryptToken = await cipherToken.encrypt({
             id: newUser.id,
             username: newUser.username,
-            email: newUser.email,
+            email: normalizedEmail,
             expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30,
             issuedAt: Date.now()
         });
@@ -158,7 +164,7 @@ class AuthService {
             user: {
                 id: newUser.id,
                 username: newUser.username,
-                email: newUser.email
+                email: normalizedEmail
             },
             token: encryptToken
         };
@@ -200,12 +206,20 @@ class AuthService {
     /**
      * Update user profile (username and/or avatar)
      */
-    async updateProfile(userId: string, username?: string, avatar?: string): Promise<{ user: UserData }> {
+    async updateProfile(
+        userId: string,
+        username?: string,
+        avatar?: string,
+        currentPassword?: string,
+        newPassword?: string
+    ): Promise<{ user: UserData }> {
+        const trimmedUsername = username?.trim();
+
         // Check if username is taken by another user
-        if (username) {
+        if (trimmedUsername) {
             const existingUser = await prisma.user.findFirst({
                 where: {
-                    username,
+                    username: trimmedUsername,
                     NOT: { id: userId }
                 }
             });
@@ -215,12 +229,38 @@ class AuthService {
             }
         }
 
+        let nextPasswordHash: string | undefined;
+        if (newPassword) {
+            if (newPassword.length < 6) {
+                throw httpError.badRequest("New password must be at least 6 characters");
+            }
+
+            if (currentPassword) {
+                const existingUser = await prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { password: true }
+                });
+
+                if (!existingUser) {
+                    throw httpError.notFound("User not found");
+                }
+
+                const isCurrentValid = await bcrypt.compare(currentPassword, existingUser.password);
+                if (!isCurrentValid) {
+                    throw httpError.unauthorized("Current password is incorrect");
+                }
+            }
+
+            nextPasswordHash = await bcrypt.hash(newPassword);
+        }
+
         // Update user
         const updatedUser = await prisma.user.update({
             where: { id: userId },
             data: {
-                ...(username && { username }),
-                ...(avatar && { avatar })
+                ...(trimmedUsername && { username: trimmedUsername }),
+                ...(avatar && { avatar }),
+                ...(nextPasswordHash && { password: nextPasswordHash })
             },
             select: {
                 id: true,
@@ -233,14 +273,34 @@ class AuthService {
         });
 
         // Update username in leaderboard if changed
-        if (username) {
+        if (trimmedUsername) {
             await prisma.leaderboard.update({
                 where: { userId },
-                data: { username }
+                data: { username: trimmedUsername }
             });
         }
 
         return { user: updatedUser };
+    }
+
+    /**
+     * Delete user account and related user-owned records.
+     */
+    async deleteAccount(userId: string): Promise<void> {
+        const existingUser = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { id: true }
+        });
+
+        if (!existingUser) {
+            throw httpError.notFound("User not found");
+        }
+
+        await prisma.$transaction(async (tx) => {
+            await tx.gameSession.deleteMany({ where: { userId } });
+            await tx.leaderboard.deleteMany({ where: { userId } });
+            await tx.user.delete({ where: { id: userId } });
+        });
     }
 }
 
