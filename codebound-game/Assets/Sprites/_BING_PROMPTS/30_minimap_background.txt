@@ -1,1 +1,0 @@
-A pixel art minimap background panel, 200x200 pixels, semi-transparent dark background with cyan border, square shape with corner brackets, futuristic radar-style grid lines, subtle tech patterns, PNG with transparency, game HUD element, Metal Slug UI aesthetic, tactical display interface

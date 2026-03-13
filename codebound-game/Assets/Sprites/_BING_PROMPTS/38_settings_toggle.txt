@@ -1,1 +1,0 @@
-A pixel art toggle switch UI element, 120x60 pixels, ON/OFF states, cyan color when active, gray when inactive, glowing effect, futuristic tech design, PNG with transparency, Metal Slug UI style, settings menu component for enabling/disabling features

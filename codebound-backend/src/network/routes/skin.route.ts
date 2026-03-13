@@ -5,42 +5,21 @@ import skinController from '../controllers/skin.controller';
 
 const skin: Router = Router();
 
-// Public route for available skins
-skin
-    .route('/available')
-    .get(apiKeyMiddleware, (req: Request, res: Response, next: NextFunction) =>
-        skinController.getAvailableSkins(req, res, next)
-    );
-
 // Protected routes (require API key and auth)
 skin.use(apiKeyMiddleware, authMiddleware);
 
-// Get user's owned skins
+// Get user's current character state
 skin
     .route('/')
     .get((req: Request, res: Response, next: NextFunction) =>
-        skinController.getUserSkins(req, res, next)
+        skinController.getUserCharacterState(req, res, next)
     );
 
-// Purchase a skin
-skin
-    .route('/purchase')
-    .post((req: Request, res: Response, next: NextFunction) =>
-        skinController.purchaseSkin(req, res, next)
-    );
-
-// Equip a skin
+// Equip a character
 skin
     .route('/equip')
     .post((req: Request, res: Response, next: NextFunction) =>
-        skinController.equipSkin(req, res, next)
-    );
-
-// Check skin ownership
-skin
-    .route('/:skinId/owned')
-    .get((req: Request, res: Response, next: NextFunction) =>
-        skinController.checkSkinOwnership(req, res, next)
+        skinController.equipCharacter(req, res, next)
     );
 
 export default skin;

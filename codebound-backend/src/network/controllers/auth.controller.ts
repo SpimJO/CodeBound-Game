@@ -8,8 +8,9 @@ class AuthController extends Api {
 
     public async login(req: Request, res: Response, next: NextFunction) {
         try {
-            const { username, password } = req.body;
-            const data = await authService.login(username, password);
+            const { username, email, identifier, password } = req.body;
+            const loginIdentifier = identifier || email || username;
+            const data = await authService.login(loginIdentifier, password);
             return this.success(res, data, "Login successful");
         } catch (error) {
             next(error);

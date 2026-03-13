@@ -46,7 +46,7 @@ const Register = () => {
                 });
             }
             toast.success('Account created! Welcome to CodeBound.');
-            navigate({ to: '/dashboard' });
+            navigate({ to: '/' });
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } }; message?: string };
             const message = err.response?.data?.message || err.message || 'Registration failed';

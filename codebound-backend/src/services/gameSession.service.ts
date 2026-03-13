@@ -1,13 +1,20 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { HttpError } from '../lib/error';
-
-const prisma = new PrismaClient();
 
 class GameSessionService {
     /**
      * Start a new game session
      */
     async startSession(userId: string) {
+        const active = await prisma.gameSession.findFirst({
+            where: { userId, endedAt: null },
+            orderBy: { startedAt: 'desc' },
+        });
+
+        if (active) {
+            return active;
+        }
+
         const session = await prisma.gameSession.create({
             data: {
                 userId,
@@ -22,6 +29,10 @@ class GameSessionService {
      * End a game session
      */
     async endSession(userId: string, sessionId: string, levelsPlayed: number, tokensEarned: number) {
+        if (levelsPlayed < 0 || tokensEarned < 0) {
+            throw new HttpError(400, 'levelsPlayed and tokensEarned must be >= 0');
+        }
+
         // Single query - verify session ownership and get session
         const existingSession = await prisma.gameSession.findUnique({
             where: { id: sessionId },
@@ -36,7 +47,8 @@ class GameSessionService {
         }
 
         if (existingSession.endedAt) {
-            throw new HttpError(400, 'Session already ended');
+            // Idempotent end-session behavior for client retries.
+            return existingSession;
         }
 
         const endedAt = new Date();
@@ -59,9 +71,10 @@ class GameSessionService {
      * Get user's game sessions
      */
     async getUserSessions(userId: string, limit = 10) {
+        const safeLimit = Math.min(Math.max(1, Number(limit) || 10), 100);
         const sessions = await prisma.gameSession.findMany({
             where: { userId },
-            take: limit,
+            take: safeLimit,
             orderBy: { startedAt: 'desc' },
         });
 

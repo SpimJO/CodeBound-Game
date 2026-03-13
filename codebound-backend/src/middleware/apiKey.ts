@@ -16,10 +16,10 @@ const isPlainKey = (key: string): boolean => {
 };
 
 export const apiKeyMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-    const key = req.headers["api-key"] as string | undefined;
+    const key = (req.headers["x-api-key"] || req.headers["api-key"]) as string | undefined;
 
     if (!key || typeof key !== "string") {
-        next(httpError.unauthorized("Missing Api Key"));
+        next(httpError.unauthorized("Missing API key"));
         return;
     }
 

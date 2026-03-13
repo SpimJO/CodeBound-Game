@@ -34,7 +34,15 @@ class index {
     }
 
     private Routes(): void {
-        this.app.use(`/${appConfig.BASEROUTE}`, this.appRouter.router);
+        const baseRoute = (appConfig.BASEROUTE || "").trim();
+
+        // Primary mount without prefix (e.g. /auth/login)
+        this.app.use(this.appRouter.router);
+
+        // Backward-compatible mount with configured prefix (e.g. /v1/auth/login)
+        if (baseRoute && baseRoute !== "/") {
+            this.app.use(`/${baseRoute.replace(/^\/+/, "")}`, this.appRouter.router);
+        }
     }
 
     private ErrorHandler(): void {

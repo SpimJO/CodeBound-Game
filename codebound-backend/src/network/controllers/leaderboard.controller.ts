@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Api } from '../../lib/api';
+import Api from '../../lib/api';
 import { HttpError } from '../../lib/error';
 import leaderboardService from '../../services/leaderboard.service';
 
@@ -7,7 +7,7 @@ class LeaderboardController extends Api {
     private httpError = new HttpError();
     /**
      * Get global leaderboard
-     * GET /api/leaderboard
+     * GET /leaderboard
      */
     async getLeaderboard(req: Request, res: Response, next: NextFunction) {
         try {
@@ -24,7 +24,7 @@ class LeaderboardController extends Api {
 
     /**
      * Get top N players
-     * GET /api/leaderboard/top/:count?
+     * GET /leaderboard/top/:count?
      */
     async getTopPlayers(req: Request, res: Response, next: NextFunction) {
         try {
@@ -38,7 +38,7 @@ class LeaderboardController extends Api {
 
     /**
      * Get player's rank
-     * GET /api/leaderboard/rank
+     * GET /leaderboard/rank
      */
     async getPlayerRank(req: Request, res: Response, next: NextFunction) {
         try {
@@ -56,7 +56,7 @@ class LeaderboardController extends Api {
 
     /**
      * Get leaderboard around a specific player
-     * GET /api/leaderboard/around-me
+     * GET /leaderboard/around-me
      */
     async getLeaderboardAroundPlayer(req: Request, res: Response, next: NextFunction) {
         try {
@@ -75,7 +75,7 @@ class LeaderboardController extends Api {
 
     /**
      * Get leaderboard statistics
-     * GET /api/leaderboard/stats
+     * GET /leaderboard/stats
      */
     async getLeaderboardStats(req: Request, res: Response, next: NextFunction) {
         try {

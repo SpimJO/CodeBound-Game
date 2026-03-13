@@ -4,28 +4,30 @@ import printAppInfo from "./utils/print-app-info";
 
 const createServer = (process: NodeJS.Process) => {
     return async () => {
-        let disconnectPrisma: (() => Promise<void>) | null = null;
-        
+        let disconnectPrisma: (() => Promise<void>) | undefined;
+
         try {
             console.log("[server] Starting server initialization...");
-            
+
             // Import modules dynamically to catch errors
             console.log("[server] Importing modules...");
-            const prismaModule = await import("./db/prisma");
-            const { connectPrisma } = prismaModule;
-            disconnectPrisma = prismaModule.disconnectPrisma;
-            
+            const prismaModule = await import("./lib/prisma");
+            const { prisma } = prismaModule;
+            disconnectPrisma = async () => {
+                await prisma.$disconnect();
+            };
+
             const indexModule = await import(".");
             const index = indexModule.default;
-            
+
             console.log("[server] Creating Express app...");
             const _index = new index();
             const main = _index.app;
             const server = http.createServer(main);
 
             console.log("[server] Connecting to database...");
-            await connectPrisma();
-            
+            await prisma.$connect();
+
             shutdown(server, process, disconnectPrisma);
 
             console.log("[server] Starting HTTP server on port", process.env.PORT);

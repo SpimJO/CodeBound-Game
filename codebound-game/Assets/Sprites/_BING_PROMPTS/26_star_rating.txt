@@ -1,1 +1,0 @@
-A pixel art star rating icon for level completion, 48x48 pixels, golden yellow star with cyan tech circuit patterns inside, glowing effect, futuristic style, 3 variants needed: empty star outline, half-filled star, fully-filled star, PNG with transparency, Metal Slug pixel art style, game achievement icon

@@ -2,7 +2,7 @@ import xior from "xior";
 import { getAuthToken } from "@/utils/auth";
 
 const api = xior.create({
-    baseURL: `${import.meta.env.VITE_BACKEND_BASE_URL}/api`,
+    baseURL: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
     headers: {
         "Content-Type": "application/json",
     },

@@ -7,7 +7,7 @@ validateEnv();
 interface AppConfig {
     PORT: string;
     VERSION: string;
-    BASEROUTE: string;
+    BASEROUTE?: string;
     DATABASE_URL: string;
     ENC_KEY_SECRET: string;
     CIPHER_KEY_SECRET: string;
@@ -20,7 +20,7 @@ interface AppConfig {
 const appConfig: AppConfig = {
     PORT: process.env.PORT!,
     VERSION: process.env.VERSION!,
-    BASEROUTE: process.env.BASEROUTE!,
+    BASEROUTE: process.env.BASEROUTE || "",
     DATABASE_URL: process.env.DATABASE_URL!,
     ENC_KEY_SECRET: process.env.ENC_KEY_SECRET!,
     CIPHER_KEY_SECRET: process.env.CIPHER_KEY_SECRET!,

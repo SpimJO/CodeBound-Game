@@ -23,7 +23,7 @@ interface UserWithProgress extends UserData {
         highestLevel: number;
         totalTokens: number;
         totalPlayTime: number;
-        equippedSkin: string;
+        equippedCharacter: string;
         lastPlayed: Date | null;
     } | null;
 }
@@ -32,14 +32,21 @@ class AuthService {
     /**
      * Authenticate user and generate token
      */
-    async login(username: string, password: string): Promise<{ token: string }> {
-        if (!username || !password) {
-            throw httpError.badRequest("Username and password are required");
+    async login(identifier: string, password: string): Promise<{
+        user: { id: string; username: string; email: string; avatar: string | null };
+        token: string;
+    }> {
+        if (!identifier || !password) {
+            throw httpError.badRequest("Identifier and password are required");
         }
 
-        // Find user by username
+        const normalizedIdentifier = identifier.trim().toLowerCase();
+
+        // Find user by email OR username for backward compatibility
         const user = await prisma.user.findUnique({
-            where: { username }
+            where: normalizedIdentifier.includes("@")
+                ? { email: normalizedIdentifier }
+                : { username: identifier.trim() }
         });
 
         if (!user) {
@@ -62,7 +69,15 @@ class AuthService {
             issuedAt: Date.now()
         });
 
-        return { token: encryptToken };
+        return {
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                avatar: user.avatar,
+            },
+            token: encryptToken,
+        };
     }
 
     /**
@@ -72,12 +87,17 @@ class AuthService {
         user: { id: string; username: string; email: string };
         token: string;
     }> {
-        const displayName = username?.trim() || email?.split("@")[0] || "Player";
+        const normalizedEmail = (email || "").trim().toLowerCase();
+        const displayName = username?.trim() || normalizedEmail.split("@")[0] || "Player";
+
+        if (!normalizedEmail || !password) {
+            throw httpError.badRequest("Email and password are required");
+        }
 
         // Check if user already exists
         const existingUser = await prisma.user.findFirst({
             where: {
-                OR: [{ email }, { username: displayName }]
+                OR: [{ email: normalizedEmail }, { username: displayName }]
             }
         });
 
@@ -94,7 +114,7 @@ class AuthService {
             const user = await tx.user.create({
                 data: {
                     username: displayName,
-                    email: email,
+                    email: normalizedEmail,
                     password: passwordHashed
                 }
             });
@@ -107,7 +127,7 @@ class AuthService {
                     highestLevel: 1,
                     totalTokens: 0,
                     totalPlayTime: 0,
-                    equippedSkin: "default"
+                    equippedCharacter: "default"
                 }
             });
 
@@ -163,7 +183,7 @@ class AuthService {
                         highestLevel: true,
                         totalTokens: true,
                         totalPlayTime: true,
-                        equippedSkin: true,
+                        equippedCharacter: true,
                         lastPlayed: true
                     }
                 }

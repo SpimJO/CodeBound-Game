@@ -1,1 +1,0 @@
-A pixel art "EXIT" button for game UI, 100x40 pixels, red color (#FF0000), rounded rectangular shape, subtle glow effect, dark outline, door/arrow icon on left, bold text "EXIT", cyberpunk tech style, flat design, PNG with transparency, Metal Slug UI style, game interface element

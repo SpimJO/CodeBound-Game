@@ -7,8 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTopPlayers, useLeaderboardStats } from '@/db/queries/useLeaderboard';
-import { useCommunityPosts } from '@/db/queries/useCommunity';
-import { useDownloadCount, useIncrementDownload, useLevelStats } from '@/db/queries/useAnalytics';
+import { useCommunityPosts, useCreatePost, useAddComment, useLikePost } from '@/db/queries/useCommunity';
+import { useToken } from '@/hooks/useToken';
+import { authApi } from '@/db/api/auth.api';
+import { useNavigate } from '@tanstack/react-router';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Textarea } from '@/components/ui/textarea';
+import { removeAuthToken } from '@/utils/auth';
 import {
     Home as HomeIcon,
     Trophy,
@@ -25,24 +30,77 @@ import {
     MessageCircle,
     Calendar,
     X,
-    Smartphone
+    Smartphone,
+    LogOut
 } from 'lucide-react';
+
+import { Input } from '@/components/ui/input';
 
 const Home = () => {
     const [activeNav, setActiveNav] = useState('home');
     const [showFloatingInstall, setShowFloatingInstall] = useState(true);
 
+    const token = useToken();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { data: currentUser } = useQuery({
+        queryKey: ['auth', 'session', 'home'],
+        queryFn: async () => {
+            const response = await authApi.sessionToken();
+            return response.data?.user;
+        },
+        enabled: Boolean(token),
+        retry: false,
+    });
+
+    const firstName = currentUser?.username?.trim().split(/\s+/)[0] || 'Player';
+    const userInitials = firstName.slice(0, 2).toUpperCase();
+    const shortUserId = currentUser?.id ? currentUser.id.slice(0, 8) : null;
+
+    // Community Post Data & State
+    const [newPostContent, setNewPostContent] = useState('');
+    const [replyingToPost, setReplyingToPost] = useState<string | null>(null);
+    const [replyContent, setReplyContent] = useState('');
+
+    const createPostMutation = useCreatePost();
+    const addCommentMutation = useAddComment();
+    const likePostMutation = useLikePost();
+
+    const handlePostSubmit = async () => {
+        if (!token) return navigate({ to: '/auth/login' });
+        if (!newPostContent.trim()) return;
+        await createPostMutation.mutateAsync({ content: newPostContent, tags: [] });
+        setNewPostContent('');
+    };
+
+    const handleReplySubmit = async (postId: string) => {
+        if (!token) return navigate({ to: '/auth/login' });
+        if (!replyContent.trim()) return;
+        await addCommentMutation.mutateAsync({ postId, data: { content: replyContent } });
+        setReplyContent('');
+        setReplyingToPost(null);
+    };
+
+    const handleLike = (postId: string) => {
+        if (!token) return navigate({ to: '/auth/login' });
+        likePostMutation.mutate(postId);
+    };
+
+    const handleLogout = () => {
+        removeAuthToken();
+        queryClient.clear();
+        toast.success('Logged out successfully.');
+        navigate({ to: '/auth/login' });
+    };
+
     // API data
     const { data: topPlayersData, isLoading: isLoadingLeaderboard } = useTopPlayers(8);
     const { data: leaderboardStatsData } = useLeaderboardStats();
     const { data: communityPostsData, isLoading: isLoadingPosts } = useCommunityPosts(3);
-    const { data: downloadCountData } = useDownloadCount();
-    const incrementDownloadMutation = useIncrementDownload();
-    const { data: levelStatsData } = useLevelStats();
 
     const leaderboardData = topPlayersData || [];
     const communityPosts = communityPostsData?.posts || [];
-    const downloadCount = downloadCountData?.totalDownloads || 0;
+    const downloadCount = 154; // Placeholder
     const totalPlayers = leaderboardStatsData?.totalPlayers || 0;
 
     useEffect(() => {
@@ -56,12 +114,7 @@ const Home = () => {
     }, []);
 
     const handleDownload = async () => {
-        try {
-            await incrementDownloadMutation.mutateAsync();
-            toast.success('Download started! Check your device.');
-        } catch (error) {
-            toast.error('Failed to start download');
-        }
+        toast.success('Download started! Check your device.');
     };
 
     const handleDismissFloating = () => setShowFloatingInstall(false);
@@ -113,11 +166,7 @@ const Home = () => {
     ];
     const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
     const featuredChallenges = levelRanges.map((range) => {
-        const completions = levelStatsData
-            ? levelStatsData
-                .filter((s) => s.level >= range.min && s.level <= range.max)
-                .reduce((sum, s) => sum + s.completions, 0)
-            : 0;
+        const completions = 50; // Mock placeholder
         return { ...range, students: formatCount(completions) };
     });
 
@@ -163,6 +212,37 @@ const Home = () => {
                             <p className="text-xs text-zinc-500">Learn by Gaming</p>
                         </div>
                     </div>
+
+                    {token && (
+                        <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/70 p-3">
+                            <div className="flex items-center gap-3">
+                                {currentUser?.avatar ? (
+                                    <img
+                                        src={currentUser.avatar}
+                                        alt={firstName}
+                                        className="h-9 w-9 rounded-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                                        {userInitials}
+                                    </div>
+                                )}
+                                <div className="min-w-0">
+                                    <p className="text-sm font-semibold text-white truncate">{firstName}</p>
+                                    <p className="text-[11px] text-zinc-500 truncate">{shortUserId ? `ID: ${shortUserId}` : 'ID: -'}</p>
+                                </div>
+                            </div>
+                            <Button
+                                onClick={handleLogout}
+                                variant="outline"
+                                size="sm"
+                                className="mt-3 w-full border-zinc-700 text-zinc-200 hover:bg-zinc-800 bg-transparent"
+                            >
+                                <LogOut className="w-4 h-4 mr-2" />
+                                Logout
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Navigation - Home only */}
@@ -347,7 +427,33 @@ const Home = () => {
                                     <h2 className="text-2xl font-bold">Community Hub</h2>
                                 </div>
                             </div>
-
+                            <Card className="bg-zinc-900 border-zinc-800">
+                                <CardContent className="pt-6">
+                                    {token ? (
+                                        <div className="space-y-4">
+                                            <Textarea
+                                                placeholder="What's on your mind? Share your code or ask a question..."
+                                                value={newPostContent}
+                                                onChange={(e) => setNewPostContent(e.target.value)}
+                                                className="bg-zinc-950 border-zinc-800 resize-none focus-visible:ring-cyan-500"
+                                            />
+                                            <div className="flex justify-end">
+                                                <Button onClick={handlePostSubmit} disabled={!newPostContent.trim() || createPostMutation.isPending} className="bg-cyan-600 hover:bg-cyan-700 text-white">
+                                                    {createPostMutation.isPending ? 'Posting...' : 'Post'}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-4">
+                                            <p className="text-zinc-400 mb-4">You must be logged in to post in the community.</p>
+                                            <Button onClick={() => navigate({ to: '/auth/login' })} variant="outline" className="border-cyan-500/60 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 hover:text-cyan-200 bg-transparent">
+                                                <Users className="w-4 h-4 mr-2" />
+                                                Login to Join the Community
+                                            </Button>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 {isLoadingPosts ? (
                                     Array(3).fill(0).map((_, i) => (
@@ -388,15 +494,48 @@ const Home = () => {
                                             <CardContent>
                                                 <p className="text-sm text-zinc-300 mb-3">{post.content}</p>
                                                 <div className="flex items-center gap-4 text-xs text-zinc-500">
-                                                    <button className="flex items-center gap-1 hover:text-red-400 transition-colors">
+                                                    <button onClick={() => handleLike(post.id)} className="flex items-center gap-1 hover:text-cyan-400 transition-colors">
                                                         <Star className="w-4 h-4" />
                                                         <span>{post.likes}</span>
                                                     </button>
-                                                    <button className="flex items-center gap-1 hover:text-blue-400 transition-colors">
+                                                    <button onClick={() => setReplyingToPost(replyingToPost === post.id ? null : post.id)} className="flex items-center gap-1 hover:text-cyan-400 transition-colors">
                                                         <MessageCircle className="w-4 h-4" />
                                                         <span>{post._count?.comments || 0}</span>
                                                     </button>
                                                 </div>
+
+                                                {post.comments && post.comments.length > 0 && (
+                                                    <div className="mt-4 space-y-2 border-t border-zinc-800/80 pt-3">
+                                                        {post.comments.map((comment) => (
+                                                            <div key={comment.id} className="rounded-md bg-zinc-950/80 border border-zinc-800 px-3 py-2">
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 text-[10px] font-bold text-white flex items-center justify-center">
+                                                                        {getAvatarInitials(comment.user.username)}
+                                                                    </div>
+                                                                    <p className="text-xs font-medium text-zinc-200">{comment.user.username}</p>
+                                                                    <p className="text-[11px] text-zinc-500">{formatTimeAgo(comment.created_at)}</p>
+                                                                </div>
+                                                                <p className="text-xs text-zinc-300 leading-relaxed">{comment.content}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {replyingToPost === post.id && (
+                                                    <div className="mt-4 flex flex-col gap-2">
+                                                        <div className="flex gap-2">
+                                                            <Input
+                                                                placeholder="Write a reply..."
+                                                                value={replyContent}
+                                                                onChange={(e) => setReplyContent(e.target.value)}
+                                                                className="bg-zinc-950 border-zinc-800 text-sm h-9 focus-visible:ring-cyan-500"
+                                                            />
+                                                            <Button size="sm" onClick={() => handleReplySubmit(post.id)} disabled={!replyContent.trim() || addCommentMutation.isPending} className="bg-cyan-600 hover:bg-cyan-700 text-white h-9">
+                                                                {addCommentMutation.isPending ? '...' : 'Reply'}
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </CardContent>
                                         </Card>
                                     ))
@@ -408,13 +547,6 @@ const Home = () => {
                                         </CardContent>
                                     </Card>
                                 )}
-                            </div>
-
-                            <div className="text-center">
-                                <Button variant="outline" className="border-cyan-500/60 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 hover:text-cyan-200 bg-transparent">
-                                    <Users className="w-4 h-4 mr-2" />
-                                    Join the Community
-                                </Button>
                             </div>
                         </motion.section>
 
@@ -457,17 +589,17 @@ const Home = () => {
                 className="w-80 bg-zinc-950 border-l border-zinc-800 flex flex-col"
             >
                 {/* Header */}
-                        <div className="p-6 border-b border-zinc-800">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-bold">Leaderboard</h2>
-                                <Trophy className="w-5 h-5 text-yellow-500" />
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-zinc-500">
-                                <Users className="w-3 h-3" />
-                                <span>{totalPlayers.toLocaleString()} players worldwide</span>
-                            </div>
-                            <p className="text-xs text-zinc-600 mt-1">Updated every 5 minutes</p>
-                        </div>
+                <div className="p-6 border-b border-zinc-800">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-bold">Leaderboard</h2>
+                        <Trophy className="w-5 h-5 text-yellow-500" />
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-zinc-500">
+                        <Users className="w-3 h-3" />
+                        <span>{totalPlayers.toLocaleString()} players worldwide</span>
+                    </div>
+                    <p className="text-xs text-zinc-600 mt-1">Updated every 5 minutes</p>
+                </div>
 
                 {/* Leaderboard List */}
                 <ScrollArea className="flex-1 p-4 scrollbar-hidden">

@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { HttpError } from '../lib/error';
 import achievementService from './achievement.service';
-
-const prisma = new PrismaClient();
 
 interface LevelData {
     levelCompleted: number;
@@ -10,6 +8,7 @@ interface LevelData {
     timeSpent: number;
     hintsUsed: number;
     isPerfect?: boolean;
+    hasCodeErrors?: boolean;
 }
 
 class ProgressService {
@@ -23,7 +22,20 @@ class ProgressService {
             timeSpent,
             hintsUsed,
             isPerfect = false,
+            hasCodeErrors = false,
         } = levelData;
+
+        if (!Number.isInteger(levelCompleted)) {
+            throw new HttpError(400, 'levelCompleted must be an integer');
+        }
+
+        if (tokensEarned < 0 || timeSpent < 0 || hintsUsed < 0) {
+            throw new HttpError(400, 'tokensEarned, timeSpent, and hintsUsed must be >= 0');
+        }
+
+        if (hasCodeErrors) {
+            throw new HttpError(400, 'Level cannot be completed when terminal run has code errors');
+        }
 
         // Validate level number
         if (levelCompleted < 1 || levelCompleted > 100) {
@@ -50,6 +62,19 @@ class ProgressService {
                 });
             }
 
+            // Enforce sequential progression for first-time completion.
+            // Allowed:
+            // - replaying an already completed level
+            // - completing exactly the next unlocked level (highestLevel + 1)
+            // Rejected:
+            // - skipping ahead to future levels
+            if (levelCompleted > progress.highestLevel + 1) {
+                throw new HttpError(
+                    400,
+                    `Level ${levelCompleted} is locked. Complete level ${progress.highestLevel + 1} first`
+                );
+            }
+
             // Check if level already completed
             const existingCompletion = await tx.levelCompletion.findUnique({
                 where: {
@@ -60,8 +85,14 @@ class ProgressService {
                 },
             });
 
+            let tokenDelta = tokensEarned;
+
             // Create or update level completion
             if (existingCompletion) {
+                // Replay-safe accounting:
+                // only award extra tokens when player beats previous best for this level.
+                tokenDelta = Math.max(0, tokensEarned - existingCompletion.tokensEarned);
+
                 // Update if better performance
                 await tx.levelCompletion.update({
                     where: {
@@ -98,9 +129,9 @@ class ProgressService {
             const updatedProgress = await tx.userProgress.update({
                 where: { userId },
                 data: {
-                    currentLevel: Math.max(progress.currentLevel, levelCompleted + 1),
+                    currentLevel: Math.min(100, Math.max(progress.currentLevel, levelCompleted + 1)),
                     highestLevel: Math.max(progress.highestLevel, levelCompleted),
-                    totalTokens: progress.totalTokens + tokensEarned,
+                    totalTokens: progress.totalTokens + tokenDelta,
                     totalPlayTime: progress.totalPlayTime + timeSpent,
                     lastPlayed: new Date(),
                 },
@@ -192,10 +223,11 @@ class ProgressService {
      * Get level completion details
      */
     async getLevelCompletions(userId: string, limit = 10) {
+        const safeLimit = Math.min(Math.max(1, Number(limit) || 10), 100);
         const completions = await prisma.levelCompletion.findMany({
             where: { userId },
             orderBy: { completedAt: 'desc' },
-            take: limit,
+            take: safeLimit,
         });
 
         return completions;
@@ -258,20 +290,44 @@ class ProgressService {
      * Reset player progress (admin only)
      */
     async resetProgress(userId: string) {
-        await prisma.$transaction([
-            prisma.levelCompletion.deleteMany({ where: { userId } }),
-            prisma.userAchievement.deleteMany({ where: { userId } }),
-            prisma.userProgress.update({
+        await prisma.$transaction(async (tx) => {
+            const user = await tx.user.findUnique({
+                where: { id: userId },
+                select: { username: true },
+            });
+
+            await tx.levelCompletion.deleteMany({ where: { userId } });
+            await tx.userAchievement.deleteMany({ where: { userId } });
+            await tx.userProgress.update({
                 where: { userId },
                 data: {
                     currentLevel: 1,
                     highestLevel: 1,
                     totalTokens: 0,
                     totalPlayTime: 0,
+                    lastPlayed: new Date(),
+                    equippedCharacter: 'default',
                 },
-            }),
-            prisma.leaderboard.delete({ where: { userId } }),
-        ]);
+            });
+
+            await tx.leaderboard.upsert({
+                where: { userId },
+                create: {
+                    userId,
+                    username: user?.username || 'Unknown',
+                    highestLevel: 1,
+                    totalTokens: 0,
+                    achievementsCount: 0,
+                },
+                update: {
+                    username: user?.username || 'Unknown',
+                    highestLevel: 1,
+                    totalTokens: 0,
+                    achievementsCount: 0,
+                    lastUpdated: new Date(),
+                },
+            });
+        });
 
         return { message: 'Progress reset successfully' };
     }

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Api } from '../../lib/api';
+import Api from '../../lib/api';
 import { HttpError } from '../../lib/error';
 import communityService from '../../services/community.service';
 
@@ -8,7 +8,7 @@ class CommunityController extends Api {
 
     /**
      * Create a new community post
-     * POST /api/community/posts
+     * POST /community/posts
      */
     async createPost(req: Request, res: Response, next: NextFunction) {
         try {
@@ -31,7 +31,7 @@ class CommunityController extends Api {
 
     /**
      * Get community posts
-     * GET /api/community/posts
+     * GET /community/posts
      */
     async getPosts(req: Request, res: Response, next: NextFunction) {
         try {
@@ -47,7 +47,7 @@ class CommunityController extends Api {
 
     /**
      * Get a single post
-     * GET /api/community/posts/:postId
+     * GET /community/posts/:postId
      */
     async getPostById(req: Request, res: Response, next: NextFunction) {
         try {
@@ -61,7 +61,7 @@ class CommunityController extends Api {
 
     /**
      * Update a post
-     * PUT /api/community/posts/:postId
+     * PUT /community/posts/:postId
      */
     async updatePost(req: Request, res: Response, next: NextFunction) {
         try {
@@ -86,7 +86,7 @@ class CommunityController extends Api {
 
     /**
      * Delete a post
-     * DELETE /api/community/posts/:postId
+     * DELETE /community/posts/:postId
      */
     async deletePost(req: Request, res: Response, next: NextFunction) {
         try {
@@ -105,7 +105,7 @@ class CommunityController extends Api {
 
     /**
      * Like a post
-     * POST /api/community/posts/:postId/like
+     * POST /community/posts/:postId/like
      */
     async likePost(req: Request, res: Response, next: NextFunction) {
         try {
@@ -119,7 +119,7 @@ class CommunityController extends Api {
 
     /**
      * Add a comment to a post
-     * POST /api/community/posts/:postId/comments
+     * POST /community/posts/:postId/comments
      */
     async addComment(req: Request, res: Response, next: NextFunction) {
         try {
@@ -144,7 +144,7 @@ class CommunityController extends Api {
 
     /**
      * Delete a comment
-     * DELETE /api/community/comments/:commentId
+     * DELETE /community/comments/:commentId
      */
     async deleteComment(req: Request, res: Response, next: NextFunction) {
         try {
@@ -163,7 +163,7 @@ class CommunityController extends Api {
 
     /**
      * Get user's posts
-     * GET /api/community/my-posts
+     * GET /community/my-posts
      */
     async getUserPosts(req: Request, res: Response, next: NextFunction) {
         try {

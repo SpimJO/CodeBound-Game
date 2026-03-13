@@ -13,12 +13,14 @@ export const getAuthToken = (): string | undefined => {
  * Set authentication token in cookies
  */
 export const setAuthToken = (token: string): void => {
-    Cookies.set("session-token", token, { expires: 30 });
+    const tokenName = import.meta.env.VITE_TOKEN_NAME || "session-token";
+    Cookies.set(tokenName, token, { expires: 30 });
 };
 
 /**
  * Remove authentication token from cookies
  */
 export const removeAuthToken = (): void => {
-    Cookies.remove("session-token");
+    const tokenName = import.meta.env.VITE_TOKEN_NAME || "session-token";
+    Cookies.remove(tokenName);
 };

@@ -4,7 +4,7 @@ import { leaderboardApi } from '../api/leaderboard.api';
 // Query keys
 export const leaderboardKeys = {
     all: ['leaderboard'] as const,
-    list: (limit?: number, offset?: number, sort?: string) => 
+    list: (limit?: number, offset?: number, sort?: string) =>
         [...leaderboardKeys.all, 'list', limit, offset, sort] as const,
     top: (count?: number) => [...leaderboardKeys.all, 'top', count] as const,
     rank: () => [...leaderboardKeys.all, 'rank'] as const,
@@ -36,7 +36,9 @@ export const useTopPlayers = (count: number = 10) => {
             const response = await leaderboardApi.getTopPlayers(count);
             return response.data;
         },
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 10,
+        refetchInterval: 1000 * 30,
+        refetchOnWindowFocus: true,
     });
 };
 
@@ -72,6 +74,8 @@ export const useLeaderboardStats = () => {
             const response = await leaderboardApi.getLeaderboardStats();
             return response.data;
         },
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 10,
+        refetchInterval: 1000 * 30,
+        refetchOnWindowFocus: true,
     });
 };

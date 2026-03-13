@@ -27,7 +27,6 @@ model User {
   progress        UserProgress?
   levelCompletions LevelCompletion[]
   achievements    UserAchievement[]
-  ownedSkins      UserSkin[]
   communityPosts  CommunityPost[]
   communityComments CommunityComment[]
 
@@ -49,7 +48,7 @@ model UserProgress {
   totalTokens     Int      @default(0) // Leaderboard: Secondary ranking
   totalPlayTime   Float    @default(0) // in seconds
   lastPlayed      DateTime @default(now())
-  equippedSkin    String   @default("default") // Game: Active skin
+  equippedCharacter String @default("default") // Game: Active selected character
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
 
@@ -106,28 +105,6 @@ model UserAchievement {
   @@index([userId])
   @@index([achievementId])
   @@index([unlockedAt])
-}
-
-// ============================================
-// SKINS OWNERSHIP
-// ============================================
-// USED IN:
-// - GAME: Check owned skins, shop UI
-// - NOT shown in landing page
-
-model UserSkin {
-  id              String   @id @default(cuid())
-  userId          String
-  skinId          String   // Skin ID from Unity (e.g., "ninja", "wizard")
-  purchasedAt     DateTime @default(now())
-  purchasedWithTokens Int  @default(0)
-
-  // Relations
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, skinId])
-  @@map("user_skins")
-  @@index([userId])
 }
 
 // ============================================
@@ -223,4 +200,25 @@ model GameSession {
   @@map("game_sessions")
   @@index([userId])
   @@index([startedAt])
+}
+
+// ============================================
+// GAME CONTENT (PROBLEMS)
+// ============================================
+// USED IN:
+// - GAME: Fetch question content dynamically per level
+
+model LevelProblem {
+  id              String   @id @default(cuid())
+  levelNumber     Int      @unique // 1-100
+  title           String
+  description     String   @db.Text
+  startingCode    String   @db.Text
+  expectedOutput  String   @db.Text
+  hints           String?  @db.Text // Optional hints, stored as JSON string or text
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("level_problems")
+  @@index([levelNumber])
 }

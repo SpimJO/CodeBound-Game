@@ -33,7 +33,9 @@ export interface UserWithProgress extends User {
 }
 
 export interface LoginRequest {
-    username: string;
+    identifier?: string;
+    email?: string;
+    username?: string;
     password: string;
 }
 

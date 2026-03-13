@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Api } from '../../lib/api';
+import Api from '../../lib/api';
 import { HttpError } from '../../lib/error';
 import gameSessionService from '../../services/gameSession.service';
 
@@ -8,7 +8,7 @@ class GameSessionController extends Api {
 
     /**
      * Start a new game session
-     * POST /api/sessions/start
+     * POST /sessions/start
      */
     async startSession(req: Request, res: Response, next: NextFunction) {
         try {
@@ -26,7 +26,7 @@ class GameSessionController extends Api {
 
     /**
      * End a game session
-     * POST /api/sessions/:sessionId/end
+     * POST /sessions/:sessionId/end
      */
     async endSession(req: Request, res: Response, next: NextFunction) {
         try {
@@ -42,11 +42,23 @@ class GameSessionController extends Api {
                 return next(this.httpError.badRequest('levelsPlayed and tokensEarned are required'));
             }
 
+            const levelsPlayedNum = Number(levelsPlayed);
+            const tokensEarnedNum = Number(tokensEarned);
+
+            if (
+                !Number.isFinite(levelsPlayedNum) ||
+                !Number.isFinite(tokensEarnedNum) ||
+                levelsPlayedNum < 0 ||
+                tokensEarnedNum < 0
+            ) {
+                return next(this.httpError.badRequest('levelsPlayed and tokensEarned must be numbers >= 0'));
+            }
+
             const session = await gameSessionService.endSession(
                 userId,
                 sessionId,
-                levelsPlayed,
-                tokensEarned
+                levelsPlayedNum,
+                tokensEarnedNum
             );
 
             return this.success(res, session, 'Game session ended successfully');
@@ -57,7 +69,7 @@ class GameSessionController extends Api {
 
     /**
      * Get user's game sessions
-     * GET /api/sessions
+     * GET /sessions
      */
     async getUserSessions(req: Request, res: Response, next: NextFunction) {
         try {
@@ -77,7 +89,7 @@ class GameSessionController extends Api {
 
     /**
      * Get active session for user
-     * GET /api/sessions/active
+     * GET /sessions/active
      */
     async getActiveSession(req: Request, res: Response, next: NextFunction) {
         try {
@@ -95,7 +107,7 @@ class GameSessionController extends Api {
 
     /**
      * Get session statistics for user
-     * GET /api/sessions/stats
+     * GET /sessions/stats
      */
     async getSessionStats(req: Request, res: Response, next: NextFunction) {
         try {

@@ -13,7 +13,7 @@ import { Code } from 'lucide-react';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
-    username: z.string().min(1, 'Username is required'),
+    identifier: z.string().min(1, 'Username or email is required'),
     password: z.string().min(1, 'Password is required'),
 });
 
@@ -30,7 +30,7 @@ const Login = () => {
         formState: { errors },
     } = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
-        defaultValues: { username: '', password: '' },
+        defaultValues: { identifier: '', password: '' },
     });
 
     const onSubmit = async (data: LoginFormValues) => {
@@ -45,7 +45,7 @@ const Login = () => {
                 });
             }
             toast.success('Login successful!');
-            navigate({ to: '/dashboard' });
+            navigate({ to: '/' });
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } }; message?: string };
             const message = err.response?.data?.message || err.message || 'Login failed';
@@ -75,17 +75,17 @@ const Login = () => {
                     <CardContent>
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="username">Username</Label>
+                                <Label htmlFor="identifier">Username or Email</Label>
                                 <Input
-                                    id="username"
+                                    id="identifier"
                                     type="text"
-                                    placeholder="Enter username"
+                                    placeholder="Enter username or email"
                                     className="bg-zinc-800 border-zinc-700"
                                     autoComplete="username"
-                                    {...register('username')}
+                                    {...register('identifier')}
                                 />
-                                {errors.username && (
-                                    <p className="text-sm text-red-400">{errors.username.message}</p>
+                                {errors.identifier && (
+                                    <p className="text-sm text-red-400">{errors.identifier.message}</p>
                                 )}
                             </div>
                             <div className="space-y-2">

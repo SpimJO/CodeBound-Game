@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Api } from '../../lib/api';
+import Api from '../../lib/api';
 import { HttpError } from '../../lib/error';
 import achievementService from '../../services/achievement.service';
 
@@ -7,7 +7,7 @@ class AchievementController extends Api {
     private httpError = new HttpError();
     /**
      * Get user achievements
-     * GET /api/achievements
+     * GET /achievements
      */
     async getUserAchievements(req: Request, res: Response, next: NextFunction) {
         try {
@@ -25,7 +25,7 @@ class AchievementController extends Api {
 
     /**
      * Get achievement progress
-     * GET /api/achievements/progress
+     * GET /achievements/progress
      */
     async getAchievementProgress(req: Request, res: Response, next: NextFunction) {
         try {
@@ -43,7 +43,7 @@ class AchievementController extends Api {
 
     /**
      * Get all available achievements
-     * GET /api/achievements/all
+     * GET /achievements/all
      */
     async getAllAchievements(req: Request, res: Response, next: NextFunction) {
         try {

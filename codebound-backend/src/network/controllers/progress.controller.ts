@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Api } from '../../lib/api';
+import Api from '../../lib/api';
 import { HttpError } from '../../lib/error';
 import progressService from '../../services/progress.service';
 
@@ -7,7 +7,7 @@ class ProgressController extends Api {
     private httpError = new HttpError();
     /**
      * Update player progress after level completion
-     * POST /api/progress/update
+     * POST /progress/update
      */
     async updateProgress(req: Request, res: Response, next: NextFunction) {
         try {
@@ -16,18 +16,31 @@ class ProgressController extends Api {
                 return next(this.httpError.unauthorized('Unauthorized'));
             }
 
-            const { levelCompleted, tokensEarned, timeSpent, hintsUsed, isPerfect } = req.body;
+            const { levelCompleted, tokensEarned, timeSpent, hintsUsed, isPerfect, hasCodeErrors } = req.body;
 
             if (!levelCompleted || tokensEarned === undefined || timeSpent === undefined) {
                 return next(this.httpError.badRequest('Missing required fields: levelCompleted, tokensEarned, timeSpent'));
             }
 
+            if (!Number.isInteger(levelCompleted) || levelCompleted < 1) {
+                return next(this.httpError.badRequest('levelCompleted must be an integer >= 1'));
+            }
+
+            if (Number(tokensEarned) < 0 || Number(timeSpent) < 0 || Number(hintsUsed || 0) < 0) {
+                return next(this.httpError.badRequest('tokensEarned, timeSpent, and hintsUsed must be >= 0'));
+            }
+
+            if (Boolean(hasCodeErrors)) {
+                return next(this.httpError.badRequest('Cannot complete level with code errors'));
+            }
+
             const result = await progressService.updateProgress(userId, {
-                levelCompleted,
-                tokensEarned,
-                timeSpent,
-                hintsUsed: hintsUsed || 0,
-                isPerfect: isPerfect || false,
+                levelCompleted: Number(levelCompleted),
+                tokensEarned: Number(tokensEarned),
+                timeSpent: Number(timeSpent),
+                hintsUsed: Number(hintsUsed || 0),
+                isPerfect: Boolean(isPerfect),
+                hasCodeErrors: Boolean(hasCodeErrors),
             });
 
             return this.success(res, result, 'Progress updated successfully');
@@ -38,7 +51,7 @@ class ProgressController extends Api {
 
     /**
      * Get player progress
-     * GET /api/progress
+     * GET /progress
      */
     async getProgress(req: Request, res: Response, next: NextFunction) {
         try {
@@ -56,7 +69,7 @@ class ProgressController extends Api {
 
     /**
      * Get level completions
-     * GET /api/progress/levels
+     * GET /progress/levels
      */
     async getLevelCompletions(req: Request, res: Response, next: NextFunction) {
         try {
@@ -76,7 +89,7 @@ class ProgressController extends Api {
 
     /**
      * Get player statistics
-     * GET /api/progress/stats
+     * GET /progress/stats
      */
     async getPlayerStats(req: Request, res: Response, next: NextFunction) {
         try {
@@ -94,7 +107,7 @@ class ProgressController extends Api {
 
     /**
      * Reset player progress (admin only)
-     * POST /api/progress/reset
+     * POST /progress/reset
      */
     async resetProgress(req: Request, res: Response, next: NextFunction) {
         try {

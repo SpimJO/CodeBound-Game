@@ -12,7 +12,6 @@ const validateEnv = () => {
     const requiredVariables = [
         "PORT",
         "VERSION",
-        "BASEROUTE",
         "ENC_KEY_SECRET",
         "CIPHER_KEY_SECRET",
         "DATABASE_URL"

@@ -1,1 +1,0 @@
-A pixel art "RUN CODE" button for game UI, 120x40 pixels, bright green color (#00FF00), rounded rectangular shape, subtle glow effect, dark outline, play triangle icon on left, bold text "RUN", cyberpunk tech style, flat design, PNG with transparency, Metal Slug UI style, game interface element

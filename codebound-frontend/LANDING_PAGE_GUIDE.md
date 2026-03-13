@@ -155,8 +155,8 @@ All animations use **framer-motion**:
 ## 🎯 Next Steps
 
 ### To Integrate Real Data:
-1. **Replace mock leaderboard** with API call to `/api/v1/leaderboard`
-2. **Replace community posts** with API call to `/api/v1/community/posts`
+1. **Replace mock leaderboard** with API call to `/leaderboard`
+2. **Replace community posts** with API call to `/community/posts`
 3. **Add video player** for actual game trailer
 4. **Connect download button** to actual download endpoint
 5. **Add authentication** to navigation buttons
