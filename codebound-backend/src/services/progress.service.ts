@@ -190,7 +190,6 @@ class ProgressService {
                     select: {
                         id: true,
                         username: true,
-                        email: true,
                         avatar: true,
                         created_at: true,
                     },

@@ -14,7 +14,6 @@ import { toast } from 'sonner';
 
 const registerSchema = z.object({
     username: z.string().min(1, 'Username is required').max(50, 'Username too long'),
-    email: z.string().email('Invalid email format'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
@@ -31,7 +30,7 @@ const Register = () => {
         formState: { errors },
     } = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
-        defaultValues: { username: '', email: '', password: '' },
+        defaultValues: { username: '', password: '' },
     });
 
     const onSubmit = async (data: RegisterFormValues) => {
@@ -87,20 +86,6 @@ const Register = () => {
                                 />
                                 {errors.username && (
                                     <p className="text-sm text-red-400">{errors.username.message}</p>
-                                )}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="you@example.com"
-                                    className="bg-zinc-800 border-zinc-700"
-                                    autoComplete="email"
-                                    {...register('email')}
-                                />
-                                {errors.email && (
-                                    <p className="text-sm text-red-400">{errors.email.message}</p>
                                 )}
                             </div>
                             <div className="space-y-2">

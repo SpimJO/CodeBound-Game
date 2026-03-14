@@ -13,7 +13,7 @@ import { Code } from 'lucide-react';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
-    identifier: z.string().min(1, 'Username or email is required'),
+    identifier: z.string().min(1, 'Username is required'),
     password: z.string().min(1, 'Password is required'),
 });
 
@@ -75,11 +75,11 @@ const Login = () => {
                     <CardContent>
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="identifier">Username or Email</Label>
+                                <Label htmlFor="identifier">Username</Label>
                                 <Input
                                     id="identifier"
                                     type="text"
-                                    placeholder="Enter username or email"
+                                    placeholder="Enter username"
                                     className="bg-zinc-800 border-zinc-700"
                                     autoComplete="username"
                                     {...register('identifier')}
