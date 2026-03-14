@@ -12,7 +12,6 @@ export interface ApiResponse<T = unknown> {
 // Auth Types
 export interface User {
     id: string;
-    email: string;
     username: string;
     avatar: string | null;
     created_at: string;
@@ -34,14 +33,12 @@ export interface UserWithProgress extends User {
 
 export interface LoginRequest {
     identifier?: string;
-    email?: string;
     username?: string;
     password: string;
 }
 
 export interface RegisterRequest {
     username: string;
-    email: string;
     password: string;
 }
 
@@ -52,7 +49,6 @@ export interface AuthResponse {
         user?: {
             id: string;
             username: string;
-            email: string;
         };
         token: string;
     };
@@ -120,7 +116,6 @@ export interface ProgressWithDetails {
     updated_at: string;
     user: {
         username: string;
-        email: string;
         createdAt: string;
     };
     completedLevelsCount: number;

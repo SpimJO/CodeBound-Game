@@ -1,10 +1,11 @@
 import api from "@/http/xior";
-import type { 
-    AuthResponse, 
-    LoginRequest, 
+import type {
+    AuthResponse,
+    LoginRequest,
     RegisterRequest,
     SessionResponse,
-    UpdateProfileRequest 
+    UpdateProfileRequest,
+    User
 } from "@/types/api.types";
 
 export const authApi = {

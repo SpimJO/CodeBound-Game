@@ -11,7 +11,6 @@ const cipherToken = new CipherToken(appConfig.ENC_KEY_SECRET, appConfig.CIPHER_K
 interface UserData {
     id: string;
     username: string;
-    email: string | null;
     avatar: string | null;
     created_at: Date;
     updated_at: Date;
@@ -33,20 +32,16 @@ class AuthService {
      * Authenticate user and generate token
      */
     async login(identifier: string, password: string): Promise<{
-        user: { id: string; username: string; email: string | null; avatar: string | null };
+        user: { id: string; username: string; avatar: string | null };
         token: string;
     }> {
         if (!identifier || !password) {
             throw httpError.badRequest("Identifier and password are required");
         }
 
-        const normalizedIdentifier = identifier.trim().toLowerCase();
-
-        // Find user by email OR username for backward compatibility
+        // Username-only auth.
         const user = await prisma.user.findUnique({
-            where: normalizedIdentifier.includes("@")
-                ? { email: normalizedIdentifier }
-                : { username: identifier.trim() }
+            where: { username: identifier.trim() }
         });
 
         if (!user) {
@@ -64,7 +59,6 @@ class AuthService {
         const encryptToken = await cipherToken.encrypt({
             id: user.id,
             username: user.username,
-            email: user.email,
             expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
             issuedAt: Date.now()
         });
@@ -73,7 +67,6 @@ class AuthService {
             user: {
                 id: user.id,
                 username: user.username,
-                email: user.email,
                 avatar: user.avatar,
             },
             token: encryptToken,
@@ -83,14 +76,10 @@ class AuthService {
     /**
      * Register new user with initial progress and leaderboard entry
      */
-    async register(username: string, email: string | null | undefined, password: string): Promise<{
-        user: { id: string; username: string; email: string | null };
+    async register(username: string, password: string): Promise<{
+        user: { id: string; username: string };
         token: string;
     }> {
-        const normalizedEmail = email ? email.trim().toLowerCase() : null;
-        // Some deployed DB states keep users.email unique with non-null default behavior.
-        // Use a unique fallback value to avoid duplicate empty-email inserts.
-        const effectiveEmail = normalizedEmail ?? `guest_${Date.now()}_${Math.floor(Math.random() * 1000000)}@codebound.local`;
         const displayName = username?.trim() || "Player";
 
         if (!displayName || !password) {
@@ -100,10 +89,7 @@ class AuthService {
         // Check if user already exists
         const existingUser = await prisma.user.findFirst({
             where: {
-                OR: [
-                    ...(normalizedEmail ? [{ email: normalizedEmail }] : []),
-                    { username: displayName }
-                ]
+                username: displayName
             }
         });
 
@@ -120,7 +106,6 @@ class AuthService {
             const user = await tx.user.create({
                 data: {
                     username: displayName,
-                    email: effectiveEmail,
                     password: passwordHashed
                 }
             });
@@ -155,7 +140,6 @@ class AuthService {
         const encryptToken = await cipherToken.encrypt({
             id: newUser.id,
             username: newUser.username,
-            email: normalizedEmail,
             expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30,
             issuedAt: Date.now()
         });
@@ -163,8 +147,7 @@ class AuthService {
         return {
             user: {
                 id: newUser.id,
-                username: newUser.username,
-                email: normalizedEmail
+                username: newUser.username
             },
             token: encryptToken
         };
@@ -179,7 +162,6 @@ class AuthService {
             select: {
                 id: true,
                 username: true,
-                email: true,
                 avatar: true,
                 created_at: true,
                 updated_at: true,
@@ -265,7 +247,6 @@ class AuthService {
             select: {
                 id: true,
                 username: true,
-                email: true,
                 avatar: true,
                 created_at: true,
                 updated_at: true

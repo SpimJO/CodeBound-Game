@@ -8,14 +8,13 @@ class AuthController extends Api {
 
     public async login(req: Request, res: Response, next: NextFunction) {
         try {
-            const { username, email, identifier, password } = req.body;
+            const { username, identifier, password } = req.body;
             console.log("[AuthController] /auth/login payload", {
                 hasUsername: typeof username === "string" && username.length > 0,
-                hasEmail: typeof email === "string" && email.length > 0,
                 hasIdentifier: typeof identifier === "string" && identifier.length > 0,
                 passwordLength: typeof password === "string" ? password.length : 0,
             });
-            const loginIdentifier = identifier || email || username;
+            const loginIdentifier = identifier || username;
             const data = await authService.login(loginIdentifier, password);
             return this.success(res, data, "Login successful");
         } catch (error) {
@@ -25,13 +24,12 @@ class AuthController extends Api {
 
     public async register(req: Request, res: Response, next: NextFunction) {
         try {
-            const { username, email, password } = req.body;
+            const { username, password } = req.body;
             console.log("[AuthController] /auth/register payload", {
                 username,
-                hasEmail: typeof email === "string" && email.length > 0,
                 passwordLength: typeof password === "string" ? password.length : 0,
             });
-            const data = await authService.register(username, email, password);
+            const data = await authService.register(username, password);
             return this.created(res, data, "Registration successful");
         } catch (error) {
             next(error);
