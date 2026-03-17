@@ -43,4 +43,11 @@ progress
         progressController.resetProgress(req, res, next)
     );
 
+// Sync overworld coin tokens (no level change)
+progress
+    .route('/sync-tokens')
+    .post((req: Request, res: Response, next: NextFunction) =>
+        progressController.syncTokens(req, res, next)
+    );
+
 export default progress;

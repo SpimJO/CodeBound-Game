@@ -330,6 +330,63 @@ class ProgressService {
 
         return { message: 'Progress reset successfully' };
     }
+
+    /**
+     * Sync overworld coin tokens collected by the player.
+     * POST /progress/sync-tokens
+     * Safely adds tokensToAdd to totalTokens without touching level data.
+     */
+    async syncTokens(userId: string, tokensToAdd: number) {
+        if (!Number.isInteger(tokensToAdd) || tokensToAdd < 0) {
+            throw new HttpError(400, 'tokensToAdd must be a non-negative integer');
+        }
+
+        if (tokensToAdd === 0) {
+            // No-op: return current progress without a DB write
+            const current = await prisma.userProgress.findUnique({ where: { userId } });
+            if (!current) throw new HttpError(404, 'Progress not found');
+            return current;
+        }
+
+        const result = await prisma.$transaction(async (tx) => {
+            // Upsert progress row in case it hasn't been created yet
+            let progress = await tx.userProgress.findUnique({ where: { userId } });
+            if (!progress) {
+                progress = await tx.userProgress.create({
+                    data: { userId, currentLevel: 1, highestLevel: 1, totalTokens: 0, totalPlayTime: 0 },
+                });
+            }
+
+            const updated = await tx.userProgress.update({
+                where: { userId },
+                data: {
+                    totalTokens: progress.totalTokens + tokensToAdd,
+                    lastPlayed: new Date(),
+                },
+            });
+
+            // Keep leaderboard in sync
+            const user = await tx.user.findUnique({ where: { id: userId }, select: { username: true } });
+            await tx.leaderboard.upsert({
+                where: { userId },
+                create: {
+                    userId,
+                    username: user?.username || 'Unknown',
+                    highestLevel: updated.highestLevel,
+                    totalTokens: updated.totalTokens,
+                    achievementsCount: 0,
+                },
+                update: {
+                    totalTokens: updated.totalTokens,
+                    lastUpdated: new Date(),
+                },
+            });
+
+            return updated;
+        });
+
+        return result;
+    }
 }
 
 export default new ProgressService();

@@ -122,6 +122,30 @@ class ProgressController extends Api {
             next(error);
         }
     }
+
+    /**
+     * Sync overworld coin tokens to the backend.
+     * POST /progress/sync-tokens
+     * Body: { tokensToAdd: number }
+     */
+    async syncTokens(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                return next(this.httpError.unauthorized('Unauthorized'));
+            }
+
+            const tokensToAdd = Number(req.body.tokensToAdd ?? 0);
+            if (isNaN(tokensToAdd) || !Number.isInteger(tokensToAdd) || tokensToAdd < 0) {
+                return next(this.httpError.badRequest('tokensToAdd must be a non-negative integer'));
+            }
+
+            const result = await progressService.syncTokens(userId, tokensToAdd);
+            return this.success(res, result, 'Tokens synced successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new ProgressController();
