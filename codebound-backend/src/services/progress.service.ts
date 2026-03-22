@@ -137,33 +137,6 @@ class ProgressService {
                 },
             });
 
-            // Update leaderboard
-            const achievementsCount = await tx.userAchievement.count({
-                where: { userId },
-            });
-
-            const user = await tx.user.findUnique({
-                where: { id: userId },
-                select: { username: true },
-            });
-
-            await tx.leaderboard.upsert({
-                where: { userId },
-                create: {
-                    userId,
-                    username: user?.username || 'Unknown',
-                    highestLevel: updatedProgress.highestLevel,
-                    totalTokens: updatedProgress.totalTokens,
-                    achievementsCount,
-                },
-                update: {
-                    highestLevel: updatedProgress.highestLevel,
-                    totalTokens: updatedProgress.totalTokens,
-                    achievementsCount,
-                    lastUpdated: new Date(),
-                },
-            });
-
             return updatedProgress;
         });
 
@@ -309,23 +282,6 @@ class ProgressService {
                 },
             });
 
-            await tx.leaderboard.upsert({
-                where: { userId },
-                create: {
-                    userId,
-                    username: user?.username || 'Unknown',
-                    highestLevel: 1,
-                    totalTokens: 0,
-                    achievementsCount: 0,
-                },
-                update: {
-                    username: user?.username || 'Unknown',
-                    highestLevel: 1,
-                    totalTokens: 0,
-                    achievementsCount: 0,
-                    lastUpdated: new Date(),
-                },
-            });
         });
 
         return { message: 'Progress reset successfully' };
@@ -362,23 +318,6 @@ class ProgressService {
                 data: {
                     totalTokens: progress.totalTokens + tokensToAdd,
                     lastPlayed: new Date(),
-                },
-            });
-
-            // Keep leaderboard in sync
-            const user = await tx.user.findUnique({ where: { id: userId }, select: { username: true } });
-            await tx.leaderboard.upsert({
-                where: { userId },
-                create: {
-                    userId,
-                    username: user?.username || 'Unknown',
-                    highestLevel: updated.highestLevel,
-                    totalTokens: updated.totalTokens,
-                    achievementsCount: 0,
-                },
-                update: {
-                    totalTokens: updated.totalTokens,
-                    lastUpdated: new Date(),
                 },
             });
 

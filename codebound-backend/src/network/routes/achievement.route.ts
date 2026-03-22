@@ -29,4 +29,11 @@ achievement
         achievementController.getAchievementProgress(req, res, next)
     );
 
+// Claim achievement reward
+achievement
+    .route('/claim')
+    .post((req: Request, res: Response, next: NextFunction) =>
+        achievementController.claimAchievement(req, res, next)
+    );
+
 export default achievement;

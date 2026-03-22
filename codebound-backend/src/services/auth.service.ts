@@ -122,17 +122,6 @@ class AuthService {
                 }
             });
 
-            // Initialize leaderboard entry
-            await tx.leaderboard.create({
-                data: {
-                    userId: user.id,
-                    username: displayName,
-                    highestLevel: 1,
-                    totalTokens: 0,
-                    achievementsCount: 0
-                }
-            });
-
             return user;
         });
 
@@ -253,14 +242,6 @@ class AuthService {
             }
         });
 
-        // Update username in leaderboard if changed
-        if (trimmedUsername) {
-            await prisma.leaderboard.update({
-                where: { userId },
-                data: { username: trimmedUsername }
-            });
-        }
-
         return { user: updatedUser };
     }
 
@@ -279,7 +260,6 @@ class AuthService {
 
         await prisma.$transaction(async (tx) => {
             await tx.gameSession.deleteMany({ where: { userId } });
-            await tx.leaderboard.deleteMany({ where: { userId } });
             await tx.user.delete({ where: { id: userId } });
         });
     }

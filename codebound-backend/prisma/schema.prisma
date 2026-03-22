@@ -94,6 +94,7 @@ model UserAchievement {
   userId          String
   achievementId   String   // Achievement ID from Unity (e.g., "first_level", "speed_demon")
   progress        Float?   @default(0) // Progress percentage (0-100)
+  claimedAt       DateTime?
   unlockedAt      DateTime @default(now())
 
   // Relations
@@ -104,28 +105,6 @@ model UserAchievement {
   @@index([userId])
   @@index([achievementId])
   @@index([unlockedAt])
-}
-
-// ============================================
-// LEADERBOARD (Computed from UserProgress)
-// ============================================
-// USED IN:
-// - LANDING PAGE: Show Top 100 players (sorted by highestLevel → totalTokens)
-// - GAME: Show player's current rank
-
-model Leaderboard {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  username        String   // Display name for leaderboard
-  highestLevel    Int      @default(1) // Primary ranking metric
-  totalTokens     Int      @default(0) // Secondary ranking metric
-  achievementsCount Int    @default(0) // Tertiary ranking metric
-  lastUpdated     DateTime @default(now())
-
-  @@map("leaderboard")
-  @@index([highestLevel])
-  @@index([totalTokens])
-  @@index([lastUpdated])
 }
 
 // ============================================

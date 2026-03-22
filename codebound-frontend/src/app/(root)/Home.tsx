@@ -602,7 +602,7 @@ const Home = () => {
                 </div>
 
                 {/* Leaderboard List */}
-                <ScrollArea className="flex-1 p-4 scrollbar-hidden">
+                <ScrollArea className="flex-1 p-4">
                     <div className="space-y-3">
                         {isLoadingLeaderboard ? (
                             Array(8).fill(0).map((_, i) => (

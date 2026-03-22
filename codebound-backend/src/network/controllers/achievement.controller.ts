@@ -34,8 +34,31 @@ class AchievementController extends Api {
                 return next(this.httpError.unauthorized('Unauthorized'));
             }
 
-            const progress = await achievementService.getAchievementProgress(userId);
+            const progress = await achievementService.getAchievementState(userId);
             return this.success(res, progress, 'Achievement progress retrieved successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Claim one achievement reward.
+     * POST /achievements/claim
+     */
+    async claimAchievement(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                return next(this.httpError.unauthorized('Unauthorized'));
+            }
+
+            const achievementId = String(req.body?.achievementId ?? '').trim();
+            if (!achievementId) {
+                return next(this.httpError.badRequest('achievementId is required'));
+            }
+
+            const result = await achievementService.claimAchievement(userId, achievementId);
+            return this.success(res, result, 'Achievement claimed successfully');
         } catch (error) {
             next(error);
         }
