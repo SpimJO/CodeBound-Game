@@ -22,4 +22,11 @@ skin
         skinController.equipCharacter(req, res, next)
     );
 
+// Buy a character
+skin
+    .route('/buy')
+    .post((req: Request, res: Response, next: NextFunction) =>
+        skinController.buyCharacter(req, res, next)
+    );
+
 export default skin;

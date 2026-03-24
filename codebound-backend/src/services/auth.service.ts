@@ -122,6 +122,14 @@ class AuthService {
                 }
             });
 
+            // Default starter ownership so Ranger appears in character dropdown.
+            await tx.userCharacter.create({
+                data: {
+                    userId: user.id,
+                    characterId: 'ranger',
+                },
+            });
+
             return user;
         });
 

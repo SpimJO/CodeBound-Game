@@ -26,6 +26,7 @@ model User {
   progress        UserProgress?
   levelCompletions LevelCompletion[]
   achievements    UserAchievement[]
+  characters      UserCharacter[]
   communityPosts  CommunityPost[]
   communityComments CommunityComment[]
 
@@ -55,6 +56,24 @@ model UserProgress {
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_progress")
+}
+
+// USED IN:
+// - GAME: Character ownership for shop/dropdown and buy/play conditions
+// - GAME: Validates if selected character can be equipped
+model UserCharacter {
+  id          String   @id @default(cuid())
+  userId      String
+  characterId String
+  unlockedAt  DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, characterId])
+  @@map("user_characters")
+  @@index([userId])
+  @@index([characterId])
 }
 
 // USED IN:
