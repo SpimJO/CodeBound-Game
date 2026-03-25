@@ -80,7 +80,7 @@ const Login = () => {
                                     id="identifier"
                                     type="text"
                                     placeholder="Enter username"
-                                    className="bg-zinc-800 border-zinc-700"
+                                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
                                     autoComplete="username"
                                     {...register('identifier')}
                                 />
@@ -94,7 +94,7 @@ const Login = () => {
                                     id="password"
                                     type="password"
                                     placeholder="Enter password"
-                                    className="bg-zinc-800 border-zinc-700"
+                                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
                                     autoComplete="current-password"
                                     {...register('password')}
                                 />

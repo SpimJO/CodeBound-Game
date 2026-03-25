@@ -80,7 +80,7 @@ const Register = () => {
                                     id="username"
                                     type="text"
                                     placeholder="Choose a username"
-                                    className="bg-zinc-800 border-zinc-700"
+                                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
                                     autoComplete="username"
                                     {...register('username')}
                                 />
@@ -94,7 +94,7 @@ const Register = () => {
                                     id="password"
                                     type="password"
                                     placeholder="At least 8 characters"
-                                    className="bg-zinc-800 border-zinc-700"
+                                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
                                     autoComplete="new-password"
                                     {...register('password')}
                                 />
