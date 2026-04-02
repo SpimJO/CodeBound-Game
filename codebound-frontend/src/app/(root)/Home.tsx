@@ -116,6 +116,8 @@ const Home = () => {
     const pageThemeClass = isDarkMode ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-900';
     const panelThemeClass = isDarkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200';
     const cardThemeClass = isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200';
+    const softCardThemeClass = isDarkMode ? 'bg-zinc-900/70 border-zinc-800' : 'bg-zinc-50 border-zinc-200';
+    const itemCardThemeClass = isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200';
     const inputThemeClass = isDarkMode
         ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-400'
         : 'bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-500';
@@ -257,7 +259,7 @@ const Home = () => {
                     className={`w-64 border-r lg:flex lg:flex-col ${panelThemeClass}`}
                 >
                     {/* Logo */}
-                    <div className="p-6 border-b border-zinc-800">
+                    <div className={`p-6 border-b ${isDarkMode ? 'border-zinc-800' : 'border-zinc-200'}`}>
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
                                 <Code className="w-6 h-6 text-white" />
@@ -279,7 +281,7 @@ const Home = () => {
                         </Button>
 
                         {token && (
-                            <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/70 p-3">
+                            <div className={`mt-4 rounded-lg border p-3 ${softCardThemeClass}`}>
                                 <div className="flex items-center gap-3">
                                     {currentUser?.avatar ? (
                                         <img
@@ -529,13 +531,13 @@ const Home = () => {
                                 transition={{ delay: 0.25 }}
                                 className="space-y-4"
                             >
-                                <Card className="w-full bg-zinc-900/95 border-zinc-700 shadow-lg shadow-black/30">
+                                <Card className={`w-full shadow-lg ${isDarkMode ? 'bg-zinc-900/95 border-zinc-700 shadow-black/30' : 'bg-white border-zinc-200 shadow-zinc-300/40'}`}>
                                     <CardHeader className="pb-3">
                                         <div className="flex items-center justify-between">
-                                            <CardTitle className="text-xl text-zinc-100">Leaderboard</CardTitle>
+                                            <CardTitle className={`text-xl ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>Leaderboard</CardTitle>
                                             <Trophy className="w-5 h-5 text-yellow-500" />
                                         </div>
-                                        <div className="flex items-center gap-2 text-sm text-zinc-300">
+                                        <div className={`flex items-center gap-2 text-sm ${isDarkMode ? 'text-zinc-300' : 'text-zinc-600'}`}>
                                             <Users className="w-3.5 h-3.5" />
                                             <span>{totalPlayers.toLocaleString()} players worldwide</span>
                                         </div>
@@ -543,13 +545,13 @@ const Home = () => {
                                     <CardContent className="space-y-3.5">
                                         {isLoadingLeaderboard ? (
                                             Array(4).fill(0).map((_, i) => (
-                                                <div key={i} className="p-3.5 rounded-lg bg-zinc-950 animate-pulse">
+                                                <div key={i} className={`p-3.5 rounded-lg animate-pulse ${isDarkMode ? 'bg-zinc-950' : 'bg-zinc-100'}`}>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-zinc-800" />
-                                                        <div className="w-9 h-9 rounded-full bg-zinc-800" />
+                                                        <div className={`w-8 h-8 rounded-full ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                        <div className={`w-9 h-9 rounded-full ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
                                                         <div className="flex-1 space-y-2">
-                                                            <div className="h-3 bg-zinc-800 rounded w-24" />
-                                                            <div className="h-3 bg-zinc-800 rounded w-32" />
+                                                            <div className={`h-3 rounded w-24 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                            <div className={`h-3 rounded w-32 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -560,14 +562,14 @@ const Home = () => {
                                                     key={player.userId}
                                                     className={`relative p-3.5 rounded-lg border ${player.rank === 1
                                                         ? 'border-yellow-500/20 bg-gradient-to-br from-yellow-500/15 to-orange-500/12'
-                                                        : 'border-zinc-800 bg-zinc-950'
+                                                        : (isDarkMode ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-200 bg-zinc-50')
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className={`w-7 h-7 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
                                                             player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
                                                                 player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
-                                                                    'bg-zinc-800 text-zinc-400'
+                                                                    (isDarkMode ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-200 text-zinc-600')
                                                             }`}>
                                                             <Trophy className="w-3.5 h-3.5" />
                                                         </div>
@@ -575,10 +577,10 @@ const Home = () => {
                                                             {getAvatarInitials(player.username)}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="font-semibold text-sm text-zinc-100 break-words">{player.username}</p>
-                                                            <p className="text-[13px] leading-snug text-zinc-300 break-words">
-                                                                <span className="font-medium text-zinc-200">Lvl {player.levelReached}</span>
-                                                                <span className="text-zinc-400"> • {player.tokensEarned.toLocaleString()} tokens</span>
+                                                            <p className={`font-semibold text-sm break-words ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>{player.username}</p>
+                                                            <p className={`text-[13px] leading-snug break-words ${isDarkMode ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                                                                <span className={`font-medium ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>Lvl {player.levelReached}</span>
+                                                                <span className={isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}> • {player.tokensEarned.toLocaleString()} tokens</span>
                                                             </p>
                                                         </div>
                                                     </div>
@@ -617,17 +619,17 @@ const Home = () => {
                                             onClick={() => setActiveFeature((prev) => (prev === feature.id ? null : feature.id))}
                                             className="w-full text-left"
                                         >
-                                            <Card className="w-full bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-all cursor-pointer overflow-hidden">
+                                            <Card className={`w-full hover:border-zinc-400 transition-all cursor-pointer overflow-hidden ${itemCardThemeClass}`}>
                                                 <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
                                                 <CardHeader className="relative">
                                                     <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-3 shadow-lg`}>
                                                         <feature.icon className="w-6 h-6 text-white" />
                                                     </div>
-                                                    <CardTitle className="text-lg text-zinc-100">{feature.title}</CardTitle>
-                                                    <p className="text-sm text-zinc-300">{feature.focus}</p>
+                                                    <CardTitle className={`text-lg ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>{feature.title}</CardTitle>
+                                                    <p className={`text-sm ${isDarkMode ? 'text-zinc-300' : 'text-zinc-700'}`}>{feature.focus}</p>
                                                 </CardHeader>
                                                 <CardContent className="relative space-y-3">
-                                                    <p className="text-sm text-zinc-400">Levels {feature.levelRange}</p>
+                                                    <p className={`text-sm ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>Levels {feature.levelRange}</p>
                                                     <AnimatePresence initial={false}>
                                                         {activeFeature === feature.id && (
                                                             <motion.div
@@ -636,7 +638,7 @@ const Home = () => {
                                                                 exit={{ opacity: 0, height: 0 }}
                                                                 className="overflow-hidden"
                                                             >
-                                                                <p className="text-xs text-cyan-300/90 border-t border-zinc-800 pt-3">
+                                                                <p className={`text-xs border-t pt-3 ${isDarkMode ? 'text-cyan-300/90 border-zinc-800' : 'text-cyan-700 border-zinc-200'}`}>
                                                                     {feature.detail}
                                                                 </p>
                                                             </motion.div>
@@ -684,7 +686,7 @@ const Home = () => {
                                         </div>
                                     ) : (
                                         <div className="text-center py-4">
-                                            <p className="text-zinc-400 mb-4">You must be logged in to post in the community.</p>
+                                            <p className={`mb-4 ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>You must be logged in to post in the community.</p>
                                             <Button onClick={() => navigate({ to: '/auth/login' })} variant="outline" className={isDarkMode ? 'border-cyan-500/60 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 hover:text-cyan-200 bg-transparent' : 'border-cyan-400 text-cyan-700 hover:bg-cyan-50 hover:border-cyan-500 hover:text-cyan-900 bg-white'}>
                                                 <Users className="w-4 h-4 mr-2" />
                                                 Login to Join the Community
@@ -696,27 +698,27 @@ const Home = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 {isLoadingPosts ? (
                                     Array(3).fill(0).map((_, i) => (
-                                        <Card key={i} className="bg-zinc-900 border-transparent">
+                                        <Card key={i} className={cardThemeClass}>
                                             <CardHeader>
                                                 <div className="flex items-center gap-3 animate-pulse">
-                                                    <div className="w-10 h-10 rounded-full bg-zinc-800" />
+                                                    <div className={`w-10 h-10 rounded-full ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
                                                     <div className="space-y-2 flex-1">
-                                                        <div className="h-4 bg-zinc-800 rounded w-24" />
-                                                        <div className="h-3 bg-zinc-800 rounded w-16" />
+                                                        <div className={`h-4 rounded w-24 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                        <div className={`h-3 rounded w-16 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
                                                     </div>
                                                 </div>
                                             </CardHeader>
                                             <CardContent className="animate-pulse">
                                                 <div className="space-y-2">
-                                                    <div className="h-3 bg-zinc-800 rounded" />
-                                                    <div className="h-3 bg-zinc-800 rounded w-3/4" />
+                                                    <div className={`h-3 rounded ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                    <div className={`h-3 rounded w-3/4 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
                                                 </div>
                                             </CardContent>
                                         </Card>
                                     ))
                                 ) : communityPosts.length > 0 ? (
                                     communityPosts.map((post) => (
-                                        <Card key={post.id} className="bg-zinc-900 border-transparent hover:border-transparent transition-colors">
+                                        <Card key={post.id} className={`${cardThemeClass} hover:border-zinc-400 transition-colors`}>
                                             <CardHeader>
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex items-center gap-3">
@@ -724,15 +726,15 @@ const Home = () => {
                                                             {getAvatarInitials(post.user.username)}
                                                         </div>
                                                         <div>
-                                                            <p className="font-semibold text-sm text-zinc-100">{post.user.username}</p>
-                                                            <p className="text-xs text-zinc-400">{formatTimeAgo(post.created_at)}</p>
+                                                            <p className={`font-semibold text-sm ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>{post.user.username}</p>
+                                                            <p className={`text-xs ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>{formatTimeAgo(post.created_at)}</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </CardHeader>
                                             <CardContent>
-                                                <p className="text-sm text-zinc-100 mb-3 leading-relaxed">{post.content}</p>
-                                                <div className="flex items-center gap-4 text-xs text-zinc-300">
+                                                <p className={`text-sm mb-3 leading-relaxed ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>{post.content}</p>
+                                                <div className={`flex items-center gap-4 text-xs ${isDarkMode ? 'text-zinc-300' : 'text-zinc-700'}`}>
                                                     <button onClick={() => handleLike(post.id)} className="flex items-center gap-1 hover:text-cyan-400 transition-colors">
                                                         <Star className="w-4 h-4" />
                                                         <span>{post.likes}</span>
@@ -744,17 +746,17 @@ const Home = () => {
                                                 </div>
 
                                                 {post.comments && post.comments.length > 0 && (
-                                                    <div className="mt-4 space-y-2 border-t border-zinc-800/80 pt-3">
+                                                    <div className={`mt-4 space-y-2 border-t pt-3 ${isDarkMode ? 'border-zinc-800/80' : 'border-zinc-200'}`}>
                                                         {post.comments.map((comment) => (
-                                                            <div key={comment.id} className="rounded-md bg-zinc-950/80 border border-zinc-800 px-3 py-2">
+                                                            <div key={comment.id} className={`rounded-md border px-3 py-2 ${isDarkMode ? 'bg-zinc-950/80 border-zinc-800' : 'bg-zinc-50 border-zinc-200'}`}>
                                                                 <div className="flex items-center gap-2 mb-1">
                                                                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 text-[10px] font-bold text-white flex items-center justify-center">
                                                                         {getAvatarInitials(comment.user.username)}
                                                                     </div>
-                                                                    <p className="text-xs font-medium text-zinc-100">{comment.user.username}</p>
-                                                                    <p className="text-[11px] text-zinc-400">{formatTimeAgo(comment.created_at)}</p>
+                                                                    <p className={`text-xs font-medium ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>{comment.user.username}</p>
+                                                                    <p className={`text-[11px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>{formatTimeAgo(comment.created_at)}</p>
                                                                 </div>
-                                                                <p className="text-xs text-zinc-100 leading-relaxed">{comment.content}</p>
+                                                                <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-zinc-100' : 'text-zinc-800'}`}>{comment.content}</p>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -779,10 +781,10 @@ const Home = () => {
                                         </Card>
                                     ))
                                 ) : (
-                                    <Card className="bg-zinc-900 border-transparent col-span-3">
+                                    <Card className={`${cardThemeClass} col-span-3`}>
                                         <CardContent className="py-12 text-center">
-                                            <MessageCircle className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-                                            <p className="text-zinc-500">No community posts yet. Be the first to share!</p>
+                                            <MessageCircle className={`w-12 h-12 mx-auto mb-3 ${isDarkMode ? 'text-zinc-600' : 'text-zinc-400'}`} />
+                                            <p className={isDarkMode ? 'text-zinc-500' : 'text-zinc-600'}>No community posts yet. Be the first to share!</p>
                                         </CardContent>
                                     </Card>
                                 )}
@@ -804,12 +806,12 @@ const Home = () => {
                                     <AccordionItem
                                         key={i}
                                         value={`item-${i}`}
-                                        className="bg-zinc-900 border border-transparent rounded-lg px-6 data-[state=open]:border-transparent"
+                                        className={`border rounded-lg px-6 ${isDarkMode ? 'bg-zinc-900 border-zinc-800 data-[state=open]:border-zinc-700' : 'bg-white border-zinc-200 data-[state=open]:border-zinc-300'}`}
                                     >
                                         <AccordionTrigger className="text-left hover:no-underline py-4">
                                             <span className="font-semibold">{faq.question}</span>
                                         </AccordionTrigger>
-                                        <AccordionContent className="text-zinc-400 pb-4">
+                                        <AccordionContent className={`pb-4 ${isDarkMode ? 'text-zinc-400' : 'text-zinc-700'}`}>
                                             {faq.answer}
                                         </AccordionContent>
                                     </AccordionItem>
@@ -856,13 +858,13 @@ const Home = () => {
                         <div className="space-y-3">
                             {isLoadingLeaderboard ? (
                                 Array(8).fill(0).map((_, i) => (
-                                    <div key={i} className="p-4 rounded-lg bg-zinc-900 animate-pulse">
+                                    <div key={i} className={`p-4 rounded-lg animate-pulse ${isDarkMode ? 'bg-zinc-900' : 'bg-zinc-100'}`}>
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-zinc-800" />
-                                            <div className="w-10 h-10 rounded-full bg-zinc-800" />
+                                            <div className={`w-8 h-8 rounded-full ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                            <div className={`w-10 h-10 rounded-full ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
                                             <div className="flex-1 space-y-2">
-                                                <div className="h-4 bg-zinc-800 rounded w-24" />
-                                                <div className="h-3 bg-zinc-800 rounded w-32" />
+                                                <div className={`h-4 rounded w-24 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                <div className={`h-3 rounded w-32 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
                                             </div>
                                         </div>
                                     </div>
@@ -876,16 +878,16 @@ const Home = () => {
                                         transition={{ delay: 0.2 + i * 0.1 }}
                                         className="group"
                                     >
-                                        <div className={`relative p-4 rounded-lg border border-transparent transition-all ${player.rank === 1
+                                        <div className={`relative p-4 rounded-lg border transition-all ${player.rank === 1
                                             ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
-                                            : 'bg-zinc-900 hover:bg-zinc-800/80'
+                                            : (isDarkMode ? 'bg-zinc-900 hover:bg-zinc-800/80 border-zinc-800' : 'bg-white hover:bg-zinc-50 border-zinc-200')
                                             }`}>
                                             <div className="flex items-center gap-3">
                                                 {/* Rank - trophy icon: gold, silver, bronze, classic */}
                                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
                                                     player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
                                                         player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
-                                                            'bg-zinc-800 text-zinc-500'
+                                                            (isDarkMode ? 'bg-zinc-800 text-zinc-500' : 'bg-zinc-200 text-zinc-600')
                                                     }`}>
                                                     <Trophy className="w-4 h-4" />
                                                 </div>
@@ -897,8 +899,8 @@ const Home = () => {
 
                                                 {/* Info */}
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-semibold text-sm truncate">{player.username}</p>
-                                                    <div className="flex items-center gap-2 text-xs text-zinc-500">
+                                                    <p className={`font-semibold text-sm truncate ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>{player.username}</p>
+                                                    <div className={`flex items-center gap-2 text-xs ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'}`}>
                                                         <TrendingUp className="w-3 h-3" />
                                                         <span>Lvl {player.levelReached} • {player.tokensEarned.toLocaleString()} tokens</span>
                                                     </div>
