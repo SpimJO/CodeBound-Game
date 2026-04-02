@@ -394,6 +394,78 @@ const Home = () => {
                             </div>
                         </motion.section>
 
+                        {/* Mobile Leaderboard - appears right after trailer */}
+                        {isMobile && (
+                            <motion.section
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.25 }}
+                                className="space-y-4"
+                            >
+                                <Card className="bg-zinc-900 border-zinc-800">
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-lg">Leaderboard</CardTitle>
+                                            <Trophy className="w-5 h-5 text-yellow-500" />
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs text-zinc-500">
+                                            <Users className="w-3 h-3" />
+                                            <span>{totalPlayers.toLocaleString()} players worldwide</span>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-3">
+                                        {isLoadingLeaderboard ? (
+                                            Array(4).fill(0).map((_, i) => (
+                                                <div key={i} className="p-3 rounded-lg bg-zinc-950 animate-pulse">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-zinc-800" />
+                                                        <div className="w-9 h-9 rounded-full bg-zinc-800" />
+                                                        <div className="flex-1 space-y-2">
+                                                            <div className="h-3 bg-zinc-800 rounded w-24" />
+                                                            <div className="h-3 bg-zinc-800 rounded w-32" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            leaderboardData.slice(0, 5).map((player, i) => (
+                                                <div
+                                                    key={player.userId}
+                                                    className={`relative p-3 rounded-lg border border-transparent ${player.rank === 1
+                                                        ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
+                                                        : 'bg-zinc-950'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-7 h-7 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
+                                                            player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
+                                                                player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
+                                                                    'bg-zinc-800 text-zinc-500'
+                                                            }`}>
+                                                            <Trophy className="w-3.5 h-3.5" />
+                                                        </div>
+                                                        <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${getAvatarColor(i)} flex items-center justify-center text-xs font-bold shadow-lg`}>
+                                                            {getAvatarInitials(player.username)}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-semibold text-sm truncate">{player.username}</p>
+                                                            <p className="text-xs text-zinc-500 truncate">Lvl {player.levelReached} • {player.tokensEarned.toLocaleString()} tokens</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+
+                                        <div className="pt-2 border-t border-zinc-800 text-center">
+                                            <p className="text-xs text-zinc-500">Downloaded</p>
+                                            <p className="text-2xl font-bold text-cyan-400">{downloadCount.toLocaleString()}</p>
+                                            <p className="text-xs text-zinc-600">times</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </motion.section>
+                        )}
+
                         {/* Overview Section */}
                         <motion.section
                             initial={{ opacity: 0, y: 20 }}
