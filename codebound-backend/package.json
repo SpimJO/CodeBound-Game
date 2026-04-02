@@ -7,7 +7,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node -r tsconfig-paths/register src/server.ts",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
   },
@@ -26,6 +28,7 @@
     "kleur": "^4.1.5",
     "morgan": "^1.10.1",
     "nocache": "^3.0.4",
+    "postgres": "^3.4.8",
     "ua-parser-js": "^2.0.9"
   },
   "devDependencies": {
