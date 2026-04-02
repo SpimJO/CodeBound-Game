@@ -14,13 +14,6 @@ Analyze the provided code and identify bugs.
 ---
 
 # DEBUGGING PROCESS
-
-Follow these steps:
-
-1. Understand the purpose of the code
-2. Identify potential bugs
-3. Explain the root cause
-4. Suggest the smallest fix
 5. Provide corrected code
 
 ---
