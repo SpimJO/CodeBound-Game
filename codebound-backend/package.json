@@ -4,6 +4,7 @@
   "description": "Backend for Elaika project",
   "main": "dist/index.js",
   "scripts": {
+    "prebuild": "npm install --include=dev",
     "build": "tsc && tsc-alias",
     "start": "node dist/index.js",
     "dev": "ts-node -r tsconfig-paths/register src/server.ts",
