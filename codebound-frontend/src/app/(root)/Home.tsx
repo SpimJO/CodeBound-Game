@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTopPlayers, useLeaderboardStats } from '@/db/queries/useLeaderboard';
 import { useCommunityPosts, useCreatePost, useAddComment, useLikePost } from '@/db/queries/useCommunity';
 import { useToken } from '@/hooks/useToken';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { authApi } from '@/db/api/auth.api';
 import { useNavigate } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -40,6 +41,7 @@ const Home = () => {
     const [showFloatingInstall, setShowFloatingInstall] = useState(true);
 
     const token = useToken();
+    const isMobile = useIsMobile();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { data: currentUser } = useQuery({
@@ -196,151 +198,155 @@ const Home = () => {
     return (
         <div className="min-h-screen bg-black text-white lg:h-screen lg:flex lg:overflow-hidden">
             {/* Left Sidebar */}
-            <motion.aside
-                initial={{ x: -100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                className="hidden w-64 bg-zinc-950 border-r border-zinc-800 lg:flex lg:flex-col"
-            >
-                {/* Logo */}
-                <div className="p-6 border-b border-zinc-800">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                            <Code className="w-6 h-6 text-white" />
+            {!isMobile && (
+                <motion.aside
+                    initial={{ x: -100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="w-64 bg-zinc-950 border-r border-zinc-800 lg:flex lg:flex-col"
+                >
+                    {/* Logo */}
+                    <div className="p-6 border-b border-zinc-800">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                                <Code className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="font-bold text-lg tracking-tight">CodeBound</h1>
+                                <p className="text-xs text-zinc-500">Learn by Gaming</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="font-bold text-lg tracking-tight">CodeBound</h1>
-                            <p className="text-xs text-zinc-500">Learn by Gaming</p>
-                        </div>
+
+                        {token && (
+                            <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/70 p-3">
+                                <div className="flex items-center gap-3">
+                                    {currentUser?.avatar ? (
+                                        <img
+                                            src={currentUser.avatar}
+                                            alt={firstName}
+                                            className="h-9 w-9 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                                            {userInitials}
+                                        </div>
+                                    )}
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-white truncate">{firstName}</p>
+                                        <p className="text-[11px] text-zinc-500 truncate">{shortUserId ? `ID: ${shortUserId}` : 'ID: -'}</p>
+                                    </div>
+                                </div>
+                                <Button
+                                    onClick={handleLogout}
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-3 w-full border-zinc-700 text-zinc-200 hover:bg-zinc-800 bg-transparent"
+                                >
+                                    <LogOut className="w-4 h-4 mr-2" />
+                                    Logout
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
-                    {token && (
-                        <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/70 p-3">
-                            <div className="flex items-center gap-3">
-                                {currentUser?.avatar ? (
-                                    <img
-                                        src={currentUser.avatar}
-                                        alt={firstName}
-                                        className="h-9 w-9 rounded-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold flex items-center justify-center">
-                                        {userInitials}
-                                    </div>
-                                )}
-                                <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-white truncate">{firstName}</p>
-                                    <p className="text-[11px] text-zinc-500 truncate">{shortUserId ? `ID: ${shortUserId}` : 'ID: -'}</p>
-                                </div>
-                            </div>
-                            <Button
-                                onClick={handleLogout}
-                                variant="outline"
-                                size="sm"
-                                className="mt-3 w-full border-zinc-700 text-zinc-200 hover:bg-zinc-800 bg-transparent"
-                            >
-                                <LogOut className="w-4 h-4 mr-2" />
-                                Logout
-                            </Button>
-                        </div>
-                    )}
-                </div>
+                    {/* Navigation - Home only */}
+                    <nav className="p-4 space-y-2">
+                        <button
+                            onClick={() => setActiveNav('home')}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeNav === 'home'
+                                ? 'bg-gradient-to-r from-cyan-500/15 to-blue-600/15 text-white border border-transparent'
+                                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50 border border-transparent'
+                                }`}
+                        >
+                            <HomeIcon className="w-5 h-5" />
+                            <span className="font-medium text-sm">Home</span>
+                        </button>
+                    </nav>
 
-                {/* Navigation - Home only */}
-                <nav className="p-4 space-y-2">
-                    <button
-                        onClick={() => setActiveNav('home')}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeNav === 'home'
-                            ? 'bg-gradient-to-r from-cyan-500/15 to-blue-600/15 text-white border border-transparent'
-                            : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50 border border-transparent'
-                            }`}
-                    >
-                        <HomeIcon className="w-5 h-5" />
-                        <span className="font-medium text-sm">Home</span>
-                    </button>
-                </nav>
-
-                {/* Install App - sidebar CTA */}
-                <div className="flex-1 flex flex-col justify-end p-4">
-                    <AnimatePresence>
-                        {showFloatingInstall && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{
-                                    opacity: 1,
-                                    y: [0, -6, 0],
-                                }}
-                                transition={{
-                                    opacity: { duration: 0.3 },
-                                    y: {
-                                        duration: 1.2,
-                                        repeat: Infinity,
-                                        ease: 'easeInOut',
-                                    },
-                                }}
-                                exit={{ opacity: 0, y: -8 }}
-                                className="mb-4 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-transparent p-4 shadow-lg"
-                            >
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <div className="rounded-lg bg-cyan-500/20 p-2">
-                                            <Smartphone className="h-5 w-5 text-cyan-400" />
+                    {/* Install App - sidebar CTA */}
+                    <div className="flex-1 flex flex-col justify-end p-4">
+                        <AnimatePresence>
+                            {showFloatingInstall && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{
+                                        opacity: 1,
+                                        y: [0, -6, 0],
+                                    }}
+                                    transition={{
+                                        opacity: { duration: 0.3 },
+                                        y: {
+                                            duration: 1.2,
+                                            repeat: Infinity,
+                                            ease: 'easeInOut',
+                                        },
+                                    }}
+                                    exit={{ opacity: 0, y: -8 }}
+                                    className="mb-4 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-transparent p-4 shadow-lg"
+                                >
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="rounded-lg bg-cyan-500/20 p-2">
+                                                <Smartphone className="h-5 w-5 text-cyan-400" />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-sm text-white">Install App</p>
+                                                <p className="text-xs text-zinc-400 mt-0.5">Play CodeBound on your device</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-semibold text-sm text-white">Install App</p>
-                                            <p className="text-xs text-zinc-400 mt-0.5">Play CodeBound on your device</p>
-                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleDismissFloating}
+                                            className="rounded p-1 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors shrink-0"
+                                            aria-label="Dismiss"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
                                     </div>
                                     <button
                                         type="button"
-                                        onClick={handleDismissFloating}
-                                        className="rounded p-1 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors shrink-0"
-                                        aria-label="Dismiss"
+                                        onClick={handleDownload}
+                                        className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md hover:from-cyan-400 hover:to-blue-500 transition-all"
                                     >
-                                        <X className="h-4 w-4" />
+                                        <Download className="h-4 w-4" />
+                                        Download
                                     </button>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={handleDownload}
-                                    className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md hover:from-cyan-400 hover:to-blue-500 transition-all"
-                                >
-                                    <Download className="h-4 w-4" />
-                                    Download
-                                </button>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                    <div className="border-t border-zinc-800 pt-4">
-                        <p className="text-xs text-zinc-600">© 2026 CodeBound</p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        <div className="border-t border-zinc-800 pt-4">
+                            <p className="text-xs text-zinc-600">© 2026 CodeBound</p>
+                        </div>
                     </div>
-                </div>
-            </motion.aside>
+                </motion.aside>
+            )}
 
             {/* Main Content */}
             <main className="w-full overflow-y-auto scrollbar-hidden lg:flex-1">
                 <ScrollArea className="h-full scrollbar-hidden">
                     <div className="p-8 space-y-8">
                         {/* Mobile Header */}
-                        <div className="lg:hidden rounded-2xl border border-zinc-800 bg-zinc-950/80 p-4">
-                            <div className="flex items-center justify-between gap-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                                        <Code className="w-6 h-6 text-white" />
+                        {isMobile && (
+                            <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-4">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                                            <Code className="w-6 h-6 text-white" />
+                                        </div>
+                                        <div>
+                                            <h1 className="font-bold text-lg tracking-tight">CodeBound</h1>
+                                            <p className="text-xs text-zinc-500">Learn by Gaming</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h1 className="font-bold text-lg tracking-tight">CodeBound</h1>
-                                        <p className="text-xs text-zinc-500">Learn by Gaming</p>
-                                    </div>
+                                    <Button
+                                        onClick={handleDownload}
+                                        className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white"
+                                    >
+                                        <Download className="h-4 w-4 mr-2" />
+                                        Download
+                                    </Button>
                                 </div>
-                                <Button
-                                    onClick={handleDownload}
-                                    className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white"
-                                >
-                                    <Download className="h-4 w-4 mr-2" />
-                                    Download
-                                </Button>
                             </div>
-                        </div>
+                        )}
 
                         {/* Game Trailer / Hero Video Section */}
                         <motion.section
@@ -604,120 +610,122 @@ const Home = () => {
             </main>
 
             {/* Right Sidebar - Leaderboard */}
-            <motion.aside
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                className="hidden w-80 bg-zinc-950 border-l border-zinc-800 lg:flex lg:flex-col"
-            >
-                {/* Header */}
-                <div className="p-6 border-b border-zinc-800">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-bold">Leaderboard</h2>
-                        <Trophy className="w-5 h-5 text-yellow-500" />
+            {!isMobile && (
+                <motion.aside
+                    initial={{ x: 100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="w-80 bg-zinc-950 border-l border-zinc-800 lg:flex lg:flex-col"
+                >
+                    {/* Header */}
+                    <div className="p-6 border-b border-zinc-800">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-bold">Leaderboard</h2>
+                            <Trophy className="w-5 h-5 text-yellow-500" />
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-zinc-500">
+                            <Users className="w-3 h-3" />
+                            <span>{totalPlayers.toLocaleString()} players worldwide</span>
+                        </div>
+                        <p className="text-xs text-zinc-600 mt-1">Updated every 5 minutes</p>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-zinc-500">
-                        <Users className="w-3 h-3" />
-                        <span>{totalPlayers.toLocaleString()} players worldwide</span>
-                    </div>
-                    <p className="text-xs text-zinc-600 mt-1">Updated every 5 minutes</p>
-                </div>
 
-                {/* Leaderboard List */}
-                <ScrollArea className="flex-1 p-4">
-                    <div className="space-y-3">
-                        {isLoadingLeaderboard ? (
-                            Array(8).fill(0).map((_, i) => (
-                                <div key={i} className="p-4 rounded-lg bg-zinc-900 animate-pulse">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-zinc-800" />
-                                        <div className="w-10 h-10 rounded-full bg-zinc-800" />
-                                        <div className="flex-1 space-y-2">
-                                            <div className="h-4 bg-zinc-800 rounded w-24" />
-                                            <div className="h-3 bg-zinc-800 rounded w-32" />
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            leaderboardData.map((player, i) => (
-                                <motion.div
-                                    key={player.userId}
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 + i * 0.1 }}
-                                    className="group"
-                                >
-                                    <div className={`relative p-4 rounded-lg border border-transparent transition-all ${player.rank === 1
-                                        ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
-                                        : 'bg-zinc-900 hover:bg-zinc-800/80'
-                                        }`}>
+                    {/* Leaderboard List */}
+                    <ScrollArea className="flex-1 p-4">
+                        <div className="space-y-3">
+                            {isLoadingLeaderboard ? (
+                                Array(8).fill(0).map((_, i) => (
+                                    <div key={i} className="p-4 rounded-lg bg-zinc-900 animate-pulse">
                                         <div className="flex items-center gap-3">
-                                            {/* Rank - trophy icon: gold, silver, bronze, classic */}
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
-                                                player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
-                                                    player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
-                                                        'bg-zinc-800 text-zinc-500'
-                                                }`}>
-                                                <Trophy className="w-4 h-4" />
+                                            <div className="w-8 h-8 rounded-full bg-zinc-800" />
+                                            <div className="w-10 h-10 rounded-full bg-zinc-800" />
+                                            <div className="flex-1 space-y-2">
+                                                <div className="h-4 bg-zinc-800 rounded w-24" />
+                                                <div className="h-3 bg-zinc-800 rounded w-32" />
                                             </div>
-
-                                            {/* Avatar */}
-                                            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(i)} flex items-center justify-center text-sm font-bold shadow-lg`}>
-                                                {getAvatarInitials(player.username)}
-                                            </div>
-
-                                            {/* Info */}
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-semibold text-sm truncate">{player.username}</p>
-                                                <div className="flex items-center gap-2 text-xs text-zinc-500">
-                                                    <TrendingUp className="w-3 h-3" />
-                                                    <span>Lvl {player.levelReached} • {player.tokensEarned.toLocaleString()} tokens</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Rank Badge - trophy for top 3 */}
-                                            {player.rank <= 3 && (
-                                                <Trophy className={`w-5 h-5 ${player.rank === 1 ? 'text-yellow-400' :
-                                                    player.rank === 2 ? 'text-gray-400' :
-                                                        'text-amber-600'
-                                                    }`} />
-                                            )}
                                         </div>
                                     </div>
-                                </motion.div>
-                            ))
-                        )}
-                    </div>
-                </ScrollArea>
+                                ))
+                            ) : (
+                                leaderboardData.map((player, i) => (
+                                    <motion.div
+                                        key={player.userId}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 + i * 0.1 }}
+                                        className="group"
+                                    >
+                                        <div className={`relative p-4 rounded-lg border border-transparent transition-all ${player.rank === 1
+                                            ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
+                                            : 'bg-zinc-900 hover:bg-zinc-800/80'
+                                            }`}>
+                                            <div className="flex items-center gap-3">
+                                                {/* Rank - trophy icon: gold, silver, bronze, classic */}
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
+                                                    player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
+                                                        player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
+                                                            'bg-zinc-800 text-zinc-500'
+                                                    }`}>
+                                                    <Trophy className="w-4 h-4" />
+                                                </div>
 
-                {/* Updates Section */}
-                <div className="p-4 border-t border-zinc-800">
-                    <div className="flex items-center gap-2 mb-3">
-                        <Zap className="w-4 h-4 text-yellow-500" />
-                        <h3 className="text-sm font-semibold">Updates & News</h3>
-                    </div>
+                                                {/* Avatar */}
+                                                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(i)} flex items-center justify-center text-sm font-bold shadow-lg`}>
+                                                    {getAvatarInitials(player.username)}
+                                                </div>
 
-                    <div className="space-y-2">
-                        <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800">
-                            <div className="flex items-start gap-3">
-                                <Calendar className="w-4 h-4 text-blue-400 mt-1" />
-                                <div>
-                                    <p className="text-xs font-medium">New Challenge Live!</p>
-                                    <p className="text-xs text-zinc-500 mt-1">Weekly coding challenge starts now</p>
+                                                {/* Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-semibold text-sm truncate">{player.username}</p>
+                                                    <div className="flex items-center gap-2 text-xs text-zinc-500">
+                                                        <TrendingUp className="w-3 h-3" />
+                                                        <span>Lvl {player.levelReached} • {player.tokensEarned.toLocaleString()} tokens</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Rank Badge - trophy for top 3 */}
+                                                {player.rank <= 3 && (
+                                                    <Trophy className={`w-5 h-5 ${player.rank === 1 ? 'text-yellow-400' :
+                                                        player.rank === 2 ? 'text-gray-400' :
+                                                            'text-amber-600'
+                                                        }`} />
+                                                )}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))
+                            )}
+                        </div>
+                    </ScrollArea>
+
+                    {/* Updates Section */}
+                    <div className="p-4 border-t border-zinc-800">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Zap className="w-4 h-4 text-yellow-500" />
+                            <h3 className="text-sm font-semibold">Updates & News</h3>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800">
+                                <div className="flex items-start gap-3">
+                                    <Calendar className="w-4 h-4 text-blue-400 mt-1" />
+                                    <div>
+                                        <p className="text-xs font-medium">New Challenge Live!</p>
+                                        <p className="text-xs text-zinc-500 mt-1">Weekly coding challenge starts now</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Download count below leaderboard */}
-                <div className="p-4 border-t border-zinc-800 text-center">
-                    <p className="text-xs text-zinc-500">Downloaded</p>
-                    <p className="text-2xl font-bold text-cyan-400">{downloadCount.toLocaleString()}</p>
-                    <p className="text-xs text-zinc-600">times</p>
-                </div>
-            </motion.aside>
+                    {/* Download count below leaderboard */}
+                    <div className="p-4 border-t border-zinc-800 text-center">
+                        <p className="text-xs text-zinc-500">Downloaded</p>
+                        <p className="text-2xl font-bold text-cyan-400">{downloadCount.toLocaleString()}</p>
+                        <p className="text-xs text-zinc-600">times</p>
+                    </div>
+                </motion.aside>
+            )}
 
         </div>
     );
