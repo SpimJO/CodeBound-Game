@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useTopPlayers, useLeaderboardStats } from '@/db/queries/useLeaderboard';
 import { useCommunityPosts, useCreatePost, useAddComment, useLikePost } from '@/db/queries/useCommunity';
 import { useToken } from '@/hooks/useToken';
@@ -18,6 +19,8 @@ import {
     Home as HomeIcon,
     Trophy,
     Download,
+    Sun,
+    Moon,
     Users,
     Play,
     Code,
@@ -26,6 +29,7 @@ import {
     TrendingUp,
     Award,
     MessageCircle,
+    Menu,
     X,
     Smartphone,
     LogOut
@@ -37,6 +41,13 @@ const Home = () => {
     const [activeNav, setActiveNav] = useState('home');
     const [showFloatingInstall, setShowFloatingInstall] = useState(true);
     const [activeFeature, setActiveFeature] = useState<string | null>(null);
+    const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+        if (typeof window === 'undefined') return true;
+        const stored = window.localStorage.getItem('home-theme');
+        if (stored === 'dark') return true;
+        if (stored === 'light') return false;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    });
 
     const token = useToken();
     const isMobile = useIsMobile();
@@ -102,6 +113,16 @@ const Home = () => {
     const totalPlayers = leaderboardStatsData?.totalPlayers || 0;
     const downloadLink = 'https://drive.google.com/uc?export=download&id=1-Bs623hKY-IZpwsFATqaN3K31qUmValc';
 
+    const pageThemeClass = isDarkMode ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-900';
+    const panelThemeClass = isDarkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200';
+    const cardThemeClass = isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200';
+    const inputThemeClass = isDarkMode
+        ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-400'
+        : 'bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-500';
+    const outlineButtonThemeClass = isDarkMode
+        ? 'border-zinc-700 text-zinc-200 hover:bg-zinc-800 bg-transparent'
+        : 'border-zinc-300 text-zinc-700 hover:bg-zinc-100 bg-white';
+
     useEffect(() => {
         const timer = setTimeout(() => {
             toast.success('Install CodeBound app for a better experience!', {
@@ -112,9 +133,16 @@ const Home = () => {
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', isDarkMode);
+        window.localStorage.setItem('home-theme', isDarkMode ? 'dark' : 'light');
+    }, [isDarkMode]);
+
     const handleDownload = () => {
         window.location.href = downloadLink;
     };
+
+    const toggleTheme = () => setIsDarkMode((prev) => !prev);
 
     const handleDismissFloating = () => setShowFloatingInstall(false);
 
@@ -160,8 +188,8 @@ const Home = () => {
     const systemFeatures = [
         {
             id: 'phase-1',
-            title: 'Phase 1',
-            focus: 'Input/Output & Variables',
+            title: 'Variables, Input, and Basic Math',
+            focus: 'Core foundations',
             levelRange: '1 - 30',
             icon: Zap,
             gradient: 'from-green-400 to-emerald-600',
@@ -169,8 +197,8 @@ const Home = () => {
         },
         {
             id: 'phase-2',
-            title: 'Phase 2',
-            focus: 'Conditional Logic',
+            title: 'Iteration (Loops) and Switching',
+            focus: 'Control flow',
             levelRange: '31 - 50',
             icon: Code,
             gradient: 'from-blue-400 to-cyan-600',
@@ -178,8 +206,8 @@ const Home = () => {
         },
         {
             id: 'phase-3',
-            title: 'Phase 3',
-            focus: 'Loops & Logic',
+            title: 'Arrays and String Processing',
+            focus: 'Data handling',
             levelRange: '51 - 70',
             icon: TrendingUp,
             gradient: 'from-purple-400 to-pink-600',
@@ -187,8 +215,8 @@ const Home = () => {
         },
         {
             id: 'phase-4',
-            title: 'Phase 4',
-            focus: 'Collections & Methods',
+            title: 'Procedural Programming & Logic Methods',
+            focus: 'Methods and structure',
             levelRange: '71 - 100',
             icon: Award,
             gradient: 'from-orange-400 to-red-600',
@@ -220,13 +248,13 @@ const Home = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-black text-white lg:h-screen lg:flex lg:overflow-hidden">
+        <div className={`min-h-screen lg:h-screen lg:flex lg:overflow-hidden ${pageThemeClass}`}>
             {/* Left Sidebar */}
             {!isMobile && (
                 <motion.aside
                     initial={{ x: -100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    className="w-64 bg-zinc-950 border-r border-zinc-800 lg:flex lg:flex-col"
+                    className={`w-64 border-r lg:flex lg:flex-col ${panelThemeClass}`}
                 >
                     {/* Logo */}
                     <div className="p-6 border-b border-zinc-800">
@@ -236,9 +264,19 @@ const Home = () => {
                             </div>
                             <div>
                                 <h1 className="font-bold text-lg tracking-tight">CodeBound</h1>
-                                <p className="text-xs text-zinc-500">Learn by Gaming</p>
+                                <p className={`text-xs ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'}`}>Learn by Gaming</p>
                             </div>
                         </div>
+
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={toggleTheme}
+                            className={`mt-3 w-full ${outlineButtonThemeClass}`}
+                        >
+                            {isDarkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                            {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                        </Button>
 
                         {token && (
                             <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/70 p-3">
@@ -255,15 +293,15 @@ const Home = () => {
                                         </div>
                                     )}
                                     <div className="min-w-0">
-                                        <p className="text-sm font-semibold text-white truncate">{firstName}</p>
-                                        <p className="text-[11px] text-zinc-500 truncate">{shortUserId ? `ID: ${shortUserId}` : 'ID: -'}</p>
+                                        <p className={`text-sm font-semibold truncate ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>{firstName}</p>
+                                        <p className={`text-[11px] truncate ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'}`}>{shortUserId ? `ID: ${shortUserId}` : 'ID: -'}</p>
                                     </div>
                                 </div>
                                 <Button
                                     onClick={handleLogout}
                                     variant="outline"
                                     size="sm"
-                                    className="mt-3 w-full border-zinc-700 text-zinc-200 hover:bg-zinc-800 bg-transparent"
+                                    className={`mt-3 w-full ${outlineButtonThemeClass}`}
                                 >
                                     <LogOut className="w-4 h-4 mr-2" />
                                     Logout
@@ -277,8 +315,12 @@ const Home = () => {
                         <button
                             onClick={() => setActiveNav('home')}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeNav === 'home'
-                                ? 'bg-gradient-to-r from-cyan-500/15 to-blue-600/15 text-white border border-transparent'
-                                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50 border border-transparent'
+                                ? isDarkMode
+                                    ? 'bg-gradient-to-r from-cyan-500/15 to-blue-600/15 text-white border border-transparent'
+                                    : 'bg-gradient-to-r from-cyan-100 to-blue-100 text-zinc-900 border border-cyan-200'
+                                : isDarkMode
+                                    ? 'text-zinc-400 hover:text-white hover:bg-zinc-800/50 border border-transparent'
+                                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 border border-transparent'
                                 }`}
                         >
                             <HomeIcon className="w-5 h-5" />
@@ -337,8 +379,8 @@ const Home = () => {
                                 </motion.div>
                             )}
                         </AnimatePresence>
-                        <div className="border-t border-zinc-800 pt-4">
-                            <p className="text-xs text-zinc-600">© 2026 CodeBound</p>
+                        <div className={`border-t pt-4 ${isDarkMode ? 'border-zinc-800' : 'border-zinc-200'}`}>
+                            <p className={`text-xs ${isDarkMode ? 'text-zinc-600' : 'text-zinc-500'}`}>© 2026 CodeBound</p>
                         </div>
                     </div>
                 </motion.aside>
@@ -350,7 +392,7 @@ const Home = () => {
                     <div className="p-8 space-y-8">
                         {/* Mobile Header */}
                         {isMobile && (
-                            <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-4">
+                            <div className={`rounded-2xl border p-4 ${isDarkMode ? 'border-zinc-800 bg-zinc-950/80' : 'border-zinc-200 bg-white'}`}>
                                 <div className="flex items-center justify-between gap-3">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
@@ -358,7 +400,7 @@ const Home = () => {
                                         </div>
                                         <div>
                                             <h1 className="font-bold text-lg tracking-tight">CodeBound</h1>
-                                            <p className="text-xs text-zinc-500">Learn by Gaming</p>
+                                            <p className={`text-xs ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'}`}>Learn by Gaming</p>
                                         </div>
                                     </div>
                                     <Button
@@ -368,6 +410,67 @@ const Home = () => {
                                         <Download className="h-4 w-4 mr-2" />
                                         Download
                                     </Button>
+
+                                    <Sheet>
+                                        <SheetTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                className={outlineButtonThemeClass}
+                                                aria-label="Open user menu"
+                                            >
+                                                <Menu className="h-5 w-5" />
+                                            </Button>
+                                        </SheetTrigger>
+                                        <SheetContent side="right" className={isDarkMode ? 'bg-zinc-950 border-zinc-800 text-white' : 'bg-white border-zinc-200 text-zinc-900'}>
+                                            <SheetHeader>
+                                                <SheetTitle className={isDarkMode ? 'text-white' : 'text-zinc-900'}>Account</SheetTitle>
+                                            </SheetHeader>
+
+                                            <div className="px-4 pt-2 pb-4">
+                                                <div className={`rounded-xl border p-4 ${isDarkMode ? 'border-zinc-800 bg-zinc-900/80' : 'border-zinc-200 bg-zinc-50'}`}>
+                                                    <div className="flex items-center gap-3">
+                                                        {currentUser?.avatar ? (
+                                                            <img
+                                                                src={currentUser.avatar}
+                                                                alt={firstName}
+                                                                className="h-11 w-11 rounded-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                                                                {userInitials}
+                                                            </div>
+                                                        )}
+
+                                                        <div className="min-w-0">
+                                                            <p className={`text-sm font-semibold truncate ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>{firstName}</p>
+                                                            <p className={`text-xs truncate ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>{shortUserId ? `ID: ${shortUserId}` : 'ID: -'}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <Button
+                                                        onClick={handleLogout}
+                                                        variant="outline"
+                                                        className={`mt-4 w-full ${outlineButtonThemeClass}`}
+                                                    >
+                                                        <LogOut className="w-4 h-4 mr-2" />
+                                                        Logout
+                                                    </Button>
+                                                </div>
+                                            </div>
+
+                                            <div className="px-4 pb-4">
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={toggleTheme}
+                                                    className={`w-full ${outlineButtonThemeClass}`}
+                                                >
+                                                    {isDarkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                                                    {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                                                </Button>
+                                            </div>
+                                        </SheetContent>
+                                    </Sheet>
                                 </div>
                             </div>
                         )}
@@ -563,7 +666,7 @@ const Home = () => {
                                     <h2 className="text-2xl font-bold">Community Hub</h2>
                                 </div>
                             </div>
-                            <Card className="bg-zinc-900 border-zinc-800">
+                            <Card className={cardThemeClass}>
                                 <CardContent className="pt-6">
                                     {token ? (
                                         <div className="space-y-4">
@@ -571,7 +674,7 @@ const Home = () => {
                                                 placeholder="What's on your mind? Share your code or ask a question..."
                                                 value={newPostContent}
                                                 onChange={(e) => setNewPostContent(e.target.value)}
-                                                className="bg-zinc-950 border-zinc-800 resize-none focus-visible:ring-cyan-500"
+                                                className={`${inputThemeClass} resize-none focus-visible:ring-cyan-500`}
                                             />
                                             <div className="flex justify-end">
                                                 <Button onClick={handlePostSubmit} disabled={!newPostContent.trim() || createPostMutation.isPending} className="bg-cyan-600 hover:bg-cyan-700 text-white">
@@ -582,7 +685,7 @@ const Home = () => {
                                     ) : (
                                         <div className="text-center py-4">
                                             <p className="text-zinc-400 mb-4">You must be logged in to post in the community.</p>
-                                            <Button onClick={() => navigate({ to: '/auth/login' })} variant="outline" className="border-cyan-500/60 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 hover:text-cyan-200 bg-transparent">
+                                            <Button onClick={() => navigate({ to: '/auth/login' })} variant="outline" className={isDarkMode ? 'border-cyan-500/60 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 hover:text-cyan-200 bg-transparent' : 'border-cyan-400 text-cyan-700 hover:bg-cyan-50 hover:border-cyan-500 hover:text-cyan-900 bg-white'}>
                                                 <Users className="w-4 h-4 mr-2" />
                                                 Login to Join the Community
                                             </Button>
@@ -621,15 +724,15 @@ const Home = () => {
                                                             {getAvatarInitials(post.user.username)}
                                                         </div>
                                                         <div>
-                                                            <p className="font-semibold text-sm">{post.user.username}</p>
-                                                            <p className="text-xs text-zinc-500">{formatTimeAgo(post.created_at)}</p>
+                                                            <p className="font-semibold text-sm text-zinc-100">{post.user.username}</p>
+                                                            <p className="text-xs text-zinc-400">{formatTimeAgo(post.created_at)}</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </CardHeader>
                                             <CardContent>
-                                                <p className="text-sm text-zinc-300 mb-3">{post.content}</p>
-                                                <div className="flex items-center gap-4 text-xs text-zinc-500">
+                                                <p className="text-sm text-zinc-100 mb-3 leading-relaxed">{post.content}</p>
+                                                <div className="flex items-center gap-4 text-xs text-zinc-300">
                                                     <button onClick={() => handleLike(post.id)} className="flex items-center gap-1 hover:text-cyan-400 transition-colors">
                                                         <Star className="w-4 h-4" />
                                                         <span>{post.likes}</span>
@@ -648,10 +751,10 @@ const Home = () => {
                                                                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 text-[10px] font-bold text-white flex items-center justify-center">
                                                                         {getAvatarInitials(comment.user.username)}
                                                                     </div>
-                                                                    <p className="text-xs font-medium text-zinc-200">{comment.user.username}</p>
-                                                                    <p className="text-[11px] text-zinc-500">{formatTimeAgo(comment.created_at)}</p>
+                                                                    <p className="text-xs font-medium text-zinc-100">{comment.user.username}</p>
+                                                                    <p className="text-[11px] text-zinc-400">{formatTimeAgo(comment.created_at)}</p>
                                                                 </div>
-                                                                <p className="text-xs text-zinc-300 leading-relaxed">{comment.content}</p>
+                                                                <p className="text-xs text-zinc-100 leading-relaxed">{comment.content}</p>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -664,7 +767,7 @@ const Home = () => {
                                                                 placeholder="Write a reply..."
                                                                 value={replyContent}
                                                                 onChange={(e) => setReplyContent(e.target.value)}
-                                                                className="bg-zinc-950 border-zinc-800 text-sm h-9 focus-visible:ring-cyan-500"
+                                                                className={`${inputThemeClass} text-sm h-9 focus-visible:ring-cyan-500`}
                                                             />
                                                             <Button size="sm" onClick={() => handleReplySubmit(post.id)} disabled={!replyContent.trim() || addCommentMutation.isPending} className="bg-cyan-600 hover:bg-cyan-700 text-white h-9">
                                                                 {addCommentMutation.isPending ? '...' : 'Reply'}
@@ -723,19 +826,29 @@ const Home = () => {
                     initial={{ x: 100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="w-80 bg-zinc-950 border-l border-zinc-800 lg:flex lg:flex-col"
+                    className={`w-80 border-l lg:flex lg:flex-col ${panelThemeClass}`}
                 >
                     {/* Header */}
-                    <div className="p-6 border-b border-zinc-800">
+                    <div className={`p-6 border-b ${isDarkMode ? 'border-zinc-800' : 'border-zinc-200'}`}>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-bold">Leaderboard</h2>
-                            <Trophy className="w-5 h-5 text-yellow-500" />
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={toggleTheme}
+                                    className={outlineButtonThemeClass}
+                                >
+                                    {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                                </Button>
+                                <Trophy className="w-5 h-5 text-yellow-500" />
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-zinc-500">
+                        <div className={`flex items-center gap-2 text-xs ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'}`}>
                             <Users className="w-3 h-3" />
                             <span>{totalPlayers.toLocaleString()} players worldwide</span>
                         </div>
-                        <p className="text-xs text-zinc-600 mt-1">Updated every 5 minutes</p>
+                        <p className={`text-xs mt-1 ${isDarkMode ? 'text-zinc-600' : 'text-zinc-500'}`}>Updated every 5 minutes</p>
                     </div>
 
                     {/* Leaderboard List */}
