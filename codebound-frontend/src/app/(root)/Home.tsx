@@ -114,9 +114,8 @@ const Home = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    const handleDownload = async () => {
-        window.open(downloadLink, '_blank', 'noopener,noreferrer');
-        toast.success('Download started! Check your device.');
+    const handleDownload = () => {
+        window.location.href = downloadLink;
     };
 
     const handleDismissFloating = () => setShowFloatingInstall(false);
