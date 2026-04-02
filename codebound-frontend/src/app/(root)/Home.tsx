@@ -99,7 +99,6 @@ const Home = () => {
 
     const leaderboardData = topPlayersData || [];
     const communityPosts = communityPostsData?.posts || [];
-    const downloadCount = leaderboardStatsData?.totalDownloads || 0;
     const totalPlayers = leaderboardStatsData?.totalPlayers || 0;
     const downloadLink = 'https://drive.google.com/uc?export=download&id=1-Bs623hKY-IZpwsFATqaN3K31qUmValc';
 
@@ -484,11 +483,6 @@ const Home = () => {
                                             ))
                                         )}
 
-                                        <div className="pt-3 border-t border-zinc-700 text-center">
-                                            <p className="text-sm text-zinc-300">Downloaded</p>
-                                            <p className="text-2xl font-bold text-cyan-400">{downloadCount.toLocaleString()}</p>
-                                            <p className="text-xs text-zinc-400">times</p>
-                                        </div>
                                     </CardContent>
                                 </Card>
                             </motion.section>
@@ -812,12 +806,6 @@ const Home = () => {
                         </div>
                     </ScrollArea>
 
-                    {/* Download count below leaderboard */}
-                    <div className="p-4 border-t border-zinc-800 text-center">
-                        <p className="text-xs text-zinc-500">Downloaded</p>
-                        <p className="text-2xl font-bold text-cyan-400">{downloadCount.toLocaleString()}</p>
-                        <p className="text-xs text-zinc-600">times</p>
-                    </div>
                 </motion.aside>
             )}
 
