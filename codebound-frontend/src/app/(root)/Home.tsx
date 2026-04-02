@@ -102,6 +102,7 @@ const Home = () => {
     const communityPosts = communityPostsData?.posts || [];
     const downloadCount = 154; // Placeholder
     const totalPlayers = leaderboardStatsData?.totalPlayers || 0;
+    const downloadLink = 'https://drive.google.com/uc?export=download&id=1-Bs623hKY-IZpwsFATqaN3K31qUmValc';
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -114,6 +115,7 @@ const Home = () => {
     }, []);
 
     const handleDownload = async () => {
+        window.open(downloadLink, '_blank', 'noopener,noreferrer');
         toast.success('Download started! Check your device.');
     };
 
