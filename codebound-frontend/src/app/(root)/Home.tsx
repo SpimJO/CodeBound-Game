@@ -389,7 +389,7 @@ const Home = () => {
             {/* Main Content */}
             <main className="w-full overflow-y-auto scrollbar-hidden lg:flex-1">
                 <ScrollArea className="h-full scrollbar-hidden">
-                    <div className="p-8 space-y-8">
+                    <div className="px-4 py-6 space-y-8 sm:px-6 sm:py-8 lg:p-8">
                         {/* Mobile Header */}
                         {isMobile && (
                             <div className={`rounded-2xl border p-4 ${isDarkMode ? 'border-zinc-800 bg-zinc-950/80' : 'border-zinc-200 bg-white'}`}>
@@ -529,7 +529,7 @@ const Home = () => {
                                 transition={{ delay: 0.25 }}
                                 className="space-y-4"
                             >
-                                <Card className="bg-zinc-900/95 border-zinc-700 shadow-lg shadow-black/30">
+                                <Card className="w-full bg-zinc-900/95 border-zinc-700 shadow-lg shadow-black/30">
                                     <CardHeader className="pb-3">
                                         <div className="flex items-center justify-between">
                                             <CardTitle className="text-xl text-zinc-100">Leaderboard</CardTitle>
@@ -617,7 +617,7 @@ const Home = () => {
                                             onClick={() => setActiveFeature((prev) => (prev === feature.id ? null : feature.id))}
                                             className="w-full text-left"
                                         >
-                                            <Card className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-all cursor-pointer overflow-hidden">
+                                            <Card className="w-full bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-all cursor-pointer overflow-hidden">
                                                 <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
                                                 <CardHeader className="relative">
                                                     <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-3 shadow-lg`}>
