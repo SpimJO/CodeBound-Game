@@ -212,7 +212,7 @@ const Home = () => {
         },
         {
             question: "Is CodeBound free?",
-            answer: "Yes! CodeBound is completely free for students and individual learners. We also offer enterprise and classroom licenses for educational institutions."
+            answer: "Yes! CodeBound is completely free for individual learners. We also offer enterprise and classroom licenses for educational institutions."
         },
         {
             question: "What platforms is CodeBound available on?",
