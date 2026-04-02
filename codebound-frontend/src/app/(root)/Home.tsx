@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTopPlayers, useLeaderboardStats } from '@/db/queries/useLeaderboard';
@@ -69,7 +68,7 @@ const Home = () => {
     const handlePostSubmit = async () => {
         if (!token) return navigate({ to: '/auth/login' });
         if (!newPostContent.trim()) return;
-        await createPostMutation.mutateAsync({ content: newPostContent, tags: [] });
+        await createPostMutation.mutateAsync({ content: newPostContent });
         setNewPostContent('');
     };
 
@@ -195,12 +194,12 @@ const Home = () => {
     ];
 
     return (
-        <div className="h-screen flex overflow-hidden bg-black text-white">
+        <div className="min-h-screen bg-black text-white lg:h-screen lg:flex lg:overflow-hidden">
             {/* Left Sidebar */}
             <motion.aside
                 initial={{ x: -100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                className="w-64 bg-zinc-950 border-r border-zinc-800 flex flex-col"
+                className="hidden w-64 bg-zinc-950 border-r border-zinc-800 lg:flex lg:flex-col"
             >
                 {/* Logo */}
                 <div className="p-6 border-b border-zinc-800">
@@ -318,9 +317,31 @@ const Home = () => {
             </motion.aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto scrollbar-hidden">
+            <main className="w-full overflow-y-auto scrollbar-hidden lg:flex-1">
                 <ScrollArea className="h-full scrollbar-hidden">
                     <div className="p-8 space-y-8">
+                        {/* Mobile Header */}
+                        <div className="lg:hidden rounded-2xl border border-zinc-800 bg-zinc-950/80 p-4">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                                        <Code className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h1 className="font-bold text-lg tracking-tight">CodeBound</h1>
+                                        <p className="text-xs text-zinc-500">Learn by Gaming</p>
+                                    </div>
+                                </div>
+                                <Button
+                                    onClick={handleDownload}
+                                    className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white"
+                                >
+                                    <Download className="h-4 w-4 mr-2" />
+                                    Download
+                                </Button>
+                            </div>
+                        </div>
+
                         {/* Game Trailer / Hero Video Section */}
                         <motion.section
                             initial={{ opacity: 0, y: 20 }}
@@ -477,7 +498,7 @@ const Home = () => {
                                         </Card>
                                     ))
                                 ) : communityPosts.length > 0 ? (
-                                    communityPosts.map((post, i) => (
+                                    communityPosts.map((post) => (
                                         <Card key={post.id} className="bg-zinc-900 border-transparent hover:border-transparent transition-colors">
                                             <CardHeader>
                                                 <div className="flex items-start justify-between">
@@ -587,7 +608,7 @@ const Home = () => {
                 initial={{ x: 100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
-                className="w-80 bg-zinc-950 border-l border-zinc-800 flex flex-col"
+                className="hidden w-80 bg-zinc-950 border-l border-zinc-800 lg:flex lg:flex-col"
             >
                 {/* Header */}
                 <div className="p-6 border-b border-zinc-800">
