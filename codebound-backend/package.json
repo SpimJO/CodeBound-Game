@@ -2,11 +2,11 @@
   "name": "elaika-backend",
   "version": "1.0.0",
   "description": "Backend for Elaika project",
-  "main": "dist/index.js",
+  "main": "dist/server.js",
   "scripts": {
     "prebuild": "npm install --include=dev",
     "build": "tsc && tsc-alias",
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "dev": "ts-node -r tsconfig-paths/register src/server.ts",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
