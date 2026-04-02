@@ -20,9 +20,7 @@ import {
     Download,
     Users,
     Play,
-    ChevronRight,
     Code,
-    Terminal,
     Zap,
     Star,
     TrendingUp,
@@ -39,6 +37,7 @@ import { Input } from '@/components/ui/input';
 const Home = () => {
     const [activeNav, setActiveNav] = useState('home');
     const [showFloatingInstall, setShowFloatingInstall] = useState(true);
+    const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
     const token = useToken();
     const isMobile = useIsMobile();
@@ -159,18 +158,45 @@ const Home = () => {
         }
     };
 
-    // Featured challenges: completion counts per level range from backend
-    const levelRanges = [
-        { title: "Beginner's Quest", level: "Levels 1-25", min: 1, max: 25, icon: Zap, gradient: "from-green-400 to-emerald-600" },
-        { title: "Loop Master", level: "Levels 26-50", min: 26, max: 50, icon: Terminal, gradient: "from-blue-400 to-cyan-600" },
-        { title: "Function Warrior", level: "Levels 51-75", min: 51, max: 75, icon: Code, gradient: "from-purple-400 to-pink-600" },
-        { title: "OOP Legend", level: "Levels 76-100", min: 76, max: 100, icon: Award, gradient: "from-orange-400 to-red-600" },
+    // Core system features shown as interactive cards
+    const systemFeatures = [
+        {
+            id: 'adaptive-learning',
+            title: 'Adaptive Learning Path',
+            subtitle: 'Smart level progression',
+            icon: Zap,
+            gradient: 'from-green-400 to-emerald-600',
+            summary: 'Adjusts challenge flow based on player performance.',
+            detail: 'Tracks retries and completion speed, then serves the most helpful next challenge.'
+        },
+        {
+            id: 'live-progress',
+            title: 'Live Progress Sync',
+            subtitle: 'Realtime player updates',
+            icon: TrendingUp,
+            gradient: 'from-blue-400 to-cyan-600',
+            summary: 'Progress updates are reflected quickly across the app.',
+            detail: 'Level status, leaderboard ranking, and milestones stay consistent after each session.'
+        },
+        {
+            id: 'community-loop',
+            title: 'Community Feedback Loop',
+            subtitle: 'Post, react, and discuss',
+            icon: MessageCircle,
+            gradient: 'from-purple-400 to-pink-600',
+            summary: 'Players can share ideas and get quick feedback.',
+            detail: 'Built-in posting, likes, and replies keep learning social and collaborative.'
+        },
+        {
+            id: 'achievement-rewards',
+            title: 'Achievement Reward System',
+            subtitle: 'Milestones with rewards',
+            icon: Award,
+            gradient: 'from-orange-400 to-red-600',
+            summary: 'Progress is reinforced through visible goals and rewards.',
+            detail: 'Unlockables and completion badges motivate users to keep moving through levels.'
+        },
     ];
-    const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
-    const featuredChallenges = levelRanges.map((range) => {
-        const completions = 50; // Mock placeholder
-        return { ...range, students: formatCount(completions) };
-    });
 
     const faqs = [
         {
@@ -402,21 +428,21 @@ const Home = () => {
                                 transition={{ delay: 0.25 }}
                                 className="space-y-4"
                             >
-                                <Card className="bg-zinc-900 border-zinc-800">
-                                    <CardHeader>
+                                <Card className="bg-zinc-900/95 border-zinc-700 shadow-lg shadow-black/30">
+                                    <CardHeader className="pb-3">
                                         <div className="flex items-center justify-between">
-                                            <CardTitle className="text-lg">Leaderboard</CardTitle>
+                                            <CardTitle className="text-xl text-zinc-100">Leaderboard</CardTitle>
                                             <Trophy className="w-5 h-5 text-yellow-500" />
                                         </div>
-                                        <div className="flex items-center gap-2 text-xs text-zinc-500">
-                                            <Users className="w-3 h-3" />
+                                        <div className="flex items-center gap-2 text-sm text-zinc-300">
+                                            <Users className="w-3.5 h-3.5" />
                                             <span>{totalPlayers.toLocaleString()} players worldwide</span>
                                         </div>
                                     </CardHeader>
-                                    <CardContent className="space-y-3">
+                                    <CardContent className="space-y-3.5">
                                         {isLoadingLeaderboard ? (
                                             Array(4).fill(0).map((_, i) => (
-                                                <div key={i} className="p-3 rounded-lg bg-zinc-950 animate-pulse">
+                                                <div key={i} className="p-3.5 rounded-lg bg-zinc-950 animate-pulse">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 rounded-full bg-zinc-800" />
                                                         <div className="w-9 h-9 rounded-full bg-zinc-800" />
@@ -431,16 +457,16 @@ const Home = () => {
                                             leaderboardData.slice(0, 5).map((player, i) => (
                                                 <div
                                                     key={player.userId}
-                                                    className={`relative p-3 rounded-lg border border-transparent ${player.rank === 1
-                                                        ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
-                                                        : 'bg-zinc-950'
+                                                    className={`relative p-3.5 rounded-lg border ${player.rank === 1
+                                                        ? 'border-yellow-500/20 bg-gradient-to-br from-yellow-500/15 to-orange-500/12'
+                                                        : 'border-zinc-800 bg-zinc-950'
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className={`w-7 h-7 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
                                                             player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
                                                                 player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
-                                                                    'bg-zinc-800 text-zinc-500'
+                                                                    'bg-zinc-800 text-zinc-400'
                                                             }`}>
                                                             <Trophy className="w-3.5 h-3.5" />
                                                         </div>
@@ -448,18 +474,21 @@ const Home = () => {
                                                             {getAvatarInitials(player.username)}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="font-semibold text-sm truncate">{player.username}</p>
-                                                            <p className="text-xs text-zinc-500 truncate">Lvl {player.levelReached} • {player.tokensEarned.toLocaleString()} tokens</p>
+                                                            <p className="font-semibold text-sm text-zinc-100 break-words">{player.username}</p>
+                                                            <p className="text-[13px] leading-snug text-zinc-300 break-words">
+                                                                <span className="font-medium text-zinc-200">Lvl {player.levelReached}</span>
+                                                                <span className="text-zinc-400"> • {player.tokensEarned.toLocaleString()} tokens</span>
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             ))
                                         )}
 
-                                        <div className="pt-2 border-t border-zinc-800 text-center">
-                                            <p className="text-xs text-zinc-500">Downloaded</p>
+                                        <div className="pt-3 border-t border-zinc-700 text-center">
+                                            <p className="text-sm text-zinc-300">Downloaded</p>
                                             <p className="text-2xl font-bold text-cyan-400">{downloadCount.toLocaleString()}</p>
-                                            <p className="text-xs text-zinc-600">times</p>
+                                            <p className="text-xs text-zinc-400">times</p>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -474,38 +503,52 @@ const Home = () => {
                             className="space-y-6"
                         >
                             <div className="flex items-center justify-between">
-                                <h2 className="text-2xl font-bold">Featured Challenges</h2>
-                                <button className="text-blue-400 hover:text-blue-300 flex items-center gap-2 text-sm font-medium">
-                                    View all <ChevronRight className="w-4 h-4" />
-                                </button>
+                                <h2 className="text-2xl font-bold">System Features</h2>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {featuredChallenges.map((challenge, i) => (
+                                {systemFeatures.map((feature, i) => (
                                     <motion.div
-                                        key={i}
+                                        key={feature.id}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.4 + i * 0.1 }}
                                         whileHover={{ y: -5 }}
                                         className="relative group"
                                     >
-                                        <Card className="bg-zinc-900 border-transparent hover:border-transparent transition-all cursor-pointer overflow-hidden">
-                                            <div className={`absolute inset-0 bg-gradient-to-br ${challenge.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                                            <CardHeader className="relative">
-                                                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${challenge.gradient} flex items-center justify-center mb-3 shadow-lg`}>
-                                                    <challenge.icon className="w-6 h-6 text-white" />
-                                                </div>
-                                                <CardTitle className="text-lg">{challenge.title}</CardTitle>
-                                                <p className="text-sm text-zinc-500">{challenge.level}</p>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <div className="flex items-center gap-2 text-sm text-zinc-400">
-                                                    <Users className="w-4 h-4" />
-                                                    <span>{challenge.students} students</span>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
+                                        <button
+                                            type="button"
+                                            onClick={() => setActiveFeature((prev) => (prev === feature.id ? null : feature.id))}
+                                            className="w-full text-left"
+                                        >
+                                            <Card className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-all cursor-pointer overflow-hidden">
+                                                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                                                <CardHeader className="relative">
+                                                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-3 shadow-lg`}>
+                                                        <feature.icon className="w-6 h-6 text-white" />
+                                                    </div>
+                                                    <CardTitle className="text-lg text-zinc-100">{feature.title}</CardTitle>
+                                                    <p className="text-sm text-zinc-400">{feature.subtitle}</p>
+                                                </CardHeader>
+                                                <CardContent className="relative space-y-3">
+                                                    <p className="text-sm text-zinc-300">{feature.summary}</p>
+                                                    <AnimatePresence initial={false}>
+                                                        {activeFeature === feature.id && (
+                                                            <motion.div
+                                                                initial={{ opacity: 0, height: 0 }}
+                                                                animate={{ opacity: 1, height: 'auto' }}
+                                                                exit={{ opacity: 0, height: 0 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                <p className="text-xs text-cyan-300/90 border-t border-zinc-800 pt-3">
+                                                                    {feature.detail}
+                                                                </p>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </CardContent>
+                                            </Card>
+                                        </button>
                                     </motion.div>
                                 ))}
                             </div>
