@@ -156,6 +156,10 @@ class LeaderboardService {
             },
         });
 
+        const downloadCounter = await prisma.downloadCounter.findFirst({
+            orderBy: { updated_at: 'desc' },
+        });
+
         // Get most active players
         const mostActivePlayers = await prisma.userProgress.findMany({
             take: 5,
@@ -174,6 +178,7 @@ class LeaderboardService {
             averagePlaytime: 0, // Fallback since it wasn't recorded nicely in leaderboard table before
             highestLevel: stats._max.highestLevel || 0,
             mostTokens: stats._max.totalTokens || 0,
+            totalDownloads: downloadCounter?.totalDownloads || 0,
             mostActivePlayers: mostActivePlayers.map((p) => ({
                 username: p.user.username,
                 playtime: p.totalPlayTime,

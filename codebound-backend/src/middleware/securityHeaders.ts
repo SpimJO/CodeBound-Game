@@ -1,4 +1,3 @@
-// filepath: e:\Dev\GITHUB\CLOSESOURCE\backend-boilerplate\chy-node-be-boilerplate\src\middleware\securityHeaders.ts
 import helmet from 'helmet';
 import { Request, Response, NextFunction } from 'express';
 import nocache from 'nocache';
@@ -78,7 +77,7 @@ export const securityHeaders = () => {
   return (req: Request, res: Response, next: NextFunction) => {
     // Apply each middleware in sequence
     let currentMiddlewareIndex = 0;
-    
+
     const executeNextMiddleware = () => {
       if (currentMiddlewareIndex < middlewares.length) {
         const currentMiddleware = middlewares[currentMiddlewareIndex];

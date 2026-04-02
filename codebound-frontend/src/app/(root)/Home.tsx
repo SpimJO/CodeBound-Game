@@ -26,7 +26,6 @@ import {
     TrendingUp,
     Award,
     MessageCircle,
-    Calendar,
     X,
     Smartphone,
     LogOut
@@ -100,7 +99,7 @@ const Home = () => {
 
     const leaderboardData = topPlayersData || [];
     const communityPosts = communityPostsData?.posts || [];
-    const downloadCount = 154; // Placeholder
+    const downloadCount = leaderboardStatsData?.totalDownloads || 0;
     const totalPlayers = leaderboardStatsData?.totalPlayers || 0;
     const downloadLink = 'https://drive.google.com/uc?export=download&id=1-Bs623hKY-IZpwsFATqaN3K31qUmValc';
 
@@ -158,43 +157,43 @@ const Home = () => {
         }
     };
 
-    // Core system features shown as interactive cards
+    // Game phases shown as interactive feature cards
     const systemFeatures = [
         {
-            id: 'adaptive-learning',
-            title: 'Adaptive Learning Path',
-            subtitle: 'Smart level progression',
+            id: 'phase-1',
+            title: 'Phase 1',
+            focus: 'Input/Output & Variables',
+            levelRange: '1 - 30',
             icon: Zap,
             gradient: 'from-green-400 to-emerald-600',
-            summary: 'Adjusts challenge flow based on player performance.',
-            detail: 'Tracks retries and completion speed, then serves the most helpful next challenge.'
+            detail: 'Foundation phase for syntax familiarity, basic data handling, and console interaction.'
         },
         {
-            id: 'live-progress',
-            title: 'Live Progress Sync',
-            subtitle: 'Realtime player updates',
-            icon: TrendingUp,
+            id: 'phase-2',
+            title: 'Phase 2',
+            focus: 'Conditional Logic',
+            levelRange: '31 - 50',
+            icon: Code,
             gradient: 'from-blue-400 to-cyan-600',
-            summary: 'Progress updates are reflected quickly across the app.',
-            detail: 'Level status, leaderboard ranking, and milestones stay consistent after each session.'
+            detail: 'Focuses on decision-making using if/else and branching logic for problem solving.'
         },
         {
-            id: 'community-loop',
-            title: 'Community Feedback Loop',
-            subtitle: 'Post, react, and discuss',
-            icon: MessageCircle,
+            id: 'phase-3',
+            title: 'Phase 3',
+            focus: 'Loops & Logic',
+            levelRange: '51 - 70',
+            icon: TrendingUp,
             gradient: 'from-purple-400 to-pink-600',
-            summary: 'Players can share ideas and get quick feedback.',
-            detail: 'Built-in posting, likes, and replies keep learning social and collaborative.'
+            detail: 'Builds repetition patterns with loop structures and deeper algorithmic thinking.'
         },
         {
-            id: 'achievement-rewards',
-            title: 'Achievement Reward System',
-            subtitle: 'Milestones with rewards',
+            id: 'phase-4',
+            title: 'Phase 4',
+            focus: 'Collections & Methods',
+            levelRange: '71 - 100',
             icon: Award,
             gradient: 'from-orange-400 to-red-600',
-            summary: 'Progress is reinforced through visible goals and rewards.',
-            detail: 'Unlockables and completion badges motivate users to keep moving through levels.'
+            detail: 'Covers structured data and reusable methods to prepare for advanced coding challenges.'
         },
     ];
 
@@ -528,10 +527,10 @@ const Home = () => {
                                                         <feature.icon className="w-6 h-6 text-white" />
                                                     </div>
                                                     <CardTitle className="text-lg text-zinc-100">{feature.title}</CardTitle>
-                                                    <p className="text-sm text-zinc-400">{feature.subtitle}</p>
+                                                    <p className="text-sm text-zinc-300">{feature.focus}</p>
                                                 </CardHeader>
                                                 <CardContent className="relative space-y-3">
-                                                    <p className="text-sm text-zinc-300">{feature.summary}</p>
+                                                    <p className="text-sm text-zinc-400">Levels {feature.levelRange}</p>
                                                     <AnimatePresence initial={false}>
                                                         {activeFeature === feature.id && (
                                                             <motion.div
@@ -812,26 +811,6 @@ const Home = () => {
                             )}
                         </div>
                     </ScrollArea>
-
-                    {/* Updates Section */}
-                    <div className="p-4 border-t border-zinc-800">
-                        <div className="flex items-center gap-2 mb-3">
-                            <Zap className="w-4 h-4 text-yellow-500" />
-                            <h3 className="text-sm font-semibold">Updates & News</h3>
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800">
-                                <div className="flex items-start gap-3">
-                                    <Calendar className="w-4 h-4 text-blue-400 mt-1" />
-                                    <div>
-                                        <p className="text-xs font-medium">New Challenge Live!</p>
-                                        <p className="text-xs text-zinc-500 mt-1">Weekly coding challenge starts now</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Download count below leaderboard */}
                     <div className="p-4 border-t border-zinc-800 text-center">

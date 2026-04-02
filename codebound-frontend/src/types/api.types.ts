@@ -157,6 +157,7 @@ export interface LeaderboardResponse {
 
 export interface LeaderboardStats {
     totalPlayers: number;
+    totalDownloads: number;
     averageLevel: number;
     averageTokens: number;
     averagePlaytime: number;
