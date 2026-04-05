@@ -593,7 +593,6 @@ const Home = () => {
                                             </div>
                                         </ScrollArea>
                                     </CardContent>
-                                    </CardContent>
                                 </Card>
                             </motion.section>
                         )}
