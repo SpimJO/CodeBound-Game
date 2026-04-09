@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { HttpError } from '../lib/error';
 import achievementService from './achievement.service';
 
+const REPLAY_REWARD_TOKENS = 30;
+
 interface LevelData {
     levelCompleted: number;
     tokensEarned: number;
@@ -86,12 +88,14 @@ class ProgressService {
             });
 
             let tokenDelta = tokensEarned;
+            let rewardTokens = tokensEarned;
 
             // Create or update level completion
             if (existingCompletion) {
-                // Replay-safe accounting:
-                // only award extra tokens when player beats previous best for this level.
-                tokenDelta = Math.max(0, tokensEarned - existingCompletion.tokensEarned);
+                // Replays always award a fixed token bonus.
+                // This keeps repeat clears rewarding while avoiding duplicate full rewards.
+                rewardTokens = REPLAY_REWARD_TOKENS;
+                tokenDelta = rewardTokens;
 
                 // Update if better performance
                 await tx.levelCompletion.update({
@@ -137,7 +141,10 @@ class ProgressService {
                 },
             });
 
-            return updatedProgress;
+            return {
+                ...updatedProgress,
+                rewardTokens,
+            };
         });
 
         // Check for achievements (outside transaction for better performance)
