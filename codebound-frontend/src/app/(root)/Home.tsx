@@ -52,7 +52,7 @@ const Home = () => {
         const stored = window.localStorage.getItem('home-theme');
         if (stored === 'dark') return true;
         if (stored === 'light') return false;
-        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return true;
     });
 
     const token = useToken();
