@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,10 @@ import {
     Menu,
     X,
     Smartphone,
-    LogOut
+    LogOut,
+    Pause,
+    Volume2,
+    VolumeX
 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
@@ -41,6 +44,9 @@ const Home = () => {
     const [activeNav, setActiveNav] = useState('home');
     const [showFloatingInstall, setShowFloatingInstall] = useState(true);
     const [activeFeature, setActiveFeature] = useState<string | null>(null);
+    const [isTrailerMuted, setIsTrailerMuted] = useState(true);
+    const [isTrailerPaused, setIsTrailerPaused] = useState(false);
+    const trailerVideoRef = useRef<HTMLVideoElement | null>(null);
     const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
         if (typeof window === 'undefined') return true;
         const stored = window.localStorage.getItem('home-theme');
@@ -112,7 +118,8 @@ const Home = () => {
     const visibleLeaderboardData = leaderboardData.slice(0, 10);
     const communityPosts = communityPostsData?.posts || [];
     const totalPlayers = leaderboardStatsData?.totalPlayers || 0;
-    const downloadLink = 'https://drive.google.com/uc?export=download&id=1-Bs623hKY-IZpwsFATqaN3K31qUmValc';
+    const downloadLink = 'https://drive.google.com/drive/folders/1YlaWE6nW1zwv13A3hTquYHrXhJz2Zthb';
+    const trailerVideoSrc = '/Timeline-1.mov';
 
     const pageThemeClass = isDarkMode ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-900';
     const panelThemeClass = isDarkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200';
@@ -140,6 +147,20 @@ const Home = () => {
         document.documentElement.classList.toggle('dark', isDarkMode);
         window.localStorage.setItem('home-theme', isDarkMode ? 'dark' : 'light');
     }, [isDarkMode]);
+
+    useEffect(() => {
+        const trailer = trailerVideoRef.current;
+        if (!trailer) return;
+
+        if (isTrailerPaused) {
+            trailer.pause();
+            return;
+        }
+
+        void trailer.play().catch(() => {
+            setIsTrailerPaused(true);
+        });
+    }, [isTrailerPaused]);
 
     const handleDownload = () => {
         window.location.href = downloadLink;
@@ -486,20 +507,27 @@ const Home = () => {
                             className="relative"
                         >
                             <div className="relative h-[500px] rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border border-transparent">
-                                {/* Video Placeholder */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200')] bg-cover bg-center opacity-25" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                                {trailerVideoSrc ? (
+                                    <video
+                                        ref={trailerVideoRef}
+                                        className="absolute inset-0 h-full w-full object-cover"
+                                        src={trailerVideoSrc}
+                                        autoPlay
+                                        loop
+                                        muted={isTrailerMuted}
+                                        playsInline
+                                        preload="metadata"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200')] bg-cover bg-center opacity-25" />
+                                        <div className="relative z-10 rounded-full bg-zinc-900/80 text-zinc-200 border border-zinc-700 px-5 py-2 text-sm">
+                                            Trailer source is set to a Drive folder. Add a direct file link for autoplay loop.
+                                        </div>
+                                    </div>
+                                )}
 
-                                    {/* Play Button */}
-                                    <motion.button
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="relative z-10 w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-2xl shadow-blue-500/50 hover:shadow-blue-500/80 transition-shadow ring-4 ring-white/20"
-                                    >
-                                        <Play className="w-10 h-10 text-white ml-1" fill="white" />
-                                    </motion.button>
-                                </div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
                                 {/* Video Info Overlay - no LIVE, no watching count */}
                                 <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
@@ -510,12 +538,13 @@ const Home = () => {
                                                 Watch how thousands of developers started their coding journey through our immersive game-based learning platform. Master programming while having fun!
                                             </p>
                                             <div className="flex items-center gap-4 pt-2">
-                                                <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0 shadow-lg shadow-blue-500/30 text-white">
-                                                    <Play className="w-4 h-4 mr-2" />
-                                                    Watch Trailer
+                                                <Button size="lg" onClick={() => setIsTrailerMuted((prev) => !prev)} className="bg-zinc-900/70 border border-zinc-300/30 hover:bg-zinc-900/90 text-white">
+                                                    {isTrailerMuted ? <VolumeX className="w-4 h-4 mr-2" /> : <Volume2 className="w-4 h-4 mr-2" />}
+                                                    {isTrailerMuted ? 'Unmute' : 'Mute'}
                                                 </Button>
-                                                <Button size="lg" variant="outline" className="border-cyan-400 text-cyan-300 hover:bg-cyan-500/25 hover:border-cyan-300 hover:text-white bg-white/5">
-                                                    Learn More
+                                                <Button size="lg" onClick={() => setIsTrailerPaused((prev) => !prev)} className="bg-zinc-900/70 border border-zinc-300/30 hover:bg-zinc-900/90 text-white">
+                                                    {isTrailerPaused ? <Play className="w-4 h-4 mr-2" /> : <Pause className="w-4 h-4 mr-2" />}
+                                                    {isTrailerPaused ? 'Play' : 'Pause'}
                                                 </Button>
                                             </div>
                                         </div>
