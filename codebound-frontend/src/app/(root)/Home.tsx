@@ -506,11 +506,11 @@ const Home = () => {
                             transition={{ delay: 0.2 }}
                             className="relative"
                         >
-                            <div className="relative h-[500px] rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border border-transparent">
+                            <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border border-transparent">
                                 {trailerVideoSrc ? (
                                     <video
                                         ref={trailerVideoRef}
-                                        className="absolute inset-0 h-full w-full object-cover"
+                                        className="absolute inset-0 h-full w-full object-cover object-center"
                                         src={trailerVideoSrc}
                                         autoPlay
                                         loop
