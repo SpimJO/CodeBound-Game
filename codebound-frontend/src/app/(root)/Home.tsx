@@ -94,11 +94,12 @@ const Home = () => {
     };
 
     // API data
-    const { data: topPlayersData, isLoading: isLoadingLeaderboard } = useTopPlayers(8);
+    const { data: topPlayersData, isLoading: isLoadingLeaderboard } = useTopPlayers(10);
     const { data: leaderboardStatsData } = useLeaderboardStats();
     const { data: communityPostsData, isLoading: isLoadingPosts } = useCommunityPosts(3);
 
     const leaderboardData = topPlayersData || [];
+    const visibleLeaderboardData = leaderboardData.slice(0, 10);
     const communityPosts = communityPostsData?.posts || [];
     const downloadCount = 154; // Placeholder
     const totalPlayers = leaderboardStatsData?.totalPlayers || 0;
@@ -366,6 +367,79 @@ const Home = () => {
                             </div>
                         </motion.section>
 
+                        {/* Mobile Leaderboard - appears right after trailer */}
+                        {isMobile && (
+                            <motion.section
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.25 }}
+                                className="space-y-4"
+                            >
+                                <Card className={`w-full shadow-lg ${isDarkMode ? 'bg-zinc-900/95 border-zinc-700 shadow-black/30' : 'bg-white border-zinc-200 shadow-zinc-300/40'}`}>
+                                    <CardHeader className="pb-3">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className={`text-xl ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>Leaderboard</CardTitle>
+                                            <Trophy className="w-5 h-5 text-yellow-500" />
+                                        </div>
+                                        <div className={`flex items-center gap-2 text-sm ${isDarkMode ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                                            <Users className="w-3.5 h-3.5" />
+                                            <span>{totalPlayers.toLocaleString()} players worldwide</span>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-3.5">
+                                        <ScrollArea className="h-[460px] pr-2 scrollbar-hidden">
+                                            <div className="space-y-3.5">
+                                                {isLoadingLeaderboard ? (
+                                                    Array(10).fill(0).map((_, i) => (
+                                                        <div key={i} className={`p-3.5 rounded-lg animate-pulse ${isDarkMode ? 'bg-zinc-950' : 'bg-zinc-100'}`}>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-8 h-8 rounded-full ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                                <div className={`w-9 h-9 rounded-full ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                                <div className="flex-1 space-y-2">
+                                                                    <div className={`h-3 rounded w-24 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                                    <div className={`h-3 rounded w-32 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    visibleLeaderboardData.map((player, i) => (
+                                                        <div
+                                                            key={player.userId}
+                                                            className={`relative p-3.5 rounded-lg border ${player.rank === 1
+                                                                ? 'border-yellow-500/20 bg-gradient-to-br from-yellow-500/15 to-orange-500/12'
+                                                                : (isDarkMode ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-200 bg-zinc-50')
+                                                                }`}
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-7 h-7 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
+                                                                    player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
+                                                                        player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
+                                                                            (isDarkMode ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-200 text-zinc-600')
+                                                                    }`}>
+                                                                    <Trophy className="w-3.5 h-3.5" />
+                                                                </div>
+                                                                <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${getAvatarColor(i)} flex items-center justify-center text-xs font-bold shadow-lg`}>
+                                                                    {getAvatarInitials(player.username)}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className={`font-semibold text-sm break-words ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>{player.username}</p>
+                                                                    <p className={`text-[13px] leading-snug break-words ${isDarkMode ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                                                                        <span className={`font-medium ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>Lvl {player.levelReached}</span>
+                                                                        <span className={isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}> • {player.tokensEarned.toLocaleString()} tokens</span>
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </ScrollArea>
+                                    </CardContent>
+                                </Card>
+                            </motion.section>
+                        )}
+
                         {/* Overview Section */}
                         <motion.section
                             initial={{ opacity: 0, y: 20 }}
@@ -601,43 +675,66 @@ const Home = () => {
                     <p className="text-xs text-zinc-600 mt-1">Updated every 5 minutes</p>
                 </div>
 
-                {/* Leaderboard List */}
-                <ScrollArea className="flex-1 p-4">
-                    <div className="space-y-3">
-                        {isLoadingLeaderboard ? (
-                            Array(8).fill(0).map((_, i) => (
-                                <div key={i} className="p-4 rounded-lg bg-zinc-900 animate-pulse">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-zinc-800" />
-                                        <div className="w-10 h-10 rounded-full bg-zinc-800" />
-                                        <div className="flex-1 space-y-2">
-                                            <div className="h-4 bg-zinc-800 rounded w-24" />
-                                            <div className="h-3 bg-zinc-800 rounded w-32" />
+                    {/* Leaderboard List */}
+                    <ScrollArea className="flex-1 min-h-0 p-4">
+                        <div className="space-y-3 pr-2">
+                            {isLoadingLeaderboard ? (
+                                Array(10).fill(0).map((_, i) => (
+                                    <div key={i} className={`p-4 rounded-lg animate-pulse ${isDarkMode ? 'bg-zinc-900' : 'bg-zinc-100'}`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-full ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                            <div className={`w-10 h-10 rounded-full ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                            <div className="flex-1 space-y-2">
+                                                <div className={`h-4 rounded w-24 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                                <div className={`h-3 rounded w-32 ${isDarkMode ? 'bg-zinc-800' : 'bg-zinc-300'}`} />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))
-                        ) : (
-                            leaderboardData.map((player, i) => (
-                                <motion.div
-                                    key={player.userId}
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 + i * 0.1 }}
-                                    className="group"
-                                >
-                                    <div className={`relative p-4 rounded-lg border border-transparent transition-all ${player.rank === 1
-                                        ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
-                                        : 'bg-zinc-900 hover:bg-zinc-800/80'
-                                        }`}>
-                                        <div className="flex items-center gap-3">
-                                            {/* Rank - trophy icon: gold, silver, bronze, classic */}
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
-                                                player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
-                                                    player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
-                                                        'bg-zinc-800 text-zinc-500'
-                                                }`}>
-                                                <Trophy className="w-4 h-4" />
+                                ))
+                            ) : (
+                                visibleLeaderboardData.map((player, i) => (
+                                    <motion.div
+                                        key={player.userId}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 + i * 0.1 }}
+                                        className="group"
+                                    >
+                                        <div className={`relative p-4 rounded-lg border transition-all ${player.rank === 1
+                                            ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
+                                            : (isDarkMode ? 'bg-zinc-900 hover:bg-zinc-800/80 border-zinc-800' : 'bg-white hover:bg-zinc-50 border-zinc-200')
+                                            }`}>
+                                            <div className="flex items-center gap-3">
+                                                {/* Rank - trophy icon: gold, silver, bronze, classic */}
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${player.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-amber-900' :
+                                                    player.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-700' :
+                                                        player.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-950' :
+                                                            (isDarkMode ? 'bg-zinc-800 text-zinc-500' : 'bg-zinc-200 text-zinc-600')
+                                                    }`}>
+                                                    <Trophy className="w-4 h-4" />
+                                                </div>
+
+                                                {/* Avatar */}
+                                                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(i)} flex items-center justify-center text-sm font-bold shadow-lg`}>
+                                                    {getAvatarInitials(player.username)}
+                                                </div>
+
+                                                {/* Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <p className={`font-semibold text-sm truncate ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>{player.username}</p>
+                                                    <div className={`flex items-center gap-2 text-xs ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'}`}>
+                                                        <TrendingUp className="w-3 h-3" />
+                                                        <span>Lvl {player.levelReached} • {player.tokensEarned.toLocaleString()} tokens</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Rank Badge - trophy for top 3 */}
+                                                {player.rank <= 3 && (
+                                                    <Trophy className={`w-5 h-5 ${player.rank === 1 ? 'text-yellow-400' :
+                                                        player.rank === 2 ? 'text-gray-400' :
+                                                            'text-amber-600'
+                                                        }`} />
+                                                )}
                                             </div>
 
                                             {/* Avatar */}
