@@ -36,6 +36,16 @@ class index {
     private Routes(): void {
         const baseRoute = (appConfig.BASEROUTE || "").trim();
 
+        // Health check at root
+        this.app.get("/", (req: Request, res: Response) => {
+            res.status(200).json({
+                success: true,
+                message: "CodeBound Backend API",
+                version: "1.0.0",
+                status: "running"
+            });
+        });
+
         // Primary mount without prefix (e.g. /auth/login)
         this.app.use(this.appRouter.router);
 
