@@ -12,6 +12,7 @@ interface UserData {
     id: string;
     username: string;
     avatar: string | null;
+    old_user: number;
     created_at: Date;
     updated_at: Date;
 }
@@ -68,6 +69,7 @@ class AuthService {
                 id: user.id,
                 username: user.username,
                 avatar: user.avatar,
+                old_user: user.old_user,
             },
             token: encryptToken,
         };
@@ -144,7 +146,8 @@ class AuthService {
         return {
             user: {
                 id: newUser.id,
-                username: newUser.username
+                username: newUser.username,
+                old_user: newUser.old_user
             },
             token: encryptToken
         };
@@ -160,6 +163,7 @@ class AuthService {
                 id: true,
                 username: true,
                 avatar: true,
+                old_user: true,
                 created_at: true,
                 updated_at: true,
                 progress: {
@@ -190,7 +194,8 @@ class AuthService {
         username?: string,
         avatar?: string,
         currentPassword?: string,
-        newPassword?: string
+        newPassword?: string,
+        old_user?: number
     ): Promise<{ user: UserData }> {
         const trimmedUsername = username?.trim();
 
@@ -239,12 +244,36 @@ class AuthService {
             data: {
                 ...(trimmedUsername && { username: trimmedUsername }),
                 ...(avatar && { avatar }),
-                ...(nextPasswordHash && { password: nextPasswordHash })
+                ...(nextPasswordHash && { password: nextPasswordHash }),
+                ...(old_user !== undefined && { old_user })
             },
             select: {
                 id: true,
                 username: true,
                 avatar: true,
+                old_user: true,
+                created_at: true,
+                updated_at: true
+            }
+        });
+
+        return { user: updatedUser };
+    }
+
+    /**
+     * Mark the tutorial as completed for a user.
+     */
+    async completeTutorial(userId: string): Promise<{ user: UserData }> {
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                old_user: 1,
+            },
+            select: {
+                id: true,
+                username: true,
+                avatar: true,
+                old_user: true,
                 created_at: true,
                 updated_at: true
             }

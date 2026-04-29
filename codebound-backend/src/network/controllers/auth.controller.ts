@@ -72,8 +72,23 @@ class AuthController extends Api {
             }
 
             const { username, avatar, currentPassword, newPassword } = req.body;
-            const data = await authService.updateProfile(userId, username, avatar, currentPassword, newPassword);
+            const { old_user } = req.body;
+            const data = await authService.updateProfile(userId, username, avatar, currentPassword, newPassword, old_user);
             return this.success(res, data, "Profile updated successfully");
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public async completeTutorial(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                return next(this.httpError.unauthorized("Unauthorized"));
+            }
+
+            const data = await authService.completeTutorial(userId);
+            return this.success(res, data, "Tutorial completion saved successfully");
         } catch (error) {
             next(error);
         }
