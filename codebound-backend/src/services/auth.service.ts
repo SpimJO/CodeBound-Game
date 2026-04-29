@@ -69,7 +69,6 @@ class AuthService {
                 id: user.id,
                 username: user.username,
                 avatar: user.avatar,
-                old_user: user.old_user,
             },
             token: encryptToken,
         };
@@ -108,7 +107,8 @@ class AuthService {
             const user = await tx.user.create({
                 data: {
                     username: displayName,
-                    password: passwordHashed
+                    password: passwordHashed,
+                    email: null
                 }
             });
 
@@ -147,7 +147,6 @@ class AuthService {
             user: {
                 id: newUser.id,
                 username: newUser.username,
-                old_user: newUser.old_user
             },
             token: encryptToken
         };
