@@ -107,8 +107,7 @@ class AuthService {
             const user = await tx.user.create({
                 data: {
                     username: displayName,
-                    password: passwordHashed,
-                    email: null
+                    password: passwordHashed
                 }
             });
 

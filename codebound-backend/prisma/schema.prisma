@@ -18,7 +18,6 @@ model User {
   id         String   @id @default(cuid())
   password   String   // Hashed password
   username   String   @unique // Display name in leaderboard & community
-  email      String?  // Optional email (from migration)
   avatar     String?  // Optional avatar URL
   old_user   Int      @default(0) // 0 = new, 1 = completed tutorial
   created_at DateTime @default(now())
