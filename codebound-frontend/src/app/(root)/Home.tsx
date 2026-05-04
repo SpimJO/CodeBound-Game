@@ -118,7 +118,7 @@ const Home = () => {
     const visibleLeaderboardData = leaderboardData.slice(0, 10);
     const communityPosts = communityPostsData?.posts || [];
     const totalPlayers = leaderboardStatsData?.totalPlayers || 0;
-    const downloadLink = 'https://drive.google.com/drive/folders/1iBO7F8TMAnQokDrcyM9hylo481TmCakM';
+    const downloadLink = 'https://drive.google.com/file/d/11gM62wuv1wMUv9vIgBIQU0X3B5Y8fXyR/view?usp=sharing';
     const trailerVideoSrc = '/Timeline-1.mov';
 
     const pageThemeClass = isDarkMode ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-900';
