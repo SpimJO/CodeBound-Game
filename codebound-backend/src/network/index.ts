@@ -1,9 +1,9 @@
 import auth from "./routes/auth.route";
+import tutorial from "./routes/tutorial.route";
 import progress from "./routes/progress.route";
 import leaderboard from "./routes/leaderboard.route";
 import achievement from "./routes/achievement.route";
 import community from "./routes/community.route";
-import gameSession from "./routes/gameSession.route";
 import skin from "./routes/skin.route";
 import problem from "./routes/problem.route";
 import { baseRouter } from "@/lib/baseRouter";
@@ -25,12 +25,14 @@ class AppRouter extends baseRouter {
         // Authentication
         this.router.use("/auth", auth);
 
+        // Theme tutorials (level 26 / 51 / 76 intros)
+        this.router.use("/tutorial", tutorial);
+
         // Core Game Features
         this.router.use("/progress", progress);
         this.router.use("/problems", problem);
         this.router.use("/leaderboard", leaderboard);
         this.router.use("/achievements", achievement);
-        this.router.use("/sessions", gameSession);
         this.router.use("/characters", skin);
         this.router.use("/skins", skin);
 

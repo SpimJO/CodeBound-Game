@@ -305,17 +305,9 @@ const Home = () => {
                         {token && (
                             <div className={`mt-4 rounded-lg border p-3 ${softCardThemeClass}`}>
                                 <div className="flex items-center gap-3">
-                                    {currentUser?.avatar ? (
-                                        <img
-                                            src={currentUser.avatar}
-                                            alt={firstName}
-                                            className="h-9 w-9 rounded-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold flex items-center justify-center">
-                                            {userInitials}
-                                        </div>
-                                    )}
+                                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                                        {userInitials}
+                                    </div>
                                     <div className="min-w-0">
                                         <p className={`text-sm font-semibold truncate ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>{firstName}</p>
                                         <p className={`text-[11px] truncate ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'}`}>{shortUserId ? `ID: ${shortUserId}` : 'ID: -'}</p>
@@ -454,17 +446,9 @@ const Home = () => {
                                             <div className="px-4 pt-2 pb-4">
                                                 <div className={`rounded-xl border p-4 ${isDarkMode ? 'border-zinc-800 bg-zinc-900/80' : 'border-zinc-200 bg-zinc-50'}`}>
                                                     <div className="flex items-center gap-3">
-                                                        {currentUser?.avatar ? (
-                                                            <img
-                                                                src={currentUser.avatar}
-                                                                alt={firstName}
-                                                                className="h-11 w-11 rounded-full object-cover"
-                                                            />
-                                                        ) : (
-                                                            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold flex items-center justify-center">
-                                                                {userInitials}
-                                                            </div>
-                                                        )}
+                                                        <div className="h-11 w-11 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                                                            {userInitials}
+                                                        </div>
 
                                                         <div className="min-w-0">
                                                             <p className={`text-sm font-semibold truncate ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>{firstName}</p>

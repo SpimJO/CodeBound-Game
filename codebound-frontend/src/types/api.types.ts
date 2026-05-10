@@ -13,7 +13,6 @@ export interface ApiResponse<T = unknown> {
 export interface User {
     id: string;
     username: string;
-    avatar: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -22,7 +21,6 @@ export interface UserProgress {
     currentLevel: number;
     highestLevel: number;
     totalTokens: number;
-    totalPlayTime: number;
     equippedSkin: string;
     lastPlayed: string;
 }
@@ -64,7 +62,6 @@ export interface SessionResponse {
 
 export interface UpdateProfileRequest {
     username?: string;
-    avatar?: string;
 }
 
 // Progress Types
@@ -74,18 +71,12 @@ export interface LevelCompletion {
     levelNumber: number;
     tokensEarned: number;
     attemptsCount: number;
-    timeSpent: number;
-    hintsUsed: number;
     completedAt: string;
-    isPerfect: boolean;
 }
 
 export interface UpdateProgressRequest {
     levelCompleted: number;
     tokensEarned: number;
-    timeSpent: number;
-    hintsUsed?: number;
-    isPerfect?: boolean;
 }
 
 export interface ProgressStats {
@@ -93,13 +84,7 @@ export interface ProgressStats {
     highestLevel: number;
     totalLevelsCompleted: number;
     tokensEarned: number;
-    totalTimePlayed: number;
-    hintsUsed: number;
     achievementsUnlocked: number;
-    averageTimePerLevel: number;
-    averageHintsPerLevel: number;
-    fastestCompletion: number;
-    slowestCompletion: number;
     lastPlayed: string;
 }
 
@@ -109,7 +94,6 @@ export interface ProgressWithDetails {
     currentLevel: number;
     highestLevel: number;
     totalTokens: number;
-    totalPlayTime: number;
     lastPlayed: string;
     equippedSkin: string;
     created_at: string;
@@ -140,7 +124,6 @@ export interface LeaderboardPlayer {
     levelReached: number;
     tokensEarned: number;
     achievementsCount: number;
-    totalTimePlayed: number;
     lastPlayed: string;
     memberSince: string;
 }
@@ -157,15 +140,13 @@ export interface LeaderboardResponse {
 
 export interface LeaderboardStats {
     totalPlayers: number;
-    totalDownloads: number;
     averageLevel: number;
     averageTokens: number;
-    averagePlaytime: number;
     highestLevel: number;
     mostTokens: number;
     mostActivePlayers: Array<{
         username: string;
-        playtime: number;
+        lastPlayed: string;
     }>;
 }
 
@@ -180,7 +161,6 @@ export interface CommunityPost {
     user: {
         id: string;
         username: string;
-        avatar: string | null;
     };
     comments?: CommunityComment[];
     _count?: {
@@ -197,7 +177,6 @@ export interface CommunityComment {
     user: {
         id: string;
         username: string;
-        avatar: string | null;
     };
 }
 
@@ -270,35 +249,6 @@ export interface SkinWithOwnership extends Skin {
     userSkin?: UserSkin;
 }
 
-// Game Session Types
-export interface GameSession {
-    id: string;
-    userId: string;
-    startedAt: string;
-    endedAt: string | null;
-    duration: number | null;
-    levelsPlayed: number;
-    tokensEarned: number;
-}
-
-export interface StartSessionRequest {
-    userId: string;
-}
-
-export interface EndSessionRequest {
-    sessionId: string;
-    levelsPlayed: number;
-    tokensEarned: number;
-}
-
-// Analytics Types
-export interface DownloadCounter {
-    id: string;
-    totalDownloads: number;
-    lastIncrement: string;
-    updated_at: string;
-}
-
 export interface PlayerStats {
     totalPlayers: number;
     activePlayers: number;
@@ -315,7 +265,6 @@ export interface LevelAnalytics {
 }
 
 export interface PlatformStats {
-    totalDownloads: number;
     totalSessions: number;
     averageSessionDuration: number;
     mostPlayedLevels: Array<{

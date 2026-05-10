@@ -71,9 +71,9 @@ class AuthController extends Api {
                 return next(this.httpError.unauthorized("Unauthorized"));
             }
 
-            const { username, avatar, currentPassword, newPassword } = req.body;
+            const { username, currentPassword, newPassword } = req.body;
             const { old_user } = req.body;
-            const data = await authService.updateProfile(userId, username, avatar, currentPassword, newPassword, old_user);
+            const data = await authService.updateProfile(userId, username, currentPassword, newPassword, old_user);
             return this.success(res, data, "Profile updated successfully");
         } catch (error) {
             next(error);

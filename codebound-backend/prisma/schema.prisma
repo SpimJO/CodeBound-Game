@@ -18,8 +18,10 @@ model User {
   id         String   @id @default(cuid())
   password   String   // Hashed password
   username   String   @unique // Display name in leaderboard & community
-  avatar     String?  // Optional avatar URL
-  old_user   Int      @default(0) // 0 = new, 1 = completed tutorial
+  old_user     Int      @default(0) // 0 = new, 1 = completed level-1 tutorial
+  theme_one    Int      @default(0) // 0 = need tutorial at level 26, 1 = completed
+  theme_two    Int      @default(0) // 0 = need tutorial at level 51, 1 = completed
+  theme_three  Int      @default(0) // 0 = need tutorial at level 76, 1 = completed
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -47,7 +49,6 @@ model UserProgress {
   currentLevel    Int      @default(1) // Game: Resume level
   highestLevel    Int      @default(1) // Leaderboard: Ranking metric
   totalTokens     Int      @default(0) // Leaderboard: Secondary ranking
-  totalPlayTime   Float    @default(0) // in seconds
   lastPlayed      DateTime @default(now())
   equippedCharacter String @default("default") // Game: Active selected character
   created_at      DateTime @default(now())
@@ -87,10 +88,7 @@ model LevelCompletion {
   levelNumber     Int      // 1-100 (level defined in Unity)
   tokensEarned    Int
   attemptsCount   Int      @default(1)
-  timeSpent       Float    @default(0) // in seconds
-  hintsUsed       Int      @default(0)
   completedAt     DateTime @default(now())
-  isPerfect       Boolean  @default(false) // Completed without hints
 
   // Relations
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -169,42 +167,10 @@ model CommunityComment {
 }
 
 // ============================================
-// ANALYTICS
-// ============================================
-
-// USED IN:
-// - LANDING PAGE: Show "Downloaded X times" stat
-model DownloadCounter {
-  id              String   @id @default(cuid())
-  totalDownloads  Int      @default(0)
-  lastIncrement   DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  @@map("download_counter")
-}
-
-// USED IN:
-// - GAME: Track play sessions (start/end)
-// - NOT shown in landing page (internal analytics)
-model GameSession {
-  id              String   @id @default(cuid())
-  userId          String
-  startedAt       DateTime @default(now())
-  endedAt         DateTime?
-  duration        Float?   // in seconds
-  levelsPlayed    Int      @default(0)
-  tokensEarned    Int      @default(0)
-
-  @@map("game_sessions")
-  @@index([userId])
-  @@index([startedAt])
-}
-
-// ============================================
 // GAME CONTENT (PROBLEMS)
 // ============================================
 // USED IN:
-// - GAME: Fetch question content dynamically per level
+// - GAME: Fetch question content dynamically per level (table may be empty until seeded)
 
 model LevelProblem {
   id              String   @id @default(cuid())

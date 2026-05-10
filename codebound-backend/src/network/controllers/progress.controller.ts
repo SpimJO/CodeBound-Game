@@ -16,18 +16,18 @@ class ProgressController extends Api {
                 return next(this.httpError.unauthorized('Unauthorized'));
             }
 
-            const { levelCompleted, tokensEarned, timeSpent, hintsUsed, isPerfect, hasCodeErrors } = req.body;
+            const { levelCompleted, tokensEarned, hasCodeErrors } = req.body;
 
-            if (!levelCompleted || tokensEarned === undefined || timeSpent === undefined) {
-                return next(this.httpError.badRequest('Missing required fields: levelCompleted, tokensEarned, timeSpent'));
+            if (!levelCompleted || tokensEarned === undefined) {
+                return next(this.httpError.badRequest('Missing required fields: levelCompleted, tokensEarned'));
             }
 
             if (!Number.isInteger(levelCompleted) || levelCompleted < 1) {
                 return next(this.httpError.badRequest('levelCompleted must be an integer >= 1'));
             }
 
-            if (Number(tokensEarned) < 0 || Number(timeSpent) < 0 || Number(hintsUsed || 0) < 0) {
-                return next(this.httpError.badRequest('tokensEarned, timeSpent, and hintsUsed must be >= 0'));
+            if (Number(tokensEarned) < 0) {
+                return next(this.httpError.badRequest('tokensEarned must be >= 0'));
             }
 
             if (Boolean(hasCodeErrors)) {
@@ -37,9 +37,6 @@ class ProgressController extends Api {
             const result = await progressService.updateProgress(userId, {
                 levelCompleted: Number(levelCompleted),
                 tokensEarned: Number(tokensEarned),
-                timeSpent: Number(timeSpent),
-                hintsUsed: Number(hintsUsed || 0),
-                isPerfect: Boolean(isPerfect),
                 hasCodeErrors: Boolean(hasCodeErrors),
             });
 

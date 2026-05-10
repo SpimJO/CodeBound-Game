@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,18 +15,13 @@ import {
     Zap,
     TrendingUp,
     Award,
-    Star,
     CheckCircle2,
     ChevronRight,
-    User,
     PlayCircle,
-    BookOpen,
     Flame,
 } from 'lucide-react';
 
 const Dashboard = () => {
-    const [activeTab, setActiveTab] = useState('overview');
-
     // Fetch data
     const { data: progressData, isLoading: isLoadingProgress } = useProgress();
     const { data: statsData, isLoading: isLoadingStats } = usePlayerStats();
@@ -38,16 +32,6 @@ const Dashboard = () => {
     const stats = statsData || null;
     const levelCompletions = levelCompletionsData || [];
     const playerRank = rankData?.rank || null;
-
-    // Helper functions
-    const formatPlayTime = (seconds: number) => {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        if (hours > 0) {
-            return `${hours}h ${minutes}m`;
-        }
-        return `${minutes}m`;
-    };
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -155,16 +139,16 @@ const Dashboard = () => {
                             <Card className="bg-zinc-900 border-transparent">
                                 <CardHeader className="pb-3">
                                     <div className="flex items-center justify-between">
-                                        <CardTitle className="text-sm font-medium text-zinc-400">Play Time</CardTitle>
+                                        <CardTitle className="text-sm font-medium text-zinc-400">Last active</CardTitle>
                                         <Clock className="w-5 h-5 text-purple-400" />
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-3xl font-bold">
-                                        {formatPlayTime(progress?.totalPlayTime || 0)}
+                                    <div className="text-xl font-bold">
+                                        {progress?.lastPlayed ? formatDate(progress.lastPlayed) : '—'}
                                     </div>
                                     <p className="text-xs text-zinc-500 mt-1">
-                                        Total time played
+                                        Last time you played
                                     </p>
                                     <div className="mt-3 flex items-center gap-2 text-sm text-purple-400">
                                         <Flame className="w-4 h-4" />
@@ -231,28 +215,7 @@ const Dashboard = () => {
 
                                         <Separator className="bg-zinc-800" />
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-1">
-                                                <p className="text-xs text-zinc-500">Avg. Time/Level</p>
-                                                <p className="text-lg font-semibold">
-                                                    {formatPlayTime(stats?.averageTimePerLevel || 0)}
-                                                </p>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-xs text-zinc-500">Avg. Hints Used</p>
-                                                <p className="text-lg font-semibold">{stats?.averageHintsPerLevel?.toFixed(1) || '0.0'}</p>
-                                            </div>
-                                        </div>
-
-                                        <Separator className="bg-zinc-800" />
-
                                         <div className="space-y-2">
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-zinc-400">Fastest Completion</span>
-                                                <span className="font-semibold text-green-400">
-                                                    {formatPlayTime(stats?.fastestCompletion || 0)}
-                                                </span>
-                                            </div>
                                             <div className="flex items-center justify-between text-sm">
                                                 <span className="text-zinc-400">Last Played</span>
                                                 <span className="font-semibold">
@@ -286,21 +249,6 @@ const Dashboard = () => {
                                                 </div>
                                                 <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 border-0">
                                                     {stats?.totalLevelsCompleted || 0}%
-                                                </Badge>
-                                            </div>
-
-                                            <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-800/50">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                                                        <BookOpen className="w-5 h-5 text-purple-400" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-medium">Total Hints Used</p>
-                                                        <p className="text-xs text-zinc-500">Guidance needed</p>
-                                                    </div>
-                                                </div>
-                                                <Badge variant="secondary" className="bg-purple-500/20 text-purple-400 border-0">
-                                                    {stats?.hintsUsed || 0}
                                                 </Badge>
                                             </div>
 
@@ -361,36 +309,20 @@ const Dashboard = () => {
                                                     transition={{ delay: index * 0.05 }}
                                                     className="flex items-center gap-4 p-4 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 transition-colors"
                                                 >
-                                                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${level.isPerfect
-                                                        ? 'bg-gradient-to-br from-yellow-400 to-orange-500'
-                                                        : 'bg-gradient-to-br from-cyan-500 to-blue-600'
-                                                        }`}>
-                                                        {level.isPerfect ? (
-                                                            <Star className="w-6 h-6 text-white" />
-                                                        ) : (
-                                                            <CheckCircle2 className="w-6 h-6 text-white" />
-                                                        )}
+                                                    <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600">
+                                                        <CheckCircle2 className="w-6 h-6 text-white" />
                                                     </div>
                                                     <div className="flex-1">
                                                         <div className="flex items-center gap-2">
                                                             <p className="font-semibold">Level {level.levelNumber}</p>
-                                                            {level.isPerfect && (
-                                                                <Badge className="bg-yellow-500/20 text-yellow-400 border-0">
-                                                                    Perfect
-                                                                </Badge>
-                                                            )}
                                                         </div>
                                                         <div className="flex items-center gap-4 mt-1 text-xs text-zinc-500">
-                                                            <span className="flex items-center gap-1">
-                                                                <Clock className="w-3 h-3" />
-                                                                {formatPlayTime(level.timeSpent)}
-                                                            </span>
                                                             <span className="flex items-center gap-1">
                                                                 <Zap className="w-3 h-3" />
                                                                 +{level.tokensEarned} tokens
                                                             </span>
-                                                            <span>Hints: {level.hintsUsed}</span>
                                                             <span>Attempts: {level.attemptsCount}</span>
+                                                            <span>{formatDate(level.completedAt)}</span>
                                                         </div>
                                                     </div>
                                                     <ChevronRight className="w-5 h-5 text-zinc-600" />
@@ -427,8 +359,8 @@ const Dashboard = () => {
                                                 <p className="text-2xl font-bold mt-1">{stats?.tokensEarned?.toLocaleString() || 0}</p>
                                             </div>
                                             <div className="p-4 rounded-lg bg-zinc-800/50">
-                                                <p className="text-sm text-zinc-500">Total Playtime</p>
-                                                <p className="text-2xl font-bold mt-1">{formatPlayTime(stats?.totalTimePlayed || 0)}</p>
+                                                <p className="text-sm text-zinc-500">Highest Level</p>
+                                                <p className="text-2xl font-bold mt-1">{stats?.highestLevel ?? 1}</p>
                                             </div>
                                             <div className="p-4 rounded-lg bg-zinc-800/50">
                                                 <p className="text-sm text-zinc-500">Achievements</p>
@@ -440,26 +372,20 @@ const Dashboard = () => {
 
                                 <Card className="bg-zinc-900 border-transparent">
                                     <CardHeader>
-                                        <CardTitle>Performance Records</CardTitle>
-                                        <CardDescription>Your best moments</CardDescription>
+                                        <CardTitle>Activity</CardTitle>
+                                        <CardDescription>Recent milestones</CardDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div className="space-y-3">
-                                            <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                                                <span className="text-sm text-zinc-400">Fastest Completion</span>
-                                                <span className="font-bold text-green-400">{formatPlayTime(stats?.fastestCompletion || 0)}</span>
-                                            </div>
-                                            <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                                                <span className="text-sm text-zinc-400">Average Time/Level</span>
-                                                <span className="font-bold text-blue-400">{formatPlayTime(stats?.averageTimePerLevel || 0)}</span>
-                                            </div>
-                                            <div className="flex items-center justify-between p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                                                <span className="text-sm text-zinc-400">Avg. Hints/Level</span>
-                                                <span className="font-bold text-purple-400">{stats?.averageHintsPerLevel?.toFixed(1) || '0.0'}</span>
-                                            </div>
                                             <div className="flex items-center justify-between p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
                                                 <span className="text-sm text-zinc-400">Highest Level</span>
                                                 <span className="font-bold text-orange-400">Level {stats?.highestLevel || 1}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+                                                <span className="text-sm text-zinc-400">Last Played</span>
+                                                <span className="font-bold text-cyan-400">
+                                                    {stats?.lastPlayed ? formatDate(stats.lastPlayed) : '—'}
+                                                </span>
                                             </div>
                                         </div>
                                     </CardContent>

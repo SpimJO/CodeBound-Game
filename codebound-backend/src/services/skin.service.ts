@@ -35,7 +35,6 @@ class SkinService {
                 currentLevel: 1,
                 highestLevel: 1,
                 totalTokens: 0,
-                totalPlayTime: 0,
                 equippedCharacter: 'default',
             },
         });

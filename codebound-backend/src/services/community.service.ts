@@ -26,7 +26,6 @@ class CommunityService {
                     select: {
                         id: true,
                         username: true,
-                        avatar: true,
                     },
                 },
             },
@@ -52,7 +51,6 @@ class CommunityService {
                         select: {
                             id: true,
                             username: true,
-                            avatar: true,
                         },
                     },
                     comments: {
@@ -63,7 +61,6 @@ class CommunityService {
                                 select: {
                                     id: true,
                                     username: true,
-                                    avatar: true,
                                 },
                             },
                         },
@@ -100,7 +97,6 @@ class CommunityService {
                     select: {
                         id: true,
                         username: true,
-                        avatar: true,
                     },
                 },
                 comments: {
@@ -110,7 +106,6 @@ class CommunityService {
                             select: {
                                 id: true,
                                 username: true,
-                                avatar: true,
                             },
                         },
                     },
@@ -158,7 +153,6 @@ class CommunityService {
                     select: {
                         id: true,
                         username: true,
-                        avatar: true,
                     },
                 },
             },
@@ -241,7 +235,6 @@ class CommunityService {
                     select: {
                         id: true,
                         username: true,
-                        avatar: true,
                     },
                 },
             },

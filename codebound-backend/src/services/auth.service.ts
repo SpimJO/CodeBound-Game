@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { userPublicSelect, userWithProgressSelect, type UserData, type UserWithProgress } from '@/lib/userSelect';
 import { HttpError } from '../lib/error';
 import { Bcrypt } from '../lib/bcrypt';
 import { CipherToken } from '../lib/token';
@@ -8,32 +9,14 @@ const httpError = new HttpError();
 const bcrypt = new Bcrypt();
 const cipherToken = new CipherToken(appConfig.ENC_KEY_SECRET, appConfig.CIPHER_KEY_SECRET);
 
-interface UserData {
-    id: string;
-    username: string;
-    avatar: string | null;
-    old_user: number;
-    created_at: Date;
-    updated_at: Date;
-}
-
-interface UserWithProgress extends UserData {
-    progress: {
-        currentLevel: number;
-        highestLevel: number;
-        totalTokens: number;
-        totalPlayTime: number;
-        equippedCharacter: string;
-        lastPlayed: Date | null;
-    } | null;
-}
+export type { UserData, UserWithProgress } from '@/lib/userSelect';
 
 class AuthService {
     /**
      * Authenticate user and generate token
      */
     async login(identifier: string, password: string): Promise<{
-        user: { id: string; username: string; avatar: string | null };
+        user: { id: string; username: string };
         token: string;
     }> {
         if (!identifier || !password) {
@@ -68,7 +51,6 @@ class AuthService {
             user: {
                 id: user.id,
                 username: user.username,
-                avatar: user.avatar,
             },
             token: encryptToken,
         };
@@ -118,7 +100,6 @@ class AuthService {
                     currentLevel: 1,
                     highestLevel: 1,
                     totalTokens: 0,
-                    totalPlayTime: 0,
                     equippedCharacter: "default"
                 }
             });
@@ -157,24 +138,7 @@ class AuthService {
     async validateSession(userId: string): Promise<{ user: UserWithProgress }> {
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: {
-                id: true,
-                username: true,
-                avatar: true,
-                old_user: true,
-                created_at: true,
-                updated_at: true,
-                progress: {
-                    select: {
-                        currentLevel: true,
-                        highestLevel: true,
-                        totalTokens: true,
-                        totalPlayTime: true,
-                        equippedCharacter: true,
-                        lastPlayed: true
-                    }
-                }
-            }
+            select: userWithProgressSelect,
         });
 
         if (!user) {
@@ -185,12 +149,11 @@ class AuthService {
     }
 
     /**
-     * Update user profile (username and/or avatar)
+     * Update user profile (username and/or password)
      */
     async updateProfile(
         userId: string,
         username?: string,
-        avatar?: string,
         currentPassword?: string,
         newPassword?: string,
         old_user?: number
@@ -241,18 +204,10 @@ class AuthService {
             where: { id: userId },
             data: {
                 ...(trimmedUsername && { username: trimmedUsername }),
-                ...(avatar && { avatar }),
                 ...(nextPasswordHash && { password: nextPasswordHash }),
                 ...(old_user !== undefined && { old_user })
             },
-            select: {
-                id: true,
-                username: true,
-                avatar: true,
-                old_user: true,
-                created_at: true,
-                updated_at: true
-            }
+            select: userPublicSelect,
         });
 
         return { user: updatedUser };
@@ -267,14 +222,7 @@ class AuthService {
             data: {
                 old_user: 1,
             },
-            select: {
-                id: true,
-                username: true,
-                avatar: true,
-                old_user: true,
-                created_at: true,
-                updated_at: true
-            }
+            select: userPublicSelect,
         });
 
         return { user: updatedUser };
@@ -293,10 +241,7 @@ class AuthService {
             throw httpError.notFound("User not found");
         }
 
-        await prisma.$transaction(async (tx) => {
-            await tx.gameSession.deleteMany({ where: { userId } });
-            await tx.user.delete({ where: { id: userId } });
-        });
+        await prisma.user.delete({ where: { id: userId } });
     }
 }
 

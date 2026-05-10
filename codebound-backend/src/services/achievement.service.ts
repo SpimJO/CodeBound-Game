@@ -4,9 +4,6 @@ import { HttpError } from '../lib/error';
 interface AchievementData {
     levelCompleted?: number;
     tokensEarned?: number;
-    timeSpent?: number;
-    hintsUsed?: number;
-    isPerfect?: boolean;
 }
 
 interface AchievementDefinition {
@@ -155,15 +152,6 @@ class AchievementService {
             }
         }
 
-        if (data.timeSpent && data.timeSpent < 30) {
-            // No time-based achievements are exposed in the current reward list,
-            // but the hook stays in place for future content.
-        }
-
-        if (data.hintsUsed === 0) {
-            // Reserved for future no-hints achievements.
-        }
-
         for (const definition of ACHIEVEMENTS) {
             if (this.meetsRequirements(definition, {
                 highestLevel: progress.highestLevel,
@@ -239,7 +227,6 @@ class AchievementService {
                 currentLevel: 1,
                 highestLevel: 1,
                 totalTokens: 0,
-                totalPlayTime: 0,
             },
         });
 
@@ -268,7 +255,6 @@ class AchievementService {
                 currentLevel: progressRecord.currentLevel,
                 highestLevel: progressRecord.highestLevel,
                 totalTokens: progressRecord.totalTokens,
-                totalPlayTime: progressRecord.totalPlayTime,
             },
             achievements,
             total: ACHIEVEMENTS.length,
@@ -295,7 +281,6 @@ class AchievementService {
                         currentLevel: 1,
                         highestLevel: 1,
                         totalTokens: 0,
-                        totalPlayTime: 0,
                     },
                 });
             }
@@ -364,9 +349,6 @@ class AchievementService {
 
         await this.checkAndUnlockAchievements(userId, {
             tokensEarned: 0,
-            timeSpent: 0,
-            hintsUsed: 0,
-            isPerfect: false,
         });
 
         return result;
