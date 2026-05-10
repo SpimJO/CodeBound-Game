@@ -5,7 +5,6 @@ import leaderboard from "./routes/leaderboard.route";
 import achievement from "./routes/achievement.route";
 import community from "./routes/community.route";
 import skin from "./routes/skin.route";
-import problem from "./routes/problem.route";
 import { baseRouter } from "@/lib/baseRouter";
 import { Request, Response } from "express";
 
@@ -30,7 +29,6 @@ class AppRouter extends baseRouter {
 
         // Core Game Features
         this.router.use("/progress", progress);
-        this.router.use("/problems", problem);
         this.router.use("/leaderboard", leaderboard);
         this.router.use("/achievements", achievement);
         this.router.use("/characters", skin);

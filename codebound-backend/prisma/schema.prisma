@@ -165,24 +165,3 @@ model CommunityComment {
   @@index([userId])
   @@index([created_at])
 }
-
-// ============================================
-// GAME CONTENT (PROBLEMS)
-// ============================================
-// USED IN:
-// - GAME: Fetch question content dynamically per level (table may be empty until seeded)
-
-model LevelProblem {
-  id              String   @id @default(cuid())
-  levelNumber     Int      @unique // 1-100
-  title           String
-  description     String   @db.Text
-  startingCode    String   @db.Text
-  expectedOutput  String   @db.Text
-  hints           String?  @db.Text // Optional hints, stored as JSON string or text
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  @@map("level_problems")
-  @@index([levelNumber])
-}
